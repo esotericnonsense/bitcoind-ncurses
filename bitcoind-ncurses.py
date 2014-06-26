@@ -60,12 +60,6 @@ def getstr(window, prompt = "> ", end_on_error = False):
     return result
 
 def rpc_loop(ncurses_q, json_q):
-	# edit the below section as required
-	#rpcuser = "bitcoinrpc"
-	#rpcpassword = "7N8vVXEVAwmYuEwaZzjsjaJXN8N62BAQ3LJR3NLGW4vD"
-	#rpcip = "127.0.0.1"
-	#rpcport = "18332"
-
 	config = ConfigParser.ConfigParser()
 	config.read('bitcoind-ncurses.conf')
 	rpcuser = config.get('rpc', 'rpcuser')
@@ -132,8 +126,9 @@ def ncurses_loop():
 	win.nodelay(1)
 	win.keypad(1)
 
-	s = {'txid': "465b8af08124a1d8fffc6d8320de9d5fa4eb25ba7b0b4f3add5e0f8793c8fc10"}
-	json_q.put(s)
+	# random testnet tx
+	#s = {'txid': "465b8af08124a1d8fffc6d8320de9d5fa4eb25ba7b0b4f3add5e0f8793c8fc10"}
+	#json_q.put(s)
 
 	state = {'mode': "default", 'print_index': 0}
 
@@ -230,19 +225,22 @@ def ncurses_loop():
 	
 		# draw to screen, transaction view
 		elif state['mode'] == "transaction":
-			win.addstr(0, 1, "bitcoind-ncurses - transaction view", curses.color_pair(1) + curses.A_BOLD)
 		 	if 'tx' in state:
 				i = 0
 				index = state['print_index']
 				offset = 2
 				win.clear()
+				win.addstr(0, 1, "bitcoind-ncurses - transaction view", curses.color_pair(1) + curses.A_BOLD)
 				while i+index < len(state['tx']['string']):
 					if (i) < (win.getmaxyx()[0] - 1 - offset):
 						win.addstr(i+offset, 1, state['tx']['string'][i+index])
 					elif (i) == (win.getmaxyx()[0] - 1 - offset):
 						win.addstr(i+offset, 1, "use cursor keys to scroll", curses.A_BOLD + curses.A_REVERSE)
 					i += 1
-		
+			else:
+				win.addstr(0, 1, "no transaction loaded", curses.A_BOLD)
+				win.addstr(1, 1, "press 'g' to enter a txid, or 'd' to return to main window", curses.A_BOLD)
+
 		elif state['mode'] == "transaction-input":
 			win.clear()
 			win.addstr(0, 0, "please type in txid as hex")
@@ -256,12 +254,12 @@ def ncurses_loop():
 			state['mode'] = "transaction"
 
 		elif state['mode'] == "block":
-			win.addstr(0, 1, "bitcoind-ncurses - block view", curses.color_pair(1) + curses.A_BOLD)
 			if 'block' in state:
 				i = 0
 				index = state['print_index']
 				offset = 2
 				win.clear()
+				win.addstr(0, 1, "bitcoind-ncurses - block view", curses.color_pair(1) + curses.A_BOLD)
 				while i+index < len(state['block']['string']):
 					if (i) < (win.getmaxyx()[0] - 1 - offset):
 						win.addstr(i+offset, 1, state['block']['string'][i+index])
