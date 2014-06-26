@@ -1,0 +1,4 @@
+# ignore configuration file
+bitcoind-ncurses.conf
+# ignore dependencies
+bitcoinrpc/*
