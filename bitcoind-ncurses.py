@@ -75,7 +75,7 @@ def rpc_loop(ncurses_q, json_q):
 	while 1:
 		try: s = json_q.get(False)
 		except: s = {}
-		
+
 		if 'blockheight' in s:
 			blockhash = rpchandle.getblockhash(s['blockheight'])
 			blockinfo = rpchandle.getblock(blockhash)
@@ -86,13 +86,13 @@ def rpc_loop(ncurses_q, json_q):
 			decoded_tx = rpchandle.decoderawtransaction(raw_tx)
 			ncurses_q.put(decoded_tx)
 
-		if (time.time() - last_update) > 2: 
+		if (time.time() - last_update) > 2:
 			info = rpchandle.getinfo()
 			ncurses_q.put(info)
-		
+
 			nettotals = rpchandle.getnettotals()
 			ncurses_q.put(nettotals)
-	
+
 			walletinfo = rpchandle.getwalletinfo()
 			ncurses_q.put(walletinfo)
 
@@ -101,12 +101,12 @@ def rpc_loop(ncurses_q, json_q):
 				#if (last_blockcount == 0):
 				lastblocktime = {'lastblocktime': time.time()}
 				ncurses_q.put(lastblocktime)
-				
+
 				blockhash = rpchandle.getblockhash(cur_blockcount)
 				blockinfo = rpchandle.getblock(blockhash)
 				ncurses_q.put(blockinfo)
 				last_blockcount = cur_blockcount
-			
+
 			last_update = time.time()
 
 		time.sleep(0.5)		# minimise RPC calls
@@ -116,13 +116,13 @@ def ncurses_loop():
 	curses.noecho()
 	curses.cbreak()
 	curses.curs_set(0)
-	
+
 	curses.start_color()
 	curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
 	curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
 	curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
-	
-	win = curses.initscr() 
+
+	win = curses.initscr()
 	win.nodelay(1)
 	win.keypad(1)
 
@@ -133,7 +133,7 @@ def ncurses_loop():
 	state = {'mode': "default", 'print_index': 0}
 
 	while 1:
-		# die if window too small			
+		# die if window too small
 		if (win.getmaxyx()[0] < 10) or (win.getmaxyx()[1] < 75):
 			curses.nocbreak()
 			curses.endwin()
@@ -161,11 +161,11 @@ def ncurses_loop():
 			state['size'] = s['size']
 			state['time'] = s['time']
 
-			state['block'] = { 'string': [], 'vin': {} } 
+			state['block'] = { 'string': [], 'vin': {} }
 			if len(s['hash']) == 64: state['block']['string'].append("block " + state['hash'])
-			state['block']['string'].append("height " + str(state['height']) + " size " + str(state['size']))			
+			state['block']['string'].append("height " + str(state['height']) + " size " + str(state['size']))
 
-			state['block']['string'].append("transactions")			
+			state['block']['string'].append("transactions")
 			state['block']['string'].extend(s['tx'])
 
 		elif 'totalbytesrecv' in s:
@@ -174,19 +174,19 @@ def ncurses_loop():
 		elif 'lastblocktime' in s:
 			state['lastblocktime'] = s['lastblocktime']
 		elif 'txid' in s:
-			state['tx'] = { 'string': [], 'vin': {} } 
+			state['tx'] = { 'string': [], 'vin': {} }
 			if len(s['txid']) == 64: state['tx']['string'].append("txid " + s['txid'])
-			state['tx']['string'].append("")			
+			state['tx']['string'].append("")
 
-			state['tx']['string'].append("inputs")			
+			state['tx']['string'].append("inputs")
 			for vin in s['vin']:
 				if 'coinbase' in vin: state['tx']['string'].append("coinbase: " + vin['coinbase'])
 				elif 'txid' in vin:
 					state['tx']['string'].append(vin['txid'] + ":" + "%03u" % vin['vout'])
 					state['tx']['vin'][vin['txid']] = vin['vout']
-			state['tx']['string'].append("")			
+			state['tx']['string'].append("")
 
-			state['tx']['string'].append("outputs")			
+			state['tx']['string'].append("outputs")
 			for vout in s['vout']:
 				if 'value' in vout:
 					buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
@@ -220,9 +220,9 @@ def ncurses_loop():
 					else: win.addstr(6, 38, "Received " + str(lastblocksecs) + "s ago           ")
 					if (since_last_block_timestamp > 3600*3):	# assume over 3 hours is syncing
 						win.addstr(6, 64, "(syncing)", curses.color_pair(3))
-		
+
 			win.addstr(5, 38, "Now (UTC): " + time.asctime(time.gmtime(time.time())))
-	
+
 		# draw to screen, transaction view
 		elif state['mode'] == "transaction":
 		 	if 'tx' in state:
@@ -302,7 +302,7 @@ def ncurses_loop():
 		# delay to avoid excessive CPU usage; todo: base updates on interrupts to avoid needless polling
 		time.sleep(0.1)
 
-	# loop was broken, safely quit ncurses	
+	# loop was broken, safely quit ncurses
 	curses.nocbreak()
 	curses.endwin()
 	sys.exit(1) # this appears to abruptly kill the RPC thread
