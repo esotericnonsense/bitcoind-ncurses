@@ -1,15 +1,18 @@
 # bitcoind-ncurses
-
 ncurses front-end for bitcoind
 
 produced by Amphibian (azeteki, atelopus_zeteki)
 
 ## dependencies
-* python 2.something
+* tested with python 2.7.3, bitcoind 0.9.2.0
 * jgarzik's bitcoinrpc library (https://github.com/jgarzik/python-bitcoinrpc)
 
+## features
+* updating ticker showing bitcoind's status (via RPC)
+* facility to view transactions in current block and trace back through their inputs (with -txindex)
+
 ## usage
-pretty bare bones for now.
+pretty bare bones for now; expect breakage. this will improve over time.
 
 rename example.conf to bitcoind-ncurses.conf and enter your details.
 
@@ -19,23 +22,15 @@ this will be improved in a later release.
  
 ## launch
 $ python bitcoind-ncurses.py
-
-## hotkeys
-* t: enter transaction view mode
-* b: enter block view mode
-* d: enter default / stat tracking mode
-* up/down arrows: scroll within view modes
-* g: enter a txid for viewing
-* q: quit bitcoind-ncurses
+$ python bitcoind-ncurses.py -c some_other_config_file.conf
 
 ## todo
 * improve CPU efficiency; change polling method to use interrupts more
-* add in feature to trace back through a transaction tree
-* wallet and transaction creation support?
+* fix tx tree and block tree for high inputs/outputs (scrolling is not implemented)
+* wallet and transaction creation support (perhaps in the year 2140)
 * bounds checking and so on (paramount for above)
 
 ## frog food
-
 found bitcoind-ncurses useful? donations are your way of showing that!
 
 my main machine is currently a 6 year old Atom laptop. upgrading that would be rather useful. cheers!

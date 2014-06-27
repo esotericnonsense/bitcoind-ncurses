@@ -17,7 +17,7 @@ def getstr(window, prompt = "> ", end_on_error = False):
     starty, startx = window.getyx()
     window.move(starty, 0)
     window.deleteln()
-    window.addstr(prompt)
+    window.addstr(prompt, curses.A_BOLD)
     window.refresh()
     window.keypad(True)
 
@@ -97,7 +97,6 @@ def rpc_loop(ncurses_q, json_q, config):
 
             cur_blockcount = info['blocks']
             if (cur_blockcount != last_blockcount):        # minimise RPC calls
-                #if (last_blockcount == 0):
                 lastblocktime = {'lastblocktime': time.time()}
                 ncurses_q.put(lastblocktime)
 
@@ -127,21 +126,24 @@ def ncurses_loop():
 
     # random testnet tx
     #s = {'txid': "465b8af08124a1d8fffc6d8320de9d5fa4eb25ba7b0b4f3add5e0f8793c8fc10"}
+    # coinbase testnet tx
+    #s = {'txid': "cfb8bc436ca1d8b8b2d324a9cb2ef097281d2d8b54ba4239ce447b31b8757df2"}
     #json_q.put(s)
 
-    state = {'mode': "default", 'print_index': 0}
+    state = { 'mode': "default" }
 
     while 1:
         # die if window too small
-        if (win.getmaxyx()[0] < 10) or (win.getmaxyx()[1] < 75):
+        if (win.getmaxyx()[0] < 20) or (win.getmaxyx()[1] < 75):
             curses.nocbreak()
             curses.endwin()
-            sys.stderr.write('Screen size is too small (must be at least 75x10)\n')
+            sys.stderr.write('Screen size is too small (must be at least 75x20)\n')
             sys.exit(1)
 
         # process queue
         try: s = ncurses_q.get(False)
         except: s = {}
+
         if 'connections' in s:
             state['version'] = str(s['version'] / 1000000)
             state['version'] += '.' + str((s['version'] % 1000000) / 10000)
@@ -152,64 +154,71 @@ def ncurses_loop():
             else:
                 state['testnet'] = 0
             state['peers'] = s['connections']
+
         elif 'balance' in s:
             state['balance'] = s['balance']
+
         elif 'size' in s:
             state['height'] = s['height']
             state['hash'] = s['hash']
             state['size'] = s['size']
             state['time'] = s['time']
 
-            state['block'] = { 'string': [], 'vin': {} }
-            if len(s['hash']) == 64: state['block']['string'].append("block " + state['hash'])
-            state['block']['string'].append("height " + str(state['height']) + " size " + str(state['size']))
-
-            state['block']['string'].append("transactions")
-            state['block']['string'].extend(s['tx'])
+            state['block'] = { # this looks rather silly, and that's because it is; fix later
+                'height': s['height'],
+                'hash': s['hash'],
+                'size': s['size'],
+                'time': s['time'],
+                'tx': s['tx'],
+                'cursor': 0
+            }
 
         elif 'totalbytesrecv' in s:
             state['totalbytesrecv'] = s['totalbytesrecv']
             state['totalbytessent'] = s['totalbytessent']
+
         elif 'lastblocktime' in s:
             state['lastblocktime'] = s['lastblocktime']
+
         elif 'txid' in s:
-            state['tx'] = { 'string': [], 'vin': {} }
-            if len(s['txid']) == 64: state['tx']['string'].append("txid " + s['txid'])
-            state['tx']['string'].append("")
+            state['tx'] = { 'txid': s['txid'], 'vin': [], 'vout_string': [], 'cursor': 0 }
 
-            state['tx']['string'].append("inputs")
             for vin in s['vin']:
-                if 'coinbase' in vin: state['tx']['string'].append("coinbase: " + vin['coinbase'])
+                if 'coinbase' in vin:
+                    state['tx']['vin'].append({'coinbase':  vin['coinbase']})
                 elif 'txid' in vin:
-                    state['tx']['string'].append(vin['txid'] + ":" + "%03u" % vin['vout'])
-                    state['tx']['vin'][vin['txid']] = vin['vout']
-            state['tx']['string'].append("")
+                    state['tx']['vin'].append({'txid': vin['txid'], 'vout': vin['vout']})
 
-            state['tx']['string'].append("outputs")
             for vout in s['vout']:
                 if 'value' in vout:
                     buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
-                    state['tx']['string'].extend(textwrap.wrap(buffer_string,74)) # change this to scale with window ?
+                    state['tx']['vout_string'].extend(textwrap.wrap(buffer_string,74)) # change this to scale with window ?
 
         # draw to screen, default mode
         if state['mode'] == "default":
-            win.addstr(0, 1, "bitcoind-ncurses v0.0.2", curses.color_pair(1) + curses.A_BOLD)
+            win.addstr(0, 1, "bitcoind-ncurses v0.0.3", curses.color_pair(1) + curses.A_BOLD)
+
             if 'version' in state:
                 if state['testnet'] == 1:
                     win.addstr(1, 1, "bitcoind v" + state['version'] + " (testnet)", curses.color_pair(2) + curses.A_BOLD)
                 else:
                     win.addstr(1, 1, "bitcoind v" + state['version'] + " ", curses.color_pair(1) + curses.A_BOLD)
+
             if 'peers' in state:
                 win.addstr(0, 32, str(state['peers']) + " peers    ", curses.A_BOLD)
+
             if 'balance' in state:
                 win.addstr(1, 32, "%0.8f" % state['balance'] + " BTC", curses.A_BOLD)
+
             if 'height' in state:
                 win.addstr(3, 1, str(state['height']).zfill(6) + ": " + str(state['hash']))
                 win.addstr(4, 1, str(state['size']) + " bytes (" + str(state['size']/1024) + " KB)       ")
                 win.addstr(4, 38, "Timestamp: " + time.asctime(time.gmtime(state['time'])))
+
             if 'totalbytesrecv' in state:
                 win.addstr(0, 57, "D: " + "% 10.2f" % (state['totalbytesrecv']*1.0/1048576) + " MB", curses.A_BOLD)
                 win.addstr(1, 57, "U: " + "% 10.2f" % (state['totalbytessent']*1.0/1048576) + " MB", curses.A_BOLD)
+
             if 'lastblocktime' in state: # time ncurses noticed the block, not timestamp
                 if 'time' in state:
                     since_last_block_timestamp = time.time() - state['time']
@@ -221,30 +230,41 @@ def ncurses_loop():
                         win.addstr(6, 64, "(syncing)", curses.color_pair(3))
 
             win.addstr(5, 38, "Now (UTC): " + time.asctime(time.gmtime(time.time())))
+            win.addstr(8, 1, "Hotkeys: t (transaction viewer), b (block viewer), d (this screen)", curses.A_BOLD)
+            win.addstr(9, 1, "         q (exit bitcoind-ncurses), g (manually enter txid)", curses.A_BOLD)
 
         # draw to screen, transaction view
         elif state['mode'] == "transaction":
+            win.clear()
             if 'tx' in state:
-                i = 0
-                index = state['print_index']
-                offset = 2
-                win.clear()
-                win.addstr(0, 1, "bitcoind-ncurses - transaction view", curses.color_pair(1) + curses.A_BOLD)
-                while i+index < len(state['tx']['string']):
-                    if (i) < (win.getmaxyx()[0] - 1 - offset):
-                        win.addstr(i+offset, 1, state['tx']['string'][i+index])
-                    elif (i) == (win.getmaxyx()[0] - 1 - offset):
-                        win.addstr(i+offset, 1, "use cursor keys to scroll", curses.A_BOLD + curses.A_REVERSE)
-                    i += 1
+                win.addstr(0, 1, "bitcoind-ncurses - transaction view (press 'g' to enter a txid)", curses.color_pair(1) + curses.A_BOLD)
+                win.addstr(1, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
+
+                win.addstr(3, 1, "inputs (UP/DOWN: select, RIGHT: view)", curses.A_BOLD)
+                for i in xrange(0, 7):
+                    if i < len(state['tx']['vin']):
+                        if 'txid' in state['tx']['vin'][i]:
+                            if i == state['tx']['cursor']:
+                                win.addstr(i+4, 1, ">", curses.A_REVERSE + curses.A_BOLD)
+                            win.addstr(i+4, 3, state['tx']['vin'][i]['txid'] + ":" + "%03d" % state['tx']['vin'][i]['vout'])
+                        elif 'coinbase' in state['tx']['vin'][i]:
+                            win.addstr(i+4, 3, "coinbase " + state['tx']['vin'][i]['coinbase'])
+
+                win.addstr(12, 1, "outputs (not scrollable yet)", curses.A_BOLD)
+                for i in xrange(0, 7):
+                    if i < len(state['tx']['vout_string']):
+                        win.addstr(i+13, 1, state['tx']['vout_string'][i])
+
             else:
                 win.addstr(0, 1, "no transaction loaded", curses.A_BOLD)
                 win.addstr(1, 1, "press 'g' to enter a txid, or 'd' to return to main window", curses.A_BOLD)
 
         elif state['mode'] == "transaction-input":
             win.clear()
-            win.addstr(0, 0, "please type in txid as hex")
+            win.addstr(0, 1, "bitcoind-ncurses - transaction input", curses.color_pair(1) + curses.A_BOLD)
+            win.addstr(1, 1, "please type in txid as hex", curses.A_BOLD)
             win.refresh()
-            textbox = curses.newwin(1,70,1,0) # h,w,y,x
+            textbox = curses.newwin(1,67,3,1) # h,w,y,x
             some_input = getstr(textbox)
             if len(some_input) == 64:
                 s = {'txid': some_input}
@@ -254,18 +274,16 @@ def ncurses_loop():
 
         elif state['mode'] == "block":
             if 'block' in state:
-                i = 0
-                index = state['print_index']
-                offset = 2
                 win.clear()
                 win.addstr(0, 1, "bitcoind-ncurses - block view", curses.color_pair(1) + curses.A_BOLD)
-                while i+index < len(state['block']['string']):
-                    if (i) < (win.getmaxyx()[0] - 1 - offset):
-                        win.addstr(i+offset, 1, state['block']['string'][i+index])
-                    elif (i) == (win.getmaxyx()[0] - 1 - offset):
-                        win.addstr(i+offset, 1, "use cursor keys to scroll", curses.A_BOLD + curses.A_REVERSE)
-                    i += 1
+                win.addstr(1, 1, "hash: " + state['block']['hash'], curses.A_BOLD)
 
+                win.addstr(3, 1, "transactions (UP/DOWN: scroll, RIGHT: view)", curses.A_BOLD)
+                for i in xrange(0, 16):
+                    if i < len(state['block']['tx']):
+                        if i == state['block']['cursor']:
+                            win.addstr(i+4, 1, ">", curses.A_REVERSE + curses.A_BOLD)
+                        win.addstr(i+4, 3, state['block']['tx'][i])
 
         win.refresh()
 
@@ -273,30 +291,56 @@ def ncurses_loop():
         c = win.getch()
         if c == ord('q'):
             break
+
         if c == ord('d'):
             win.clear()
             state['mode'] = "default"
+
         if c == ord('t'):
             win.clear()
             state['mode'] = "transaction"
+
         if c == ord('g'):
             state['mode'] = "transaction-input"
+
         if c == ord('b'):
             win.clear()
             state['mode'] = "block"
+
         if c == curses.KEY_DOWN:
             if state['mode'] == "transaction":
-                if (state['print_index'] + win.getmaxyx()[0] - 3) < len(state['tx']['string']):
-                    state['print_index'] += 1
+                if 'tx' in state:
+                    if state['tx']['cursor'] < (len(state['tx']['vin']) - 1):
+                        state['tx']['cursor'] += 1
+
             elif state['mode'] == "block":
-                if (state['print_index'] + win.getmaxyx()[0] - 3) < len(state['block']['string']):
-                    state['print_index'] += 1
+                if 'block' in state:
+                    if state['block']['cursor'] < (len(state['block']['tx']) - 1):
+                        state['block']['cursor'] += 1
 
         if c == curses.KEY_UP:
             if state['mode'] == "transaction":
-                if state['print_index'] > 0: state['print_index'] -= 1
+                if 'tx' in state:
+                    if state['tx']['cursor'] > 0:
+                        state['tx']['cursor'] -= 1
+
             elif state['mode'] == "block":
-                if state['print_index'] > 0: state['print_index'] -= 1
+                if 'block' in state:
+                    if state['block']['cursor'] > 0:
+                        state['block']['cursor'] -= 1
+
+        if c == curses.KEY_RIGHT:
+            if state['mode'] == "transaction":
+                if 'tx' in state:
+                    if 'txid' in state['tx']['vin'][ state['tx']['cursor'] ]: 
+                        s = {'txid': state['tx']['vin'][ state['tx']['cursor'] ]['txid']}
+                        json_q.put(s)
+
+            if state['mode'] == "block":
+                if 'block' in state:
+                    s = {'txid': state['block']['tx'][ state['block']['cursor'] ]}
+                    json_q.put(s)
+                    state['mode'] = "transaction"
 
         # delay to avoid excessive CPU usage; todo: base updates on interrupts to avoid needless polling
         time.sleep(0.1)
