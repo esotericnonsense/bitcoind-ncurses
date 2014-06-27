@@ -1,4 +1,6 @@
-# ignore configuration file
-bitcoind-ncurses.conf
+# ignore configuration files
+*.conf
+# include example.conf
+!example.conf
 # ignore dependencies
 bitcoinrpc/*
