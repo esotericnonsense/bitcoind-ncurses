@@ -7,6 +7,7 @@
 ##
 from bitcoinrpc.authproxy import AuthServiceProxy
 import curses, time, sys, threading, Queue, json, textwrap, ConfigParser
+import argparse
 
 # attrib: user1476056
 # https://stackoverflow.com/questions/11303986/addstr-causes-getstr-to-return-on-signal
@@ -59,9 +60,7 @@ def getstr(window, prompt = "> ", end_on_error = False):
     window.keypad(False)
     return result
 
-def rpc_loop(ncurses_q, json_q):
-    config = ConfigParser.ConfigParser()
-    config.read('bitcoind-ncurses.conf')
+def rpc_loop(ncurses_q, json_q, config):
     rpcuser = config.get('rpc', 'rpcuser')
     rpcpassword = config.get('rpc', 'rpcpassword')
     rpcip = config.get('rpc', 'rpcip')
@@ -307,11 +306,23 @@ def ncurses_loop():
     curses.endwin()
     sys.exit(1) # this appears to abruptly kill the RPC thread
 
-ncurses_q = Queue.Queue()
-json_q = Queue.Queue()
 
-thread1 = threading.Thread(target=rpc_loop, args = (ncurses_q, json_q))
-thread1.daemon = True
-thread1.start()
+if __name__ == '__main__':
 
-ncurses_loop()
+    ncurses_q = Queue.Queue()
+    json_q = Queue.Queue()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--config",
+                        help="path to config file [bitcoind-ncurses.conf]",
+                        default="bitcoind-ncurses.conf")
+    args = parser.parse_args()
+
+    config = ConfigParser.ConfigParser()
+    config.read(args.config)
+
+    thread1 = threading.Thread(target=rpc_loop, args = (ncurses_q, json_q, config))
+    thread1.daemon = True
+    thread1.start()
+
+    ncurses_loop()
