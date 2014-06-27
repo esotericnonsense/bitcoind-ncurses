@@ -21,8 +21,10 @@ the program will die hard if the config file is incorrect or it fails to connect
 this will be improved in a later release.
  
 ## launch
+```
 $ python bitcoind-ncurses.py
 $ python bitcoind-ncurses.py -c some_other_config_file.conf
+```
 
 ## todo
 * improve CPU efficiency; change polling method to use interrupts more
