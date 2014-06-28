@@ -148,10 +148,16 @@ def draw_transaction_inputs(state):
 
 def draw_transaction_outputs(state):
     win_outputs = curses.newwin(8, 75, 12, 0)
-    win_outputs.addstr(0, 1, "outputs (not scrollable yet)", curses.A_BOLD)
-    for i in xrange(0, 7):
-        if i < len(state['tx']['vout_string']):
-            win_outputs.addstr(i+1, 1, state['tx']['vout_string'][i])
+    if len(state['tx']['vout_string']) > 7:
+        win_outputs.addstr(0, 1, "outputs (PGUP/PGDOWN: scroll)", curses.A_BOLD)
+    else:
+        win_outputs.addstr(0, 1, "outputs", curses.A_BOLD)
+
+    offset = state['tx']['out_offset']
+
+    for index in xrange(offset, offset+7):
+        if index < len(state['tx']['vout_string']):
+            win_outputs.addstr(index+1-offset, 1, state['tx']['vout_string'][index])
     win_outputs.refresh()
 
 def input_loop(state, win, c):
@@ -209,6 +215,20 @@ def input_loop(state, win, c):
                         state['block']['offset'] -= 1
                     state['block']['cursor'] -= 1
                     draw_block_transactions(state)
+
+    if c == curses.KEY_PPAGE:
+        if state['mode'] == "transaction":
+            if 'tx' in state:
+                if state['tx']['out_offset'] > 1:
+                    state['tx']['out_offset'] -= 2
+                    draw_transaction_outputs(state)
+
+    if c == curses.KEY_NPAGE:
+        if state['mode'] == "transaction":
+            if 'tx' in state:
+                if state['tx']['out_offset'] < (len(state['tx']['vout_string']) - 7):
+                    state['tx']['out_offset'] += 2
+                    draw_transaction_outputs(state)
 
     if c == curses.KEY_RIGHT:
         # TODO: some sort of indicator that a transaction is loading
@@ -291,11 +311,9 @@ def ncurses_loop():
     win.nodelay(1) # TODO: remove once fully interrupt based
     win.keypad(1) # interpret arrow keys, etc
 
-    # random testnet transaction for debugging
-    # s = {'txid': "465b8af08124a1d8fffc6d8320de9d5fa4eb25ba7b0b4f3add5e0f8793c8fc10"}
     # coinbase testnet transaction for debugging
     # s = {'txid': "cfb8bc436ca1d8b8b2d324a9cb2ef097281d2d8b54ba4239ce447b31b8757df2"}
-    # tx with 7 inputs, 1000 outputs 
+    # tx with 1001 inputs, 1002 outputs 
     # s = {'txid': 'e1dc93e7d1ee2a6a13a9d54183f91a5ae944297724bee53db00a0661badc3005'}
     # json_q.put(s)
 
@@ -355,7 +373,14 @@ def ncurses_loop():
             state['lastblocktime'] = s['lastblocktime']
 
         elif 'txid' in s:
-            state['tx'] = { 'txid': s['txid'], 'vin': [], 'vout_string': [], 'cursor': 0, 'offset': 0 }
+            state['tx'] = {
+                'txid': s['txid'],
+                'vin': [],
+                'vout_string': [],
+                'cursor': 0,
+                'offset': 0,
+                'out_offset': 0
+            }
 
             for vin in s['vin']:
                 if 'coinbase' in vin:
