@@ -295,7 +295,8 @@ def rpc_loop(ncurses_q, json_q, config):
                 last_blockcount = cur_blockcount
 
             last_update = time.time()
-            time.sleep(0.5) # minimise RPC calls
+
+        time.sleep(0.1) # minimise RPC calls
 
 def ncurses_loop():
     win = curses.initscr()
