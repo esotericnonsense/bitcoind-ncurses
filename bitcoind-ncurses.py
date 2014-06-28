@@ -358,7 +358,7 @@ def ncurses_loop():
 
         # draw to screen, default mode
         if state['mode'] == "default":
-            win.addstr(0, 1, "bitcoind-ncurses v0.0.3", curses.color_pair(1) + curses.A_BOLD)
+            win.addstr(0, 1, "bitcoind-ncurses v0.0.4", curses.color_pair(1) + curses.A_BOLD)
 
             if 'version' in state:
                 if state['testnet'] == 1:
