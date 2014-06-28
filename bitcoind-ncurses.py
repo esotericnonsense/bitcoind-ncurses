@@ -80,11 +80,13 @@ def draw_block_transactions(state):
     win_transactions = curses.newwin(17, 75, 3, 0)
     win_transactions.addstr(0, 1, "transactions (UP/DOWN: scroll, RIGHT: view)", curses.A_BOLD)
 
-    for i in xrange(0, 16):
-        if i < len(state['block']['tx']):
-            if i == state['block']['cursor']:
-                win_transactions.addstr(i+1, 1, ">", curses.A_REVERSE + curses.A_BOLD)
-            win_transactions.addstr(i+1, 3, state['block']['tx'][i])
+    offset = state['block']['offset']
+
+    for index in xrange(offset, offset+16):
+        if index < len(state['block']['tx']):
+            if index == state['block']['cursor']:
+                win_transactions.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
+            win_transactions.addstr(index+1-offset, 3, state['block']['tx'][index])
 
     win_transactions.refresh()
 
@@ -131,14 +133,16 @@ def draw_transaction_inputs(state):
     win_inputs = curses.newwin(8, 75, 3, 0)
     win_inputs.addstr(0, 1, "inputs (UP/DOWN: select, RIGHT: view)", curses.A_BOLD)
 
-    for i in xrange(0, 7):
-        if i < len(state['tx']['vin']):
-            if 'txid' in state['tx']['vin'][i]:
-                if i == state['tx']['cursor']:
-                    win_inputs.addstr(i+1, 1, ">", curses.A_REVERSE + curses.A_BOLD)
-                win_inputs.addstr(i+1, 3, state['tx']['vin'][i]['txid'] + ":" + "%03d" % state['tx']['vin'][i]['vout'])
-            elif 'coinbase' in state['tx']['vin'][i]:
-                win_inputs.addstr(i+1, 3, "coinbase " + state['tx']['vin'][i]['coinbase'])
+    offset = state['tx']['offset']
+
+    for index in xrange(offset, offset+7):
+        if index < len(state['tx']['vin']):
+            if 'txid' in state['tx']['vin'][index]:
+                if index == (state['tx']['cursor']):
+                    win_inputs.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
+                win_inputs.addstr(index+1-offset, 3, state['tx']['vin'][index]['txid'] + ":" + "%03d" % state['tx']['vin'][index]['vout'])
+            elif 'coinbase' in state['tx']['vin'][index]:
+                win_inputs.addstr(index+1-offset, 3, "coinbase " + state['tx']['vin'][index]['coinbase'])
 
     win_inputs.refresh()
 
@@ -177,24 +181,32 @@ def input_loop(state, win, c):
             if 'tx' in state:
                 if state['tx']['cursor'] < (len(state['tx']['vin']) - 1):
                     state['tx']['cursor'] += 1
+                    if (state['tx']['cursor'] - state['tx']['offset']) > 6:
+                        state['tx']['offset'] += 1
                     draw_transaction_inputs(state)
 
         elif state['mode'] == "block":
             if 'block' in state:
                 if state['block']['cursor'] < (len(state['block']['tx']) - 1):
                     state['block']['cursor'] += 1
+                    if (state['block']['cursor'] - state['block']['offset']) > 15:
+                        state['block']['offset'] += 1
                     draw_block_transactions(state)
 
     if c == curses.KEY_UP:
         if state['mode'] == "transaction":
             if 'tx' in state:
                 if state['tx']['cursor'] > 0:
+                    if (state['tx']['cursor'] - state['tx']['offset']) == 0:
+                        state['tx']['offset'] -= 1
                     state['tx']['cursor'] -= 1
                     draw_transaction_inputs(state)
 
         elif state['mode'] == "block":
             if 'block' in state:
                 if state['block']['cursor'] > 0:
+                    if (state['block']['cursor'] - state['block']['offset']) == 0:
+                        state['block']['offset'] -= 1
                     state['block']['cursor'] -= 1
                     draw_block_transactions(state)
 
@@ -283,6 +295,8 @@ def ncurses_loop():
     # s = {'txid': "465b8af08124a1d8fffc6d8320de9d5fa4eb25ba7b0b4f3add5e0f8793c8fc10"}
     # coinbase testnet transaction for debugging
     # s = {'txid': "cfb8bc436ca1d8b8b2d324a9cb2ef097281d2d8b54ba4239ce447b31b8757df2"}
+    # tx with 7 inputs, 1000 outputs 
+    # s = {'txid': 'e1dc93e7d1ee2a6a13a9d54183f91a5ae944297724bee53db00a0661badc3005'}
     # json_q.put(s)
 
     state = { 'mode': "default" }
@@ -326,7 +340,8 @@ def ncurses_loop():
                 'size': s['size'],
                 'time': s['time'],
                 'tx': s['tx'],
-                'cursor': 0
+                'cursor': 0,
+                'offset': 0
             }
 
             if state['mode'] == "block":
@@ -340,7 +355,7 @@ def ncurses_loop():
             state['lastblocktime'] = s['lastblocktime']
 
         elif 'txid' in s:
-            state['tx'] = { 'txid': s['txid'], 'vin': [], 'vout_string': [], 'cursor': 0 }
+            state['tx'] = { 'txid': s['txid'], 'vin': [], 'vout_string': [], 'cursor': 0, 'offset': 0 }
 
             for vin in s['vin']:
                 if 'coinbase' in vin:
