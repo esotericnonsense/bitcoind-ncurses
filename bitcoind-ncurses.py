@@ -117,7 +117,7 @@ def draw_transaction_input_window(state, window):
     entered_txid = getstr(win_textbox)
     if len(entered_txid) == 64: # TODO: better checking for valid txid here
         s = {'txid': entered_txid}
-        json_q.put(s)
+        rpc_queue.put(s)
         window.addstr(5, 1, "waiting for transaction (will stall here if not found)", curses.color_pair(1) + curses.A_BOLD)
         state['mode'] = "transaction"
         window.refresh()
@@ -160,13 +160,56 @@ def draw_transaction_outputs(state):
             win_outputs.addstr(index+1-offset, 1, state['tx']['vout_string'][index])
     win_outputs.refresh()
 
-def input_loop(state, win, c):
+def draw_main_window(state, window):
+    window.clear()
+    window.addstr(0, 1, "bitcoind-ncurses v0.0.4", curses.color_pair(1) + curses.A_BOLD)
+
+    if 'version' in state:
+        if state['testnet'] == 1:
+            window.addstr(1, 1, "bitcoind v" + state['version'] + " (testnet)", curses.color_pair(2) + curses.A_BOLD)
+        else:
+            window.addstr(1, 1, "bitcoind v" + state['version'] + " ", curses.color_pair(1) + curses.A_BOLD)
+
+    if 'peers' in state:
+        window.addstr(0, 32, str(state['peers']) + " peers    ", curses.A_BOLD)
+
+    if 'balance' in state:
+        window.addstr(1, 32, "%0.8f" % state['balance'] + " BTC", curses.A_BOLD)
+
+    if 'height' in state:
+        window.addstr(3, 1, str(state['height']).zfill(6) + ": " + str(state['hash']))
+        window.addstr(4, 1, str(state['size']) + " bytes (" + str(state['size']/1024) + " KB)       ")
+        window.addstr(4, 38, "Timestamp: " + time.asctime(time.gmtime(state['time'])))
+
+    if 'totalbytesrecv' in state:
+        window.addstr(0, 57, "D: " + "% 10.2f" % (state['totalbytesrecv']*1.0/1048576) + " MB", curses.A_BOLD)
+        window.addstr(1, 57, "U: " + "% 10.2f" % (state['totalbytessent']*1.0/1048576) + " MB", curses.A_BOLD)
+
+    if 'lastblocktime' in state: # time ncurses noticed the block, not timestamp
+        if 'time' in state:
+            since_last_block_timestamp = time.time() - state['time']
+            lastblockmins = int((time.time() - state['lastblocktime']) / 60)
+            lastblocksecs = int((time.time() - state['lastblocktime']) % 60)
+            if (lastblockmins > 0): window.addstr(6, 38, "Received " + str(lastblockmins) + "m " + str(lastblocksecs) + "s ago      ")
+            else: window.addstr(6, 38, "Received " + str(lastblocksecs) + "s ago           ")
+            if (since_last_block_timestamp > 3600*3):    # assume over 3 hours is syncing
+                window.addstr(6, 64, "(syncing)", curses.color_pair(3))
+
+            window.addstr(5, 38, "Now (UTC): " + time.asctime(time.gmtime(time.time())))
+    window.addstr(8, 1, "Hotkeys: t (transaction viewer), b (block viewer), d (this screen)", curses.A_BOLD)
+    window.addstr(9, 1, "         q (exit bitcoind-ncurses), g (manually enter txid)", curses.A_BOLD)
+
+    window.refresh()
+
+def input_loop(state, win):
+    c = win.getch()
+
     if c == ord('q'):
         return 1
 
     if c == ord('d'):
-        win.clear()
         state['mode'] = "default"
+        draw_main_window(state, win)
 
     if c == ord('t'):
         state['mode'] = "transaction"
@@ -177,8 +220,6 @@ def input_loop(state, win, c):
         draw_transaction_input_window(state, win)
 
     if c == ord('b'):
-        win.clear()
-        win.refresh()
         state['mode'] = "block"
         draw_block_window(state, win)
 
@@ -236,17 +277,17 @@ def input_loop(state, win, c):
             if 'tx' in state:
                 if 'txid' in state['tx']['vin'][ state['tx']['cursor'] ]: 
                     s = {'txid': state['tx']['vin'][ state['tx']['cursor'] ]['txid']}
-                    json_q.put(s)
+                    rpc_queue.put(s)
 
         if state['mode'] == "block":
             if 'block' in state: 
                 s = {'txid': state['block']['tx'][ state['block']['cursor'] ]}
-                json_q.put(s)
+                rpc_queue.put(s)
                 state['mode'] = "transaction"
 
     return 0
 
-def rpc_loop(ncurses_q, json_q, config):
+def rpc_loop(interface_queue, rpc_queue, config):
     # TODO: add some error checking for failed connection, json error, broken config
     rpcuser = config.get('rpc', 'rpcuser')
     rpcpassword = config.get('rpc', 'rpcpassword')
@@ -259,7 +300,7 @@ def rpc_loop(ncurses_q, json_q, config):
     last_blockcount = 0 # ensures block info is updated initially
     last_update = time.time() - 2
     while 1:
-        try: s = json_q.get(False)
+        try: s = rpc_queue.get(False)
         except: s = {}
 
         if 'stop' in s:
@@ -267,41 +308,118 @@ def rpc_loop(ncurses_q, json_q, config):
         elif 'blockheight' in s:
             blockhash = rpchandle.getblockhash(s['blockheight'])
             blockinfo = rpchandle.getblock(blockhash)
-            ncurses_q.put(blockinfo)
+            interface_queue.put(blockinfo)
             last_blockcount = cur_blockcount
         elif 'txid' in s:
             raw_tx = rpchandle.getrawtransaction(s['txid'])
             decoded_tx = rpchandle.decoderawtransaction(raw_tx)
-            ncurses_q.put(decoded_tx)
+            interface_queue.put(decoded_tx)
 
         if (time.time() - last_update) > 2:
             info = rpchandle.getinfo()
-            ncurses_q.put(info)
+            interface_queue.put(info)
 
             nettotals = rpchandle.getnettotals()
-            ncurses_q.put(nettotals)
+            interface_queue.put(nettotals)
 
             walletinfo = rpchandle.getwalletinfo()
-            ncurses_q.put(walletinfo)
+            interface_queue.put(walletinfo)
 
             cur_blockcount = info['blocks']
             if (cur_blockcount != last_blockcount): # minimise RPC calls
                 lastblocktime = {'lastblocktime': time.time()}
-                ncurses_q.put(lastblocktime)
+                interface_queue.put(lastblocktime)
 
                 blockhash = rpchandle.getblockhash(cur_blockcount)
                 blockinfo = rpchandle.getblock(blockhash)
-                ncurses_q.put(blockinfo)
+                interface_queue.put(blockinfo)
                 last_blockcount = cur_blockcount
 
             last_update = time.time()
 
-        time.sleep(0.1) # minimise RPC calls
+        time.sleep(0.05) # TODO: investigate a better way to idle CPU
 
-def ncurses_loop():
-    win = curses.initscr()
+def process_queue(state, window, interface_queue):
+    try: s = interface_queue.get(False)
+    except Queue.Empty: s = {}
+
+    if 'connections' in s:
+        state['version'] = str(s['version'] / 1000000)
+        state['version'] += '.' + str((s['version'] % 1000000) / 10000)
+        state['version'] += '.' + str((s['version'] % 10000) / 100)
+        state['version'] += '.' + str((s['version'] % 100))
+        if s['testnet'] == True:
+            state['testnet'] = 1
+        else:
+            state['testnet'] = 0
+        state['peers'] = s['connections']
+
+    elif 'balance' in s:
+        state['balance'] = s['balance']
+
+    elif 'size' in s:
+        state['height'] = s['height']
+        state['hash'] = s['hash']
+        state['size'] = s['size']
+        state['time'] = s['time']
+
+        state['block'] = { # TODO: sort out this utter mess
+            'height': s['height'],
+            'hash': s['hash'],
+            'size': s['size'],
+            'time': s['time'],
+            'tx': s['tx'],
+            'cursor': 0,
+            'offset': 0
+        }
+
+        if state['mode'] == "default":
+            draw_main_window(state, window)
+        if state['mode'] == "block":
+            draw_block_window(state, window)
+
+    elif 'totalbytesrecv' in s:
+        state['totalbytesrecv'] = s['totalbytesrecv']
+        state['totalbytessent'] = s['totalbytessent']
+
+    elif 'lastblocktime' in s:
+        state['lastblocktime'] = s['lastblocktime']
+
+    elif 'txid' in s:
+        state['tx'] = {
+            'txid': s['txid'],
+            'vin': [],
+            'vout_string': [],
+            'cursor': 0,
+            'offset': 0,
+            'out_offset': 0
+        }
+
+        for vin in s['vin']:
+            if 'coinbase' in vin:
+                state['tx']['vin'].append({'coinbase':  vin['coinbase']})
+            elif 'txid' in vin:
+                state['tx']['vin'].append({'txid': vin['txid'], 'vout': vin['vout']})
+
+        for vout in s['vout']:
+            if 'value' in vout:
+                buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
+                state['tx']['vout_string'].extend(textwrap.wrap(buffer_string,73)) # change this to scale with window ?
+
+        if state['mode'] == "transaction":
+            draw_transaction_window(state, window)
+
+def check_window_size(window):
+    if (window.getmaxyx()[0] < 20) or (window.getmaxyx()[1] < 75):
+        curses.nocbreak()
+        curses.endwin()
+        sys.stderr.write('Screen size is too small (must be at least 75x20)\n')
+        sys.exit(1)
+
+def init_curses():
+    window = curses.initscr()
     curses.noecho() # prevents user input from being echoed
-    # curses.cbreak() # is this actually necessary or useful?
+    curses.cbreak() # is this actually necessary or useful?
     curses.curs_set(0) # make cursor invisible
 
     curses.start_color()
@@ -309,152 +427,41 @@ def ncurses_loop():
     curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
 
-    win.nodelay(1) # TODO: remove once fully interrupt based
-    win.keypad(1) # interpret arrow keys, etc
+    window.nodelay(1) # TODO: remove once fully interrupt based
+    window.keypad(1) # interpret arrow keys, etc
+
+    return window
+
+def interface_loop():
+    win = init_curses()
 
     # coinbase testnet transaction for debugging
-    # s = {'txid': "cfb8bc436ca1d8b8b2d324a9cb2ef097281d2d8b54ba4239ce447b31b8757df2"}
+    #s = {'txid': "cfb8bc436ca1d8b8b2d324a9cb2ef097281d2d8b54ba4239ce447b31b8757df2"}
     # tx with 1001 inputs, 1002 outputs 
-    # s = {'txid': 'e1dc93e7d1ee2a6a13a9d54183f91a5ae944297724bee53db00a0661badc3005'}
-    # json_q.put(s)
+    #s = {'txid': 'e1dc93e7d1ee2a6a13a9d54183f91a5ae944297724bee53db00a0661badc3005'}
+    #rpc_queue.put(s)
 
     state = { 'mode': "default" }
 
     while 1:
-        # die if window too small
-        if (win.getmaxyx()[0] < 20) or (win.getmaxyx()[1] < 75):
-            # curses.nocbreak()
-            curses.endwin()
-            sys.stderr.write('Screen size is too small (must be at least 75x20)\n')
-            sys.exit(1)
-            break
+        check_window_size(win)
+        process_queue(state, win, interface_queue)
 
-        # process queue
-        try: s = ncurses_q.get(False)
-        except: s = {}
-
-        if 'connections' in s:
-            state['version'] = str(s['version'] / 1000000)
-            state['version'] += '.' + str((s['version'] % 1000000) / 10000)
-            state['version'] += '.' + str((s['version'] % 10000) / 100)
-            state['version'] += '.' + str((s['version'] % 100))
-            if s['testnet'] == True:
-                state['testnet'] = 1
-            else:
-                state['testnet'] = 0
-            state['peers'] = s['connections']
-
-        elif 'balance' in s:
-            state['balance'] = s['balance']
-
-        elif 'size' in s:
-            state['height'] = s['height']
-            state['hash'] = s['hash']
-            state['size'] = s['size']
-            state['time'] = s['time']
-
-            state['block'] = { # this looks rather silly, and that's because it is; fix later
-                'height': s['height'],
-                'hash': s['hash'],
-                'size': s['size'],
-                'time': s['time'],
-                'tx': s['tx'],
-                'cursor': 0,
-                'offset': 0
-            }
-
-            if state['mode'] == "block":
-                draw_block_window(state, win)
-
-        elif 'totalbytesrecv' in s:
-            state['totalbytesrecv'] = s['totalbytesrecv']
-            state['totalbytessent'] = s['totalbytessent']
-
-        elif 'lastblocktime' in s:
-            state['lastblocktime'] = s['lastblocktime']
-
-        elif 'txid' in s:
-            state['tx'] = {
-                'txid': s['txid'],
-                'vin': [],
-                'vout_string': [],
-                'cursor': 0,
-                'offset': 0,
-                'out_offset': 0
-            }
-
-            for vin in s['vin']:
-                if 'coinbase' in vin:
-                    state['tx']['vin'].append({'coinbase':  vin['coinbase']})
-                elif 'txid' in vin:
-                    state['tx']['vin'].append({'txid': vin['txid'], 'vout': vin['vout']})
-
-            for vout in s['vout']:
-                if 'value' in vout:
-                    buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
-                    state['tx']['vout_string'].extend(textwrap.wrap(buffer_string,73)) # change this to scale with window ?
-
-            if state['mode'] == "transaction":
-                draw_transaction_window(state, win)
-
-        # draw to screen, default mode
         if state['mode'] == "default":
-            win.addstr(0, 1, "bitcoind-ncurses v0.0.4", curses.color_pair(1) + curses.A_BOLD)
+            if (int(time.time() * 1000) % 1000) < 100: # hackish idle
+              draw_main_window(state, win)
 
-            if 'version' in state:
-                if state['testnet'] == 1:
-                    win.addstr(1, 1, "bitcoind v" + state['version'] + " (testnet)", curses.color_pair(2) + curses.A_BOLD)
-                else:
-                    win.addstr(1, 1, "bitcoind v" + state['version'] + " ", curses.color_pair(1) + curses.A_BOLD)
+        if input_loop(state, win): break
 
-            if 'peers' in state:
-                win.addstr(0, 32, str(state['peers']) + " peers    ", curses.A_BOLD)
+        time.sleep(0.05) # TODO: base updates on interrupts to avoid needless polling
 
-            if 'balance' in state:
-                win.addstr(1, 32, "%0.8f" % state['balance'] + " BTC", curses.A_BOLD)
-
-            if 'height' in state:
-                win.addstr(3, 1, str(state['height']).zfill(6) + ": " + str(state['hash']))
-                win.addstr(4, 1, str(state['size']) + " bytes (" + str(state['size']/1024) + " KB)       ")
-                win.addstr(4, 38, "Timestamp: " + time.asctime(time.gmtime(state['time'])))
-
-            if 'totalbytesrecv' in state:
-                win.addstr(0, 57, "D: " + "% 10.2f" % (state['totalbytesrecv']*1.0/1048576) + " MB", curses.A_BOLD)
-                win.addstr(1, 57, "U: " + "% 10.2f" % (state['totalbytessent']*1.0/1048576) + " MB", curses.A_BOLD)
-
-            if 'lastblocktime' in state: # time ncurses noticed the block, not timestamp
-                if 'time' in state:
-                    since_last_block_timestamp = time.time() - state['time']
-                    lastblockmins = int((time.time() - state['lastblocktime']) / 60)
-                    lastblocksecs = int((time.time() - state['lastblocktime']) % 60)
-                    if (lastblockmins > 0): win.addstr(6, 38, "Received " + str(lastblockmins) + "m " + str(lastblocksecs) + "s ago      ")
-                    else: win.addstr(6, 38, "Received " + str(lastblocksecs) + "s ago           ")
-                    if (since_last_block_timestamp > 3600*3):    # assume over 3 hours is syncing
-                        win.addstr(6, 64, "(syncing)", curses.color_pair(3))
-
-            win.addstr(5, 38, "Now (UTC): " + time.asctime(time.gmtime(time.time())))
-            win.addstr(8, 1, "Hotkeys: t (transaction viewer), b (block viewer), d (this screen)", curses.A_BOLD)
-            win.addstr(9, 1, "         q (exit bitcoind-ncurses), g (manually enter txid)", curses.A_BOLD)
-
-            win.refresh()
-
-        # take input, quit if needed
-        c = win.getch()
-        if input_loop(state, win, c): break
-
-        # delay to avoid excessive CPU usage
-        # TODO: base updates on interrupts to avoid needless polling
-        time.sleep(0.1)
-
-    # loop was broken, safely quit ncurses
     curses.nocbreak()
     curses.endwin()
-    json_q.put({ 'stop': 1 })
+    rpc_queue.put({ 'stop': 1 })
 
 if __name__ == '__main__':
-
-    ncurses_q = Queue.Queue()
-    json_q = Queue.Queue()
+    interface_queue = Queue.Queue()
+    rpc_queue = Queue.Queue()
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config",
@@ -465,8 +472,10 @@ if __name__ == '__main__':
     config = ConfigParser.ConfigParser()
     config.read(args.config)
 
-    thread1 = threading.Thread(target=rpc_loop, args = (ncurses_q, json_q, config))
-    thread1.daemon = True
-    thread1.start()
+    rpc_thread = threading.Thread(target=rpc_loop, args = (interface_queue, rpc_queue, config))
+    rpc_thread.daemon = True
+    rpc_thread.start()
 
-    ncurses_loop()
+    interface_loop()
+
+    rpc_thread.join()
