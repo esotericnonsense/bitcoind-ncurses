@@ -9,6 +9,8 @@ from bitcoinrpc.authproxy import AuthServiceProxy
 import curses, time, sys, threading, Queue, json, textwrap, ConfigParser
 import argparse
 
+version = "v0.0.5"
+
 # attrib: user1476056
 # https://stackoverflow.com/questions/11303986/addstr-causes-getstr-to-return-on-signal
 # re-implement at some point
@@ -63,16 +65,18 @@ def getstr(window, prompt = "> ", end_on_error = False):
 def draw_block_window(state, window):
     window.clear()
     window.refresh()
-    win_header = curses.newwin(3, 75, 0, 0)
+    win_header = curses.newwin(4, 75, 0, 0)
 
     if 'blocks' in state:
         if 'browse_height' in state['blocks']:
             height = str(state['blocks']['browse_height'])
             if height in state['blocks']:
                 blockdata = state['blocks'][height]
-                win_header.addstr(0, 1, "bitcoind-ncurses - block view", curses.color_pair(1) + curses.A_BOLD)
-                win_header.addstr(1, 1, "hash: " + blockdata['hash'], curses.A_BOLD)
-                win_header.addstr(2, 1, "height: " + height.zfill(6) + " (LEFT/RIGHT: browse, L: go to latest)", curses.A_BOLD)
+                win_header.addstr(0, 1, "bitcoind-ncurses " + version + " [block view]", curses.color_pair(1) + curses.A_BOLD)
+                win_header.addstr(1, 1, "height: " + height.zfill(6) + " (LEFT/RIGHT: browse, L: go to latest)", curses.A_BOLD)
+                win_header.addstr(2, 1, "hash: " + blockdata['hash'], curses.A_BOLD)
+                win_header.addstr(3, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ", curses.A_BOLD)
+                win_header.addstr(3, 47, time.asctime(time.gmtime(blockdata['time'])), curses.A_BOLD)
                 draw_block_transactions(state)
                 state['blocks']['loaded'] = 1
 
@@ -86,12 +90,12 @@ def draw_block_transactions(state):
     height = str(state['blocks']['browse_height'])
     blockdata = state['blocks'][height]
 
-    win_transactions = curses.newwin(17, 75, 3, 0)
-    win_transactions.addstr(0, 1, "transactions (UP/DOWN: scroll, SPACE: view)", curses.A_BOLD)
+    win_transactions = curses.newwin(16, 75, 4, 0)
+    win_transactions.addstr(0, 1, "Transactions:" + "% 4d" % len(blockdata['tx']) + " (UP/DOWN: scroll, SPACE: view)", curses.A_BOLD)
 
     offset = state['blocks']['offset']
 
-    for index in xrange(offset, offset+16):
+    for index in xrange(offset, offset+15):
         if index < len(blockdata['tx']):
             if index == state['blocks']['cursor']:
                 win_transactions.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
@@ -106,7 +110,7 @@ def draw_transaction_window(state, window):
     win_header = curses.newwin(3, 75, 0, 0)
 
     if 'tx' in state:
-        win_header.addstr(0, 1, "bitcoind-ncurses - transaction view (press 'G' to enter a txid)", curses.color_pair(1) + curses.A_BOLD)
+        win_header.addstr(0, 1, "bitcoind-ncurses " + version + " [transaction mode] (press 'G' to enter a txid)", curses.color_pair(1) + curses.A_BOLD)
         win_header.addstr(1, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
         draw_transaction_inputs(state)
         draw_transaction_outputs(state)
@@ -119,8 +123,8 @@ def draw_transaction_window(state, window):
 
 def draw_transaction_input_window(state, window):
     window.clear()
-    window.addstr(0, 1, "bitcoind-ncurses - transaction input", curses.color_pair(1) + curses.A_BOLD)
-    window.addstr(1, 1, "please type in txid as hex", curses.A_BOLD)
+    window.addstr(0, 1, "bitcoind-ncurses " + version + " [transaction input mode]", curses.color_pair(1) + curses.A_BOLD)
+    window.addstr(1, 1, "please enter txid", curses.A_BOLD)
     window.refresh()
     win_textbox = curses.newwin(1,67,3,1) # h,w,y,x
     entered_txid = getstr(win_textbox)
@@ -172,7 +176,7 @@ def draw_transaction_outputs(state):
 def draw_main_window(state, window):
     # TODO: only draw parts that actually changed
     window.clear()
-    window.addstr(0, 1, "bitcoind-ncurses v0.0.4", curses.color_pair(1) + curses.A_BOLD)
+    window.addstr(0, 1, "bitcoind-ncurses " + version, curses.color_pair(1) + curses.A_BOLD)
 
     if 'version' in state:
         if state['testnet'] == 1:
@@ -264,7 +268,7 @@ def input_loop(state, window):
                 blockdata = state['blocks'][height]
                 if state['blocks']['cursor'] < (len(blockdata['tx']) - 1):
                     state['blocks']['cursor'] += 1
-                    if (state['blocks']['cursor'] - state['blocks']['offset']) > 15:
+                    if (state['blocks']['cursor'] - state['blocks']['offset']) > 14:
                         state['blocks']['offset'] += 1
                     draw_block_transactions(state)
 
