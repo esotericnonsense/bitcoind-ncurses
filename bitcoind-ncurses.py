@@ -326,8 +326,11 @@ def input_loop(state, window):
                     if state['blocks']['loaded'] == 1:
                         state['blocks']['loaded'] = 0
                         state['blocks']['browse_height'] -= 1
-                        s = {'getblockhash': state['blocks']['browse_height']}
-                        rpc_queue.put(s)
+                        if state['blocks']['browse_height'] in state['blocks']:
+                            draw_block_window(state, window)
+                        else:
+                            s = {'getblockhash': state['blocks']['browse_height']}
+                            rpc_queue.put(s)
 
     if c == curses.KEY_RIGHT:
         if state['mode'] == "block":
@@ -336,11 +339,11 @@ def input_loop(state, window):
                     if state['blocks']['loaded'] == 1:
                         state['blocks']['loaded'] = 0
                         state['blocks']['browse_height'] += 1
-                        if 'browse_height' not in state['blocks']:
+                        if state['blocks']['browse_height'] in state['blocks']:
+                            draw_block_window(state, window)
+                        else:
                             s = {'getblockhash': state['blocks']['browse_height']}
                             rpc_queue.put(s)
-                        else:
-                            draw_block_window(state, window)
 
     return 0
 
