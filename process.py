@@ -20,8 +20,12 @@ def user_input(state, window, rpc_queue):
         tx.draw_window(state, window)
 
     if c == ord('g') or c == ord('G'):
-        state['mode'] = "transaction-input"
-        tx.draw_input_window(state, window, rpc_queue)
+        if state['mode'] == "transaction":
+            state['mode'] = "transaction-input"
+            tx.draw_input_window(state, window, rpc_queue)
+        elif state['mode'] == "block":
+            state['mode'] = "block-input"
+            block.draw_input_window(state, window, rpc_queue)
 
     if c == ord('b') or c == ord('B'):
         state['mode'] = "block"
@@ -155,15 +159,19 @@ def queue(state, window, interface_queue):
         state['balance'] = s['getbalance']
 
     elif 'block' in s:
-        height = str(s['block']['height'])
+        height = s['block']['height']
 
-        state['blocks'][height] = s['block']
+        state['blocks'][str(height)] = s['block']
         state['blocks']['cursor'] = 0
         state['blocks']['offset'] = 0
 
         if state['mode'] == "monitor":
             monitor.draw_window(state, window)
         if state['mode'] == "block":
+            if 'queried_block' in state['blocks']:
+                if s['block']['hash'] == state['blocks']['queried_block']:
+                    state['blocks'].pop('queried_block')
+                    state['blocks']['browse_height'] = height
             block.draw_window(state, window)
 
     elif 'getnettotals' in s:

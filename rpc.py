@@ -33,6 +33,9 @@ def loop(interface_queue, rpc_queue, config):
             blockhash = rpchandle.getblockhash(s['getblockhash'])
             block = rpchandle.getblock(blockhash)
             interface_queue.put({'block': block})
+        elif 'getblock' in s:
+            block = rpchandle.getblock(s['getblock'])
+            interface_queue.put({'block': block})
         elif 'txid' in s:
             raw_tx = rpchandle.getrawtransaction(s['txid'])
             decoded_tx = rpchandle.decoderawtransaction(raw_tx)

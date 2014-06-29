@@ -2,6 +2,7 @@
 import curses, time
 
 import global_mod as g
+import getstr
 
 def draw_window(state, window):
     window.clear()
@@ -23,7 +24,8 @@ def draw_window(state, window):
 
         else:
             win_header.addstr(0, 1, "no block loaded", curses.A_BOLD)
-            win_header.addstr(1, 1, "press 'D' to return to main window", curses.A_BOLD)
+            win_header.addstr(1, 1, "press 'G' to enter a block hash or height", curses.A_BOLD)
+            win_header.addstr(2, 1, "or 'D' to return to main window", curses.A_BOLD)
 
     win_header.refresh()
 
@@ -43,3 +45,40 @@ def draw_transactions(state):
             win_transactions.addstr(index+1-offset, 3, blockdata['tx'][index])
 
     win_transactions.refresh()
+
+def draw_input_window(state, window, rpc_queue):
+    window.clear()
+    window.addstr(0, 1, "bitcoind-ncurses " + g.version + " [block input mode]", curses.color_pair(1) + curses.A_BOLD)
+    window.addstr(1, 1, "please enter block height or hash", curses.A_BOLD)
+    window.refresh()
+
+    win_textbox = curses.newwin(1,67,3,1) # h,w,y,x
+    entered_block = getstr.getstr(win_textbox)
+
+    if len(entered_block) == 64:
+        s = {'getblock': entered_block}
+        rpc_queue.put(s)
+
+        window.addstr(5, 1, "waiting for block (will stall here if not found)", curses.color_pair(1) + curses.A_BOLD)
+        window.refresh()
+        state['mode'] = "block"
+        state['blocks']['queried_block'] = entered_block
+
+    elif (len(entered_block) < 7) and entered_block.isdigit() and (int(entered_block) <= state['blockcount']):
+        s = {'getblockhash': int(entered_block)}
+        rpc_queue.put(s)
+
+        window.addstr(5, 1, "waiting for block (will stall here if not found)", curses.color_pair(1) + curses.A_BOLD)
+        window.refresh()
+        state['mode'] = "block"
+        state['blocks']['browse_height'] = int(entered_block)
+
+    else:
+        window.addstr(5, 1, "not a valid hash or height", curses.color_pair(1) + curses.A_BOLD)
+        window.refresh()
+
+        time.sleep(2)
+
+        window.clear()
+        window.refresh()
+        state['mode'] = "monitor"

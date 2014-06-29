@@ -46,6 +46,6 @@ def draw_window(state, window):
         window.addstr(1, 57, "U: " + "% 10.2f" % (state['totalbytessent']*1.0/1048576) + " MB", curses.A_BOLD)
 
     window.addstr(8, 1, "Hotkeys: T (transaction viewer), B (block viewer), D (this screen)", curses.A_BOLD)
-    window.addstr(9, 1, "         Q (exit bitcoind-ncurses), G (manually enter txid)", curses.A_BOLD)
+    window.addstr(9, 1, "         Q (exit bitcoind-ncurses)", curses.A_BOLD)
 
     window.refresh()
