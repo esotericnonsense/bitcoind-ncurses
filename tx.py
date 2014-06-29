@@ -23,7 +23,7 @@ def draw_window(state, window):
     win_header.refresh()
 
 def draw_inputs(state):
-    win_inputs = curses.newwin(8, 75, 3, 0)
+    win_inputs = curses.newwin(9, 75, 3, 0)
     win_inputs.addstr(0, 1, "inputs (UP/DOWN: select, SPACE: view)", curses.A_BOLD)
 
     offset = state['tx']['offset']
@@ -36,6 +36,9 @@ def draw_inputs(state):
                 win_inputs.addstr(index+1-offset, 3, state['tx']['vin'][index]['txid'] + ":" + "%03d" % state['tx']['vin'][index]['vout'])
             elif 'coinbase' in state['tx']['vin'][index]:
                 win_inputs.addstr(index+1-offset, 3, "coinbase " + state['tx']['vin'][index]['coinbase'])
+
+    if offset+7 < len(state['tx']['vin']):
+        win_inputs.addstr(8, 3, "...")
 
     win_inputs.refresh()
 
