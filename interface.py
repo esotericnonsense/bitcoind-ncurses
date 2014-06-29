@@ -32,7 +32,8 @@ def loop(interface_queue, rpc_queue):
 
     state = {
         'mode': "monitor",
-        'blocks': {}
+        'blocks': {},
+        'networkhashps': {}
     }
 
     while 1:

@@ -11,7 +11,7 @@ def user_input(state, window, rpc_queue):
     if c == ord('q') or c == ord('Q'):
         return 1
 
-    if c == ord('d') or c == ord('D'):
+    if c == ord('m') or c == ord('M'):
         state['mode'] = "monitor"
         monitor.draw_window(state, window)
 
@@ -159,10 +159,10 @@ def queue(state, window, interface_queue):
     elif 'getbalance' in s:
         state['balance'] = s['getbalance']
 
-    elif 'block' in s:
-        height = s['block']['height']
+    elif 'getblock' in s:
+        height = s['getblock']['height']
 
-        state['blocks'][str(height)] = s['block']
+        state['blocks'][str(height)] = s['getblock']
         state['blocks']['cursor'] = 0
         state['blocks']['offset'] = 0
 
@@ -170,10 +170,17 @@ def queue(state, window, interface_queue):
             monitor.draw_window(state, window)
         if state['mode'] == "block":
             if 'queried_block' in state['blocks']:
-                if s['block']['hash'] == state['blocks']['queried_block']:
+                if s['getblock']['hash'] == state['blocks']['queried_block']:
                     state['blocks'].pop('queried_block')
                     state['blocks']['browse_height'] = height
             block.draw_window(state, window)
+
+    elif 'getdifficulty' in s:
+        state['difficulty'] = s['getdifficulty']
+
+    elif 'getnetworkhashps' in s:
+        blocks = s['getnetworkhashps']['blocks']
+        state['networkhashps'][blocks] = s['getnetworkhashps']['value']
 
     elif 'getnettotals' in s:
         state['totalbytesrecv'] = s['getnettotals']['totalbytesrecv']

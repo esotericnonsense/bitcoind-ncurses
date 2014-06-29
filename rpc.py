@@ -32,10 +32,10 @@ def loop(interface_queue, rpc_queue, config):
         elif 'getblockhash' in s:
             blockhash = rpchandle.getblockhash(s['getblockhash'])
             block = rpchandle.getblock(blockhash)
-            interface_queue.put({'block': block})
+            interface_queue.put({'getblock': block})
         elif 'getblock' in s:
             block = rpchandle.getblock(s['getblock'])
-            interface_queue.put({'block': block})
+            interface_queue.put({'getblock': block})
         elif 'txid' in s:
             raw_tx = rpchandle.getrawtransaction(s['txid'])
             decoded_tx = rpchandle.decoderawtransaction(raw_tx)
@@ -60,7 +60,15 @@ def loop(interface_queue, rpc_queue, config):
 
                 blockhash = rpchandle.getblockhash(blockcount)
                 block = rpchandle.getblock(blockhash)
-                interface_queue.put({'block': block})
+                interface_queue.put({'getblock': block})
+
+                difficulty = rpchandle.getdifficulty()
+                interface_queue.put({'getdifficulty': difficulty})
+
+                nethash144 = rpchandle.getnetworkhashps(144)
+                nethash2016 = rpchandle.getnetworkhashps(2016)
+                interface_queue.put({'getnetworkhashps': {'blocks': 144, 'value': nethash144}})
+                interface_queue.put({'getnetworkhashps': {'blocks': 2016, 'value': nethash2016}})
 
             last_update = time.time()
 

@@ -6,12 +6,13 @@ import global_mod as g
 def draw_window(state, window):
     # TODO: only draw parts that actually changed
     window.clear()
-    window.addstr(0, 1, "bitcoind-ncurses " + g.version, curses.color_pair(1) + curses.A_BOLD)
 
     if 'version' in state:
         if state['testnet'] == 1:
+            window.addstr(0, 1, "bitcoind-ncurses " + g.version, curses.color_pair(2) + curses.A_BOLD)
             window.addstr(1, 1, "bitcoind v" + state['version'] + " (testnet)", curses.color_pair(2) + curses.A_BOLD)
         else:
+            window.addstr(0, 1, "bitcoind-ncurses " + g.version, curses.color_pair(1) + curses.A_BOLD)
             window.addstr(1, 1, "bitcoind v" + state['version'] + " ", curses.color_pair(1) + curses.A_BOLD)
 
     if 'peers' in state:
@@ -41,11 +42,31 @@ def draw_window(state, window):
 
             window.addstr(5, 38, "Now (UTC): " + time.asctime(time.gmtime(time.time())))
 
+    if 'difficulty' in state:
+        diff = int(state['difficulty'])
+        window.addstr(8, 1, "Diff: " + "{:,d}".format(diff))
+
+    index = 8
+    for block_avg in state['networkhashps']:
+        rate = state['networkhashps'][block_avg]
+        if rate > 10**18:
+            rate /= 10**18
+            suffix = " EH/s"
+        elif rate > 10**12:
+            rate /= 10**12
+            suffix = " TH/s"
+        else:
+            rate /= 10**6
+            suffix = " MH/s"
+        rate_string = "{:,d}".format(rate) + suffix
+        window.addstr(index, 38, str(block_avg).rjust(4) + ": " + rate_string)
+        index += 1
+
     if 'totalbytesrecv' in state:
         window.addstr(0, 57, "D: " + "% 10.2f" % (state['totalbytesrecv']*1.0/1048576) + " MB", curses.A_BOLD)
         window.addstr(1, 57, "U: " + "% 10.2f" % (state['totalbytessent']*1.0/1048576) + " MB", curses.A_BOLD)
 
-    window.addstr(8, 1, "Hotkeys: T (transaction viewer), B (block viewer), D (this screen)", curses.A_BOLD)
-    window.addstr(9, 1, "         Q (exit bitcoind-ncurses)", curses.A_BOLD)
+    window.addstr(18, 1, "Hotkeys: T (transaction viewer), B (block viewer), M (this screen)", curses.A_BOLD)
+    window.addstr(19, 1, "         Q (exit bitcoind-ncurses)", curses.A_BOLD)
 
     window.refresh()
