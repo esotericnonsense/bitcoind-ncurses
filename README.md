@@ -28,8 +28,8 @@ $ python bitcoind-ncurses.py -c some_other_config_file.conf
 
 ## todo
 * improve CPU efficiency; change polling method to use interrupts more
-* fix tx tree and block tree for high inputs/outputs (scrolling is not implemented)
-* wallet and transaction creation support (perhaps in the year 2140)
+* add function to view arbitrary block
+* wallet and transaction creation support (if I feel suicidal)
 * bounds checking and so on (paramount for above)
 
 ## frog food
