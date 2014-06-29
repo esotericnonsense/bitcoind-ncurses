@@ -4,7 +4,7 @@ ncurses front-end for bitcoind
 produced by Amphibian (azeteki, atelopus_zeteki)
 
 ## dependencies
-* tested with python 2.7.3, bitcoind 0.9.2.0
+* tested with python 2.7.3, bitcoind 0.9.2.1
 * jgarzik's bitcoinrpc library (https://github.com/jgarzik/python-bitcoinrpc)
 
 ## features
@@ -22,8 +22,8 @@ this will be improved in a later release.
  
 ## launch
 ```
-$ python bitcoind-ncurses.py
-$ python bitcoind-ncurses.py -c some_other_config_file.conf
+$ python main.py
+$ python main.py -c some_other_config_file.conf
 ```
 
 ## todo
