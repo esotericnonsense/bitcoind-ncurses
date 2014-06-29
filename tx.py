@@ -58,18 +58,24 @@ def draw_input_window(state, window, rpc_queue):
     window.addstr(0, 1, "bitcoind-ncurses " + g.version + " [transaction input mode]", curses.color_pair(1) + curses.A_BOLD)
     window.addstr(1, 1, "please enter txid", curses.A_BOLD)
     window.refresh()
+
     win_textbox = curses.newwin(1,67,3,1) # h,w,y,x
     entered_txid = getstr.getstr(win_textbox)
+
     if len(entered_txid) == 64: # TODO: better checking for valid txid here
         s = {'txid': entered_txid}
         rpc_queue.put(s)
+
         window.addstr(5, 1, "waiting for transaction (will stall here if not found)", curses.color_pair(1) + curses.A_BOLD)
-        state['mode'] = "transaction"
         window.refresh()
+        state['mode'] = "transaction"
+
     else:
         window.addstr(5, 1, "not a valid txid", curses.color_pair(1) + curses.A_BOLD)
         window.refresh()
+
         time.sleep(2)
+
         window.clear()
         window.refresh()
-        state['mode'] = "default"
+        state['mode'] = "monitor"
