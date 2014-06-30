@@ -53,12 +53,13 @@ def user_input(state, window, rpc_queue):
         elif state['mode'] == "block":
             if 'blocks' in state:
                 height = str(state['blocks']['browse_height'])
-                blockdata = state['blocks'][height]
-                if state['blocks']['cursor'] < (len(blockdata['tx']) - 1):
-                    state['blocks']['cursor'] += 1
-                    if (state['blocks']['cursor'] - state['blocks']['offset']) > 14:
-                        state['blocks']['offset'] += 1
-                    block.draw_transactions(state)
+                if height in state['blocks']:
+                    blockdata = state['blocks'][height]
+                    if state['blocks']['cursor'] < (len(blockdata['tx']) - 1):
+                        state['blocks']['cursor'] += 1
+                        if (state['blocks']['cursor'] - state['blocks']['offset']) > 14:
+                            state['blocks']['offset'] += 1
+                        block.draw_transactions(state)
 
     if c == curses.KEY_UP:
         if state['mode'] == "transaction":
