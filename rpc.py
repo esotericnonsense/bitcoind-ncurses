@@ -53,9 +53,10 @@ def loop(interface_queue, rpc_queue, config):
             interface_queue.put({'getbalance' : balance})
 
             if (prev_blockcount != blockcount): # minimise RPC calls
-                prev_blockcount = blockcount
-
-                lastblocktime = {'lastblocktime': time.time()}
+                if prev_blockcount == 0:
+                    lastblocktime = {'lastblocktime': 0}
+                else:
+                    lastblocktime = {'lastblocktime': time.time()}
                 interface_queue.put(lastblocktime)
 
                 blockhash = rpchandle.getblockhash(blockcount)
@@ -69,6 +70,8 @@ def loop(interface_queue, rpc_queue, config):
                 nethash2016 = rpchandle.getnetworkhashps(2016)
                 interface_queue.put({'getnetworkhashps': {'blocks': 144, 'value': nethash144}})
                 interface_queue.put({'getnetworkhashps': {'blocks': 2016, 'value': nethash2016}})
+
+                prev_blockcount = blockcount
 
             last_update = time.time()
 

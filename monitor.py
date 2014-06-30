@@ -28,27 +28,41 @@ def draw_window(state, window):
 
             window.addstr(3, 1, height.zfill(6) + ": " + str(blockdata['hash']))
             window.addstr(4, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ")
+            window.addstr(5, 1, "Transactions:" + "% 4d" % len(blockdata['tx']))
+
             window.addstr(4, 38, "Timestamp: " + time.asctime(time.gmtime(blockdata['time'])))
 
-            lastblockmins = int((time.time() - state['lastblocktime']) / 60)
-            lastblocksecs = int((time.time() - state['lastblocktime']) % 60)
+            if state['lastblocktime'] == 0:
+                recvdelta_string = "       "
+            else:
+                recvdelta = int(time.time() - state['lastblocktime'])
+                m, s = divmod(recvdelta, 60)
+                h, m = divmod(m, 60)
+                recvdelta_string = "{:01d}:{:02d}:{:02d}".format(h,m,s)
 
-            if (lastblockmins > 0): window.addstr(6, 38, "Received " + str(lastblockmins) + "m " + str(lastblocksecs) + "s ago      ")
-            else: window.addstr(6, 38, "Received " + str(lastblocksecs) + "s ago           ")
+            stampdelta = int(time.time() - blockdata['time'])
+            if stampdelta > 3600*3: # probably syncing if it's three hours old
+                stampdelta_string = "             (syncing)"
+            elif stampdelta > 0:
+                m, s = divmod(stampdelta, 60)
+                h, m = divmod(m, 60)
+                d, h = divmod(h, 24)
+                stampdelta_string = "({:d}d {:02d}:{:02d}:{:02d} by stamp)".format(d,h,m,s)
+            else:
+                stampdelta_string = "Future"
 
-            since_last_block_timestamp = time.time() - blockdata['time']
-            if (since_last_block_timestamp > 3600*3):    # assume over 3 hours is syncing
-                window.addstr(6, 64, "(syncing)", curses.color_pair(3))
-
-            window.addstr(5, 38, "Now (UTC): " + time.asctime(time.gmtime(time.time())))
+            window.addstr(5, 38, "Age: " + recvdelta_string + " " + stampdelta_string)
 
     if 'difficulty' in state:
         diff = int(state['difficulty'])
-        window.addstr(8, 1, "Diff: " + "{:,d}".format(diff))
+        window.addstr(7, 1, "Diff:  " + "{:,d}".format(diff))
 
-    index = 8
+    index = 7
     for block_avg in state['networkhashps']:
         rate = state['networkhashps'][block_avg]
+        if block_avg == 2016:
+            nextdiff = (rate*600)/(2**32)
+            window.addstr(8, 1, "Next: ~" + "{:,d}".format(nextdiff))
         if rate > 10**18:
             rate /= 10**18
             suffix = " EH/s"
@@ -59,7 +73,7 @@ def draw_window(state, window):
             rate /= 10**6
             suffix = " MH/s"
         rate_string = "{:,d}".format(rate) + suffix
-        window.addstr(index, 38, str(block_avg).rjust(4) + ": " + rate_string)
+        window.addstr(index, 38, "Hashrate (" + str(block_avg).rjust(4) + "): " + rate_string)
         index += 1
 
     if 'totalbytesrecv' in state:
