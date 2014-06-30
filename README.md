@@ -1,6 +1,8 @@
 # bitcoind-ncurses
 ncurses front-end for bitcoind
 
+![ScreenShot](/screenshots/bitcoind-ncurses.png)
+
 produced by Amphibian (azeteki, atelopus_zeteki)
 
 ## dependencies
@@ -28,9 +30,14 @@ $ python main.py -c some_other_config_file.conf
 
 ## todo
 * improve CPU efficiency; change polling method to use interrupts more
-* add function to view arbitrary block
+* handle all crashes such that terminal returns to a sane state
+* mean block size/tx count over last X blocks
+* peer viewer
+* fee estimation / fee data
+* seek block by timestamp
+* bandwidth chart?
 * wallet and transaction creation support (if I feel suicidal)
-* bounds checking and so on (paramount for above)
+* more testing for edge cases (paramount for above)
 
 ## frog food
 found bitcoind-ncurses useful? donations are your way of showing that!
