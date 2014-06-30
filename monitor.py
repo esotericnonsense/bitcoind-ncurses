@@ -62,6 +62,8 @@ def draw_window(state, window):
         rate = state['networkhashps'][block_avg]
         if block_avg == 2016:
             nextdiff = (rate*600)/(2**32)
+            if state['testnet'] == 1:
+                nextdiff *= 2 # testnet has 1200 est. block interval, not 600
             window.addstr(8, 1, "Next: ~" + "{:,d}".format(nextdiff))
         if rate > 10**18:
             rate /= 10**18
