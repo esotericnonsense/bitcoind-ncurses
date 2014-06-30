@@ -6,10 +6,16 @@
 # and of course the bitcoin dev team for that bitcoin gizmo, pretty neat stuff
 ###############################################################################
 
-import threading, Queue, ConfigParser, argparse
+import threading, Queue, ConfigParser, argparse, signal
 
 import rpc
 import interface
+
+def interrupt_signal(signal, frame):
+    s = {'stop': 1 }
+    rpc_queue.put(s)
+    s = {'stop': "Interrupt signal caught"}
+    interface_queue.put(s)
 
 def debug(rpc_queue):
     # coinbase testnet transaction for debugging
@@ -33,6 +39,9 @@ if __name__ == '__main__':
     # initialise queues
     interface_queue = Queue.Queue()
     rpc_queue = Queue.Queue()
+
+    # initialise interrupt signal handler (^C)
+    signal.signal(signal.SIGINT, interrupt_signal)
 
     # start RPC thread
     rpc_thread = threading.Thread(target=rpc.loop, args = (interface_queue, rpc_queue, config))
