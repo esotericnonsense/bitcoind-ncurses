@@ -11,7 +11,10 @@ def draw_window(state, window):
     win_header = curses.newwin(3, 75, 0, 0)
 
     if 'tx' in state:
-        win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [transaction mode] (press 'G' to enter a txid)", curses.color_pair(1) + curses.A_BOLD)
+        color = curses.color_pair(1)
+        if 'testnet' in state:
+            if state['testnet']: color = curses.color_pair(2)
+        win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [transaction mode] (press 'G' to enter a txid)", color + curses.A_BOLD)
         win_header.addstr(1, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
         draw_inputs(state)
         draw_outputs(state)
@@ -57,8 +60,12 @@ def draw_outputs(state):
     win_outputs.refresh()
 
 def draw_input_window(state, window, rpc_queue):
+    color = curses.color_pair(1)
+    if 'testnet' in state:
+        if state['testnet']: color = curses.color_pair(2)
+
     window.clear()
-    window.addstr(0, 1, "bitcoind-ncurses " + g.version + " [transaction input mode]", curses.color_pair(1) + curses.A_BOLD)
+    window.addstr(0, 1, "bitcoind-ncurses " + g.version + " [transaction input mode]", color + curses.A_BOLD)
     window.addstr(1, 1, "please enter txid", curses.A_BOLD)
     window.refresh()
 
@@ -69,12 +76,12 @@ def draw_input_window(state, window, rpc_queue):
         s = {'txid': entered_txid}
         rpc_queue.put(s)
 
-        window.addstr(5, 1, "waiting for transaction (will stall here if not found)", curses.color_pair(1) + curses.A_BOLD)
+        window.addstr(5, 1, "waiting for transaction (will stall here if not found)", color + curses.A_BOLD)
         window.refresh()
         state['mode'] = "transaction"
 
     else:
-        window.addstr(5, 1, "not a valid txid", curses.color_pair(1) + curses.A_BOLD)
+        window.addstr(5, 1, "not a valid txid", color + curses.A_BOLD)
         window.refresh()
 
         time.sleep(2)

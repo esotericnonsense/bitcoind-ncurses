@@ -14,7 +14,10 @@ def draw_window(state, window):
             height = str(state['blocks']['browse_height'])
             if height in state['blocks']:
                 blockdata = state['blocks'][height]
-                win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [block view]", curses.color_pair(1) + curses.A_BOLD)
+                color = curses.color_pair(1)
+                if 'testnet' in state:
+                    if state['testnet']: color = curses.color_pair(2)
+                win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [block view] (press 'G' to enter a block)", color + curses.A_BOLD)
                 win_header.addstr(1, 1, "height: " + height.zfill(6) + " (LEFT/RIGHT: browse, L: go to latest)", curses.A_BOLD)
                 win_header.addstr(2, 1, "hash: " + blockdata['hash'], curses.A_BOLD)
                 win_header.addstr(3, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ", curses.A_BOLD)
@@ -47,8 +50,12 @@ def draw_transactions(state):
     win_transactions.refresh()
 
 def draw_input_window(state, window, rpc_queue):
+    color = curses.color_pair(1)
+    if 'testnet' in state:
+        if state['testnet']: color = curses.color_pair(2)
+
     window.clear()
-    window.addstr(0, 1, "bitcoind-ncurses " + g.version + " [block input mode]", curses.color_pair(1) + curses.A_BOLD)
+    window.addstr(0, 1, "bitcoind-ncurses " + g.version + " [block input mode]", color + curses.A_BOLD)
     window.addstr(1, 1, "please enter block height or hash", curses.A_BOLD)
     window.refresh()
 
@@ -59,7 +66,7 @@ def draw_input_window(state, window, rpc_queue):
         s = {'getblock': entered_block}
         rpc_queue.put(s)
 
-        window.addstr(5, 1, "waiting for block (will stall here if not found)", curses.color_pair(1) + curses.A_BOLD)
+        window.addstr(5, 1, "waiting for block (will stall here if not found)", color + curses.A_BOLD)
         window.refresh()
         state['mode'] = "block"
         state['blocks']['queried_block'] = entered_block
@@ -68,13 +75,13 @@ def draw_input_window(state, window, rpc_queue):
         s = {'getblockhash': int(entered_block)}
         rpc_queue.put(s)
 
-        window.addstr(5, 1, "waiting for block (will stall here if not found)", curses.color_pair(1) + curses.A_BOLD)
+        window.addstr(5, 1, "waiting for block (will stall here if not found)", color + curses.A_BOLD)
         window.refresh()
         state['mode'] = "block"
         state['blocks']['browse_height'] = int(entered_block)
 
     else:
-        window.addstr(5, 1, "not a valid hash or height", curses.color_pair(1) + curses.A_BOLD)
+        window.addstr(5, 1, "not a valid hash or height", color + curses.A_BOLD)
         window.refresh()
 
         time.sleep(2)
