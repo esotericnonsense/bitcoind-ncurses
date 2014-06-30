@@ -103,10 +103,11 @@ def user_input(state, window, rpc_queue):
             if 'blocks' in state:
                 if state['blocks']['browse_height'] > 0: # block 0 is not indexed
                     height = str(state['blocks']['browse_height'])
-                    blockdata = state['blocks'][height]
-                    s = {'txid': blockdata['tx'][ state['blocks']['cursor'] ]}
-                    rpc_queue.put(s)
-                    state['mode'] = "transaction"
+                    if height in state['blocks']:
+                        blockdata = state['blocks'][height]
+                        s = {'txid': blockdata['tx'][ state['blocks']['cursor'] ]}
+                        rpc_queue.put(s)
+                        state['mode'] = "transaction"
 
     if c == curses.KEY_LEFT:
         if state['mode'] == "block":
