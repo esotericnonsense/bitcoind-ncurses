@@ -38,7 +38,8 @@ def loop(interface_queue, rpc_queue):
 
     while 1:
         check_window_size(window, 20, 75) # y, x
-        process.queue(state, window, interface_queue)
+        if process.queue(state, window, interface_queue):
+            break # ends if stop command sent by rpc
 
         if state['mode'] == "monitor":
             if (int(time.time() * 1000) % 1000) < 100: # hackish idle

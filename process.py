@@ -140,6 +140,9 @@ def queue(state, window, interface_queue):
     try: s = interface_queue.get(False)
     except Queue.Empty: s = {}
 
+    if 'stop' in s:
+        return 1
+
     if 'getinfo' in s:
         state['version'] = str(s['getinfo']['version'] / 1000000)
         state['version'] += '.' + str((s['getinfo']['version'] % 1000000) / 10000)
@@ -212,3 +215,5 @@ def queue(state, window, interface_queue):
 
         if state['mode'] == "transaction":
             tx.draw_window(state, window)
+
+    return 0
