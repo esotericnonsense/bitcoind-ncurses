@@ -38,7 +38,8 @@ def loop(interface_queue, rpc_queue):
 
     while 1:
         check_window_size(window, 20, 75) # y, x
-        if process.queue(state, window, interface_queue):
+        error_message = process.queue(state, window, interface_queue)
+        if error_message:
             break # ends if stop command sent by rpc
 
         if state['mode'] == "monitor":
@@ -52,4 +53,8 @@ def loop(interface_queue, rpc_queue):
 
     curses.nocbreak()
     curses.endwin()
-    rpc_queue.put({ 'stop': 1 })
+    rpc_queue.put({ 'stop': True })
+    
+    if error_message:
+        sys.stderr.write("bitcoind-ncurses encountered an error\n")
+        sys.stderr.write("Message: " + error_message + "\n")

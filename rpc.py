@@ -2,6 +2,9 @@
 from bitcoinrpc.authproxy import AuthServiceProxy
 import curses, time, Queue 
 
+def stop(interface_queue, error_message):
+    interface_queue.put({'stop': error_message})
+
 def init(config):
     rpcuser = config.get('rpc', 'rpcuser')
     rpcpassword = config.get('rpc', 'rpcpassword')
@@ -9,16 +12,18 @@ def init(config):
     rpcport = config.get('rpc', 'rpcport')
 
     rpcurl = "http://" + rpcuser + ":" + rpcpassword + "@" + rpcip + ":" + rpcport
-    rpchandle = AuthServiceProxy(rpcurl, None, 500)
-
-    return rpchandle
-
-def stop(interface_queue):
-    interface_queue.put({'stop': 1})
+    try:
+        rpchandle = AuthServiceProxy(rpcurl, None, 500)
+        return rpchandle
+    except:
+        return False
 
 def loop(interface_queue, rpc_queue, config):
-    # TODO: add some error checking for failed connection, json error, broken config
+    # TODO: add error checking for broken config, improve exceptions
     rpchandle = init(config)
+    if not rpchandle: # TODO: this doesn't appear to trigger, investigate
+        stop(interface_queue, "failed to connect to bitcoind")
+        return True
 
     last_update = time.time() - 2
     
@@ -26,8 +31,8 @@ def loop(interface_queue, rpc_queue, config):
         info = rpchandle.getinfo()
         interface_queue.put({'getinfo': info})
     except:
-        stop(interface_queue)
-        return 1
+        stop(interface_queue, "first getinfo failed")
+        return True
 
     prev_blockcount = 0
     while 1:
