@@ -49,7 +49,7 @@ def draw_window(state, window):
                 d, h = divmod(h, 24)
                 stampdelta_string = "({:d}d {:02d}:{:02d}:{:02d} by stamp)".format(d,h,m,s)
             else:
-                stampdelta_string = "Future"
+                stampdelta_string = "     (stamp in future)"
 
             window.addstr(5, 38, "Age: " + recvdelta_string + " " + stampdelta_string)
 
