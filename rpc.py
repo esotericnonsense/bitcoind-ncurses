@@ -35,7 +35,7 @@ def loop(interface_queue, rpc_queue, config):
         return True
 
     prev_blockcount = 0
-    while 1:
+    while True:
         try:
             s = rpc_queue.get(False)
         except Queue.Empty:
@@ -62,7 +62,9 @@ def loop(interface_queue, rpc_queue, config):
                 raw_tx = rpchandle.getrawtransaction(s['txid'])
                 decoded_tx = rpchandle.decoderawtransaction(raw_tx)
                 interface_queue.put(decoded_tx)
-            except: pass
+            except: 
+                stop(interface_queue, "getrawtransaction failed. consider running with -txindex")
+                return True
 
         if (time.time() - last_update) > 2:
             try:
