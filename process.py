@@ -168,8 +168,6 @@ def queue(state, window, interface_queue):
         height = s['getblock']['height']
 
         state['blocks'][str(height)] = s['getblock']
-        state['blocks']['cursor'] = 0
-        state['blocks']['offset'] = 0
 
         if state['mode'] == "monitor":
             monitor.draw_window(state, window)
@@ -178,6 +176,8 @@ def queue(state, window, interface_queue):
                 if s['getblock']['hash'] == state['blocks']['queried_block']:
                     state['blocks'].pop('queried_block')
                     state['blocks']['browse_height'] = height
+                    state['blocks']['cursor'] = 0
+                    state['blocks']['offset'] = 0
             block.draw_window(state, window)
 
     elif 'getdifficulty' in s:
