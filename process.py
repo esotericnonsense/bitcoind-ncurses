@@ -155,6 +155,9 @@ def queue(state, window, interface_queue):
         else:
             state['testnet'] = 0
         state['peers'] = s['getinfo']['connections']
+    
+    elif 'getconnectioncount' in s:
+        state['peers'] = s['getconnectioncount']
 
     elif 'getblockcount' in s:
         state['blockcount'] = s['getblockcount']
