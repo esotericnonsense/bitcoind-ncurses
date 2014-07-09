@@ -82,6 +82,10 @@ def draw_window(state, window):
         window.addstr(0, 57, "D: " + "% 10.2f" % (state['totalbytesrecv']*1.0/1048576) + " MB", curses.A_BOLD)
         window.addstr(1, 57, "U: " + "% 10.2f" % (state['totalbytessent']*1.0/1048576) + " MB", curses.A_BOLD)
 
+    if 'rawmempool' in state:
+        tx_in_mempool = len(state['rawmempool'])
+        window.addstr(10, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
+
     window.addstr(18, 1, "Hotkeys: T (transaction viewer), B (block viewer), M (this screen)", curses.A_BOLD)
     window.addstr(19, 1, "         Q (exit bitcoind-ncurses)", curses.A_BOLD)
 

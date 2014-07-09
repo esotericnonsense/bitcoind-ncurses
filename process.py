@@ -194,6 +194,9 @@ def queue(state, window, interface_queue):
         state['totalbytesrecv'] = s['getnettotals']['totalbytesrecv']
         state['totalbytessent'] = s['getnettotals']['totalbytessent']
 
+    elif 'getrawmempool' in s:
+        state['rawmempool'] = s['getrawmempool']
+
     elif 'lastblocktime' in s:
         state['lastblocktime'] = s['lastblocktime']
 

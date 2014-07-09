@@ -71,10 +71,12 @@ def loop(interface_queue, rpc_queue, config):
                 nettotals = rpchandle.getnettotals()
                 connectioncount = rpchandle.getconnectioncount()
                 blockcount = rpchandle.getblockcount()
+                rawmempool = rpchandle.getrawmempool()
 
                 interface_queue.put({'getnettotals' : nettotals})
                 interface_queue.put({'getconnectioncount' : connectioncount})
                 interface_queue.put({'getblockcount' : blockcount})
+                interface_queue.put({'getrawmempool' : rawmempool})
             except: pass
 
             try:
