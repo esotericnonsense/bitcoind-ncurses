@@ -36,12 +36,18 @@ def draw_inputs(state):
             if 'txid' in state['tx']['vin'][index]:
                 if index == (state['tx']['cursor']):
                     win_inputs.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
-                win_inputs.addstr(index+1-offset, 3, state['tx']['vin'][index]['txid'] + ":" + "%03d" % state['tx']['vin'][index]['vout'])
+
+                string = state['tx']['vin'][index]['txid'] + ":" + "%03d" % state['tx']['vin'][index]['vout']
+
+                if (index == offset+6) and (index+1 < len(state['tx']['vin'])):
+                    win_inputs.addstr(index+1-offset, 3, "... " + string)
+                elif (index == offset) and (index > 0):
+                    win_inputs.addstr(index+1-offset, 3, "... " + string)
+                else:
+                    win_inputs.addstr(index+1-offset, 3, string)
+
             elif 'coinbase' in state['tx']['vin'][index]:
                 win_inputs.addstr(index+1-offset, 3, "coinbase " + state['tx']['vin'][index]['coinbase'])
-
-    if offset+7 < len(state['tx']['vin']):
-        win_inputs.addstr(8, 3, "...")
 
     win_inputs.refresh()
 
@@ -56,7 +62,12 @@ def draw_outputs(state):
 
     for index in xrange(offset, offset+7):
         if index < len(state['tx']['vout_string']):
-            win_outputs.addstr(index+1-offset, 1, state['tx']['vout_string'][index])
+                if (index == offset+6) and (index+1 < len(state['tx']['vout_string'])):
+                    win_outputs.addstr(index+1-offset, 1, "... " + state['tx']['vout_string'][index])
+                elif (index == offset) and (index > 0):
+                    win_outputs.addstr(index+1-offset, 1, "... " + state['tx']['vout_string'][index])
+                else:
+                    win_outputs.addstr(index+1-offset, 1, state['tx']['vout_string'][index])
     win_outputs.refresh()
 
 def draw_input_window(state, window, rpc_queue):
