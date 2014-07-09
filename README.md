@@ -23,6 +23,7 @@ the program will die hard if the config file is incorrect or it fails to connect
 this will be improved in a later release.
  
 ## launch
+Replace 'python' with 'python2' if you also have python3 installed.
 ```
 $ python main.py
 $ python main.py -c some_other_config_file.conf
