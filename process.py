@@ -4,6 +4,7 @@ import curses, Queue, textwrap
 import tx
 import block
 import monitor
+import peers
 
 def user_input(state, window, rpc_queue):
     c = window.getch()
@@ -18,6 +19,10 @@ def user_input(state, window, rpc_queue):
     if c == ord('t') or c == ord('T'):
         state['mode'] = "transaction"
         tx.draw_window(state, window)
+
+    if c == ord('p') or c == ord('P'):
+        rpc_queue.put('getpeerinfo')
+        state['mode'] = "peers"
 
     if c == ord('g') or c == ord('G'):
         if state['mode'] == "transaction":
@@ -196,6 +201,11 @@ def queue(state, window, interface_queue):
 
     elif 'getrawmempool' in s:
         state['rawmempool'] = s['getrawmempool']
+
+    elif 'getpeerinfo' in s:
+        state['peerinfo'] = s['getpeerinfo']
+        if state['mode'] == "peers":
+            peers.draw_window(state, window)
 
     elif 'lastblocktime' in s:
         state['lastblocktime'] = s['lastblocktime']

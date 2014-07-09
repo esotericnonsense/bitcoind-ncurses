@@ -66,6 +66,12 @@ def loop(interface_queue, rpc_queue, config):
                 stop(interface_queue, "getrawtransaction failed. consider running with -txindex")
                 return True
 
+        elif 'getpeerinfo' in s:
+            try:
+                peerinfo = rpchandle.getpeerinfo()
+                interface_queue.put({'getpeerinfo': peerinfo})
+            except: pass
+
         if (time.time() - last_update) > 2:
             try:
                 nettotals = rpchandle.getnettotals()
