@@ -23,16 +23,22 @@ def draw_window(state, window):
 
 def draw_peers(state):
     win_peers = curses.newwin(18, 75, 2, 0)
-    win_peers.addstr(0, 1, "Peers: " + "% 4d" % len(state['peerinfo']) + " (scrolling not yet implemented)              Recv        Sent", curses.A_BOLD)
 
-    for index in xrange(0, 17):
+    if len(state['peerinfo']) > 17:
+        win_peers.addstr(0, 1, "Peers: " + "% 4d" % len(state['peerinfo']) + " (UP/DOWN: scroll)                            Recv        Sent", curses.A_BOLD)
+    else:
+        win_peers.addstr(0, 1, "Peers: " + "% 4d" % len(state['peerinfo']) + "                                              Recv        Sent", curses.A_BOLD)
+
+    offset = state['peerinfo_offset']
+
+    for index in xrange(offset, offset+17):
         if index < len(state['peerinfo']):
             peer = state['peerinfo'][index]
             if peer['inbound']:
-                win_peers.addstr(index+1, 1, 'I')
-            win_peers.addstr(index+1, 3, peer['addr'])
-            win_peers.addstr(index+1, 32, peer['subver'].strip("/"))
-            win_peers.addstr(index+1, 50, str(peer['bytesrecv'] / 1024).rjust(10) + 'KB')
-            win_peers.addstr(index+1, 62, str(peer['bytessent'] / 1024).rjust(10) + 'KB')
+                win_peers.addstr(index+1-offset, 1, 'I')
+            win_peers.addstr(index+1-offset, 3, peer['addr'])
+            win_peers.addstr(index+1-offset, 32, peer['subver'].strip("/"))
+            win_peers.addstr(index+1-offset, 50, str(peer['bytesrecv'] / 1024).rjust(10) + 'KB')
+            win_peers.addstr(index+1-offset, 62, str(peer['bytessent'] / 1024).rjust(10) + 'KB')
 
     win_peers.refresh()

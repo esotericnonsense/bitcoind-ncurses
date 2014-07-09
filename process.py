@@ -66,6 +66,12 @@ def user_input(state, window, rpc_queue):
                             state['blocks']['offset'] += 1
                         block.draw_transactions(state)
 
+        elif state['mode'] == "peers":
+            if 'peerinfo' in state and 'peerinfo_offset' in state:
+                if state['peerinfo_offset'] < (len(state['peerinfo']) - 17):
+                    state['peerinfo_offset'] += 1
+                    peers.draw_peers(state)
+
     if c == curses.KEY_UP:
         if state['mode'] == "transaction":
             if 'tx' in state:
@@ -82,6 +88,12 @@ def user_input(state, window, rpc_queue):
                         state['blocks']['offset'] -= 1
                     state['blocks']['cursor'] -= 1
                     block.draw_transactions(state)
+
+        elif state['mode'] == "peers":
+            if 'peerinfo' in state and 'peerinfo_offset' in state:
+                if state['peerinfo_offset'] > 0:
+                    state['peerinfo_offset'] -= 1
+                    peers.draw_peers(state)
 
     if c == curses.KEY_PPAGE:
         if state['mode'] == "transaction":
@@ -204,6 +216,7 @@ def queue(state, window, interface_queue):
 
     elif 'getpeerinfo' in s:
         state['peerinfo'] = s['getpeerinfo']
+        state['peerinfo_offset'] = 0
         if state['mode'] == "peers":
             peers.draw_window(state, window)
 
