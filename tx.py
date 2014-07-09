@@ -16,6 +16,7 @@ def draw_window(state, window):
             if state['testnet']: color = curses.color_pair(2)
         win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [transaction mode] (press 'G' to enter a txid)", color + curses.A_BOLD)
         win_header.addstr(1, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
+        win_header.addstr(2, 1, str(state['tx']['size']) + " bytes (" + str(state['tx']['size']/1024) + " KB)       ", curses.A_BOLD)
         draw_inputs(state)
         draw_outputs(state)
 

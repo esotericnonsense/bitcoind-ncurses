@@ -61,6 +61,7 @@ def loop(interface_queue, rpc_queue, config):
             try:
                 raw_tx = rpchandle.getrawtransaction(s['txid'])
                 decoded_tx = rpchandle.decoderawtransaction(raw_tx)
+                decoded_tx['size'] = len(raw_tx)/2
                 interface_queue.put(decoded_tx)
             except: 
                 stop(interface_queue, "getrawtransaction failed. consider running with -txindex")

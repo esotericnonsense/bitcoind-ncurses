@@ -232,7 +232,8 @@ def queue(state, window, interface_queue):
             'vout_string': [],
             'cursor': 0,
             'offset': 0,
-            'out_offset': 0
+            'out_offset': 0,
+            'size': s['size']
         }
 
         for vin in s['vin']:
