@@ -6,13 +6,21 @@ import global_mod as g
 def draw_window(state, window):
     window.clear()
     window.refresh()
-    win_header = curses.newwin(2, 75, 0, 0)
+    win_header = curses.newwin(3, 75, 0, 0)
 
     if 'peerinfo' in state:
         color = curses.color_pair(1)
         if 'testnet' in state:
             if state['testnet']: color = curses.color_pair(2)
         win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [peer view] (press 'P' to refresh)", color + curses.A_BOLD)
+
+        if len(state['peerinfo']) > 17:
+            win_header.addstr(1, 1, "Peers: " + "% 4d" % len(state['peerinfo']) + " (UP/DOWN: scroll)", curses.A_BOLD)
+        else:
+            win_header.addstr(1, 1, "Peers: " + "% 4d" % len(state['peerinfo']), curses.A_BOLD)
+
+        win_header.addstr(2, 1, "  Node IP                      Version           Recv      Sent", curses.A_BOLD)
+
         draw_peers(state)
 
     else:
@@ -22,12 +30,7 @@ def draw_window(state, window):
     win_header.refresh()
 
 def draw_peers(state):
-    win_peers = curses.newwin(18, 75, 2, 0)
-
-    if len(state['peerinfo']) > 17:
-        win_peers.addstr(0, 1, "Peers: " + "% 4d" % len(state['peerinfo']) + " (UP/DOWN: scroll)                            Recv        Sent", curses.A_BOLD)
-    else:
-        win_peers.addstr(0, 1, "Peers: " + "% 4d" % len(state['peerinfo']) + "                                              Recv        Sent", curses.A_BOLD)
+    win_peers = curses.newwin(17, 75, 3, 0)
 
     offset = state['peerinfo_offset']
 
@@ -35,17 +38,21 @@ def draw_peers(state):
         if index < len(state['peerinfo']):
             peer = state['peerinfo'][index]
             if (index == offset+16) and (index+1 < len(state['peerinfo'])):
-                win_peers.addstr(index+1-offset, 3, "... " + peer['addr'])
+                win_peers.addstr(index-offset, 3, "... " + peer['addr'])
             elif (index == offset) and (index > 0):
-                win_peers.addstr(index+1-offset, 3, "... " + peer['addr'])
+                win_peers.addstr(index-offset, 3, "... " + peer['addr'])
             else:
                 if peer['inbound']:
-                    win_peers.addstr(index+1-offset, 1, 'I')
+                    win_peers.addstr(index-offset, 1, 'I')
                 elif peer['syncnode']: # syncnodes are outgoing only
-                    win_peers.addstr(index+1-offset, 1, 'S') 
-                win_peers.addstr(index+1-offset, 3, peer['addr'])
-                win_peers.addstr(index+1-offset, 32, peer['subver'].strip("/"))
-                win_peers.addstr(index+1-offset, 50, str(peer['bytesrecv'] / 1024).rjust(10) + 'KB')
-                win_peers.addstr(index+1-offset, 62, str(peer['bytessent'] / 1024).rjust(10) + 'KB')
+                    win_peers.addstr(index-offset, 1, 'S') 
+                win_peers.addstr(index-offset, 3, peer['addr'])
+                win_peers.addstr(index-offset, 32, peer['subver'].strip("/"))
+
+                mbrecv = "% 7.1f" % ( float(peer['bytesrecv']) / 1048576 )
+                mbsent = "% 7.1f" % ( float(peer['bytessent']) / 1048576 )
+
+                win_peers.addstr(index-offset, 50, mbrecv + 'MB')
+                win_peers.addstr(index-offset, 60, mbsent + 'MB')
 
     win_peers.refresh()
