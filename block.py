@@ -45,7 +45,13 @@ def draw_transactions(state):
         if index < len(blockdata['tx']):
             if index == state['blocks']['cursor']:
                 win_transactions.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
-            win_transactions.addstr(index+1-offset, 3, blockdata['tx'][index])
+
+            if (index == offset+14) and (index+1 < len(blockdata['tx'])):
+                win_transactions.addstr(index+1-offset, 3, "... " + blockdata['tx'][index])
+            elif (index == offset) and (index > 0):
+                win_transactions.addstr(index+1-offset, 3, "... " + blockdata['tx'][index])
+            else:
+                win_transactions.addstr(index+1-offset, 3, blockdata['tx'][index])
 
     win_transactions.refresh()
 
