@@ -70,6 +70,8 @@ def draw_input_window(state, window, rpc_queue):
         window.refresh()
         state['mode'] = "block"
         state['blocks']['queried_block'] = entered_block
+        state['blocks']['cursor'] = 0
+        state['blocks']['offset'] = 0
 
     elif (len(entered_block) < 7) and entered_block.isdigit() and (int(entered_block) <= state['blockcount']):
         s = {'getblockhash': int(entered_block)}
@@ -79,6 +81,8 @@ def draw_input_window(state, window, rpc_queue):
         window.refresh()
         state['mode'] = "block"
         state['blocks']['browse_height'] = int(entered_block)
+        state['blocks']['cursor'] = 0
+        state['blocks']['offset'] = 0
 
     else:
         window.addstr(5, 1, "not a valid hash or height", color + curses.A_BOLD)

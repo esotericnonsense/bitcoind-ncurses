@@ -134,6 +134,8 @@ def user_input(state, window, rpc_queue):
                     if state['blocks']['loaded'] == 1:
                         state['blocks']['loaded'] = 0
                         state['blocks']['browse_height'] -= 1
+                        state['blocks']['cursor'] = 0
+                        state['blocks']['offset'] = 0
                         if state['blocks']['browse_height'] in state['blocks']:
                             block.draw_window(state, window)
                         else:
@@ -147,6 +149,8 @@ def user_input(state, window, rpc_queue):
                     if state['blocks']['loaded'] == 1:
                         state['blocks']['loaded'] = 0
                         state['blocks']['browse_height'] += 1
+                        state['blocks']['cursor'] = 0
+                        state['blocks']['offset'] = 0
                         if state['blocks']['browse_height'] in state['blocks']:
                             block.draw_window(state, window)
                         else:
@@ -196,8 +200,6 @@ def queue(state, window, interface_queue):
                 if s['getblock']['hash'] == state['blocks']['queried_block']:
                     state['blocks'].pop('queried_block')
                     state['blocks']['browse_height'] = height
-                    state['blocks']['cursor'] = 0
-                    state['blocks']['offset'] = 0
             block.draw_window(state, window)
 
     elif 'getdifficulty' in s:
