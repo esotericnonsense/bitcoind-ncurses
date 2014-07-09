@@ -34,13 +34,18 @@ def draw_peers(state):
     for index in xrange(offset, offset+17):
         if index < len(state['peerinfo']):
             peer = state['peerinfo'][index]
-            if peer['inbound']:
-                win_peers.addstr(index+1-offset, 1, 'I')
-            elif peer['syncnode']: # syncnodes are outgoing only
-                win_peers.addstr(index+1-offset, 1, 'S') 
-            win_peers.addstr(index+1-offset, 3, peer['addr'])
-            win_peers.addstr(index+1-offset, 32, peer['subver'].strip("/"))
-            win_peers.addstr(index+1-offset, 50, str(peer['bytesrecv'] / 1024).rjust(10) + 'KB')
-            win_peers.addstr(index+1-offset, 62, str(peer['bytessent'] / 1024).rjust(10) + 'KB')
+            if (index == offset+16) and (index+1 < len(state['peerinfo'])):
+                win_peers.addstr(index+1-offset, 3, "... " + peer['addr'])
+            elif (index == offset) and (index > 0):
+                win_peers.addstr(index+1-offset, 3, "... " + peer['addr'])
+            else:
+                if peer['inbound']:
+                    win_peers.addstr(index+1-offset, 1, 'I')
+                elif peer['syncnode']: # syncnodes are outgoing only
+                    win_peers.addstr(index+1-offset, 1, 'S') 
+                win_peers.addstr(index+1-offset, 3, peer['addr'])
+                win_peers.addstr(index+1-offset, 32, peer['subver'].strip("/"))
+                win_peers.addstr(index+1-offset, 50, str(peer['bytesrecv'] / 1024).rjust(10) + 'KB')
+                win_peers.addstr(index+1-offset, 62, str(peer['bytessent'] / 1024).rjust(10) + 'KB')
 
     win_peers.refresh()
