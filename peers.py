@@ -36,8 +36,10 @@ def draw_peers(state):
             peer = state['peerinfo'][index]
             if peer['inbound']:
                 win_peers.addstr(index+1-offset, 1, 'I')
-            win_peers.addstr(index+1-offset, 3, peer['addr'])
-            win_peers.addstr(index+1-offset, 32, peer['subver'].strip("/"))
+            if peer['syncnode']:
+                win_peers.addstr(index+1-offset, 2, 'S') # is it possible for a sync node to be incoming? if not, combine
+            win_peers.addstr(index+1-offset, 4, peer['addr'])
+            win_peers.addstr(index+1-offset, 33, peer['subver'].strip("/"))
             win_peers.addstr(index+1-offset, 50, str(peer['bytesrecv'] / 1024).rjust(10) + 'KB')
             win_peers.addstr(index+1-offset, 62, str(peer['bytessent'] / 1024).rjust(10) + 'KB')
 

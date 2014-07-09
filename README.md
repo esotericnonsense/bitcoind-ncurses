@@ -33,7 +33,6 @@ $ python main.py -c some_other_config_file.conf
 * improve CPU efficiency; change polling method to use interrupts more
 * handle all crashes such that terminal returns to a sane state
 * mean block size/tx count over last X blocks
-* peer viewer
 * fee estimation / fee data
 * seek block by timestamp
 * bandwidth chart?
