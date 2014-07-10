@@ -25,7 +25,7 @@ def draw_window(state, window):
 
     else:
         win_header.addstr(0, 1, "peer info not loaded (this should not happen!)", curses.A_BOLD)
-        win_header.addstr(1, 1, "press 'M' to return to main window", curses.A_BOLD)
+        win_header.addstr(1, 1, "press 'M' to return to monitor window", curses.A_BOLD)
 
     win_header.refresh()
 
