@@ -28,7 +28,7 @@ def draw_window(state, window):
         else:
             win_header.addstr(0, 1, "no block loaded", curses.A_BOLD)
             win_header.addstr(1, 1, "press 'G' to enter a block hash or height", curses.A_BOLD)
-            win_header.addstr(2, 1, "or 'D' to return to main window", curses.A_BOLD)
+            win_header.addstr(2, 1, "or 'M' to return to monitor window", curses.A_BOLD)
 
     win_header.refresh()
 
