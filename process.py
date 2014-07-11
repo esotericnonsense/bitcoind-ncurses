@@ -10,6 +10,9 @@ import wallet
 def user_input(state, window, rpc_queue):
     c = window.getch()
 
+    if not c:
+        return False
+
     if c == ord('q') or c == ord('Q'):
         return True
 
