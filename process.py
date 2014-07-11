@@ -83,7 +83,7 @@ def user_input(state, window, rpc_queue):
         elif state['mode'] == "wallet":
             if 'wallet' in state: 
                 if state['wallet']['offset'] < (len(state['wallet']['view_string']) - 16):
-                    state['wallet']['offset'] += 2
+                    state['wallet']['offset'] += 4
                     wallet.draw_transactions(state)
 
     if c == curses.KEY_UP:
@@ -112,7 +112,7 @@ def user_input(state, window, rpc_queue):
         elif state['mode'] == "wallet":
             if 'wallet' in state:
                 if state['wallet']['offset'] > 0:
-                    state['wallet']['offset'] -= 2
+                    state['wallet']['offset'] -= 4
                     wallet.draw_transactions(state)
 
     if c == curses.KEY_PPAGE:
@@ -277,12 +277,16 @@ def queue(state, window, interface_queue):
                 output_string +=  "% 17.8f" % entry['cumulative_balance'] + "BTC"
                 state['wallet']['view_string'].append(output_string)
 
-                if 'address' in entry: # TODO: more sanity checking here
-                    output_string = "           " + entry['category'].ljust(9) + entry['address']
-                else:
-                    output_string = "unk " + entry['txid']
-
+                output_string = entry['txid'].rjust(74)
                 state['wallet']['view_string'].append(output_string)
+
+                if 'address' in entry: # TODO: more sanity checking here
+                    output_string = "          " + entry['category'].ljust(15) + entry['address']
+                else:
+                    output_string = "          unknown transaction type"
+                state['wallet']['view_string'].append(output_string)
+
+                state['wallet']['view_string'].append("")
 
         if state['mode'] == "wallet":
             wallet.draw_window(state, window)
