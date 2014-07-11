@@ -249,23 +249,39 @@ def queue(state, window, interface_queue):
 
         state['wallet']['view_string'] = []
 
-        # ensure 'send' appears below 'receive' if simultaneous
-        state['wallet']['transactions'].sort(key=lambda entry: entry['category'])
-        state['wallet']['transactions'].sort(key=lambda entry: entry['time'], reverse=True)
+        state['wallet']['transactions'].sort(key=lambda entry: entry['category'], reverse=True)
+
+        # add cumulative balance field to transactiosn once ordered by time
+        state['wallet']['transactions'].sort(key=lambda entry: entry['time'])
+        cumulative_balance = 0
+        nonce = 0 # ensures a definitive ordering of transactions for cumulative balance
+        for entry in state['wallet']['transactions']:
+            entry['nonce'] = nonce
+            nonce += 1
+            if 'amount' in entry:
+                if 'fee' in entry:
+                    cumulative_balance += entry['fee']
+                cumulative_balance += entry['amount']
+                entry['cumulative_balance'] = cumulative_balance
+
+        state['wallet']['transactions'].sort(key=lambda entry: entry['nonce'], reverse=True)
 
         for entry in state['wallet']['transactions']: 
-            if 'address' in entry: # TODO: more sanity checking here
+            if 'txid' in entry:
                 entry_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(entry['time']))
-                output_string = entry_time + " %8d" % entry['confirmations'] + " confirmations"
-                output_string +=  "% 17.8f" % entry['amount'] + "BTC "
+                output_string = entry_time + " %8d" % entry['confirmations'] + " conf"
+                delta = entry['amount']
+                if 'fee' in entry:
+                    delta += entry['fee']
+                output_string +=  "% 17.8f" % delta + "BTC "
+                output_string +=  "% 17.8f" % entry['cumulative_balance'] + "BTC"
                 state['wallet']['view_string'].append(output_string)
-                output_string = "           " + entry['category'].ljust(9) + entry['address']
-                state['wallet']['view_string'].append(output_string)
-            elif 'txid' in entry:
-                output_string = entry_time + " %8d" % entry['confirmations'] + " confirmations"
-                output_string +=  "% 17.8f" % entry['amount'] + "BTC "
-                state['wallet']['view_string'].append(output_string)
-                output_string = "unk " + entry['txid']
+
+                if 'address' in entry: # TODO: more sanity checking here
+                    output_string = "           " + entry['category'].ljust(9) + entry['address']
+                else:
+                    output_string = "unk " + entry['txid']
+
                 state['wallet']['view_string'].append(output_string)
 
         if state['mode'] == "wallet":
