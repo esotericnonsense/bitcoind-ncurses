@@ -73,6 +73,12 @@ def loop(interface_queue, rpc_queue, config):
                 interface_queue.put({'getpeerinfo': peerinfo})
             except: pass
 
+        elif 'listsinceblock' in s:
+            try:
+                sinceblock = rpchandle.listsinceblock()
+                interface_queue.put({'listsinceblock': sinceblock})
+            except: pass
+
         if (time.time() - last_update) > 2:
             try:
                 nettotals = rpchandle.getnettotals()

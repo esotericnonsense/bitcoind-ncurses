@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-import curses, Queue, textwrap 
+import curses, Queue, textwrap, time 
 
 import tx
 import block
 import monitor
 import peers
+import wallet
 
 def user_input(state, window, rpc_queue):
     c = window.getch()
@@ -23,6 +24,10 @@ def user_input(state, window, rpc_queue):
     if c == ord('p') or c == ord('P'):
         rpc_queue.put('getpeerinfo')
         state['mode'] = "peers"
+
+    if c == ord('w') or c == ord('W'):
+        rpc_queue.put('listsinceblock')
+        state['mode'] = "wallet"
 
     if c == ord('g') or c == ord('G'):
         if state['mode'] == "transaction":
@@ -72,6 +77,12 @@ def user_input(state, window, rpc_queue):
                     state['peerinfo_offset'] += 1
                     peers.draw_peers(state)
 
+        elif state['mode'] == "wallet":
+            if 'wallet' in state: 
+                if state['wallet']['offset'] < (len(state['wallet']['view_string']) - 16):
+                    state['wallet']['offset'] += 2
+                    wallet.draw_transactions(state)
+
     if c == curses.KEY_UP:
         if state['mode'] == "transaction":
             if 'tx' in state:
@@ -94,6 +105,12 @@ def user_input(state, window, rpc_queue):
                 if state['peerinfo_offset'] > 0:
                     state['peerinfo_offset'] -= 1
                     peers.draw_peers(state)
+
+        elif state['mode'] == "wallet":
+            if 'wallet' in state:
+                if state['wallet']['offset'] > 0:
+                    state['wallet']['offset'] -= 2
+                    wallet.draw_transactions(state)
 
     if c == curses.KEY_PPAGE:
         if state['mode'] == "transaction":
@@ -221,6 +238,25 @@ def queue(state, window, interface_queue):
         state['peerinfo_offset'] = 0
         if state['mode'] == "peers":
             peers.draw_window(state, window)
+
+    elif 'listsinceblock' in s:
+        state['wallet'] = s['listsinceblock']
+        state['wallet']['cursor'] = 0
+        state['wallet']['offset'] = 0
+
+        state['wallet']['view_string'] = []
+        for entry in state['wallet']['transactions']:
+            #TODO: sort by date or confirmations
+            if 'address' in entry: # TODO: more sanity checking here
+                entry_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(entry['time']))
+                output_string = entry_time + " %8d" % entry['confirmations'] + " confirmations"
+                output_string +=  "% 17.8f" % entry['amount'] + "BTC "
+                state['wallet']['view_string'].append(output_string)
+                output_string = "           " + entry['category'].ljust(9) + entry['address']
+                state['wallet']['view_string'].append(output_string)
+
+        if state['mode'] == "wallet":
+            wallet.draw_window(state, window)
 
     elif 'lastblocktime' in s:
         state['lastblocktime'] = s['lastblocktime']
