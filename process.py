@@ -245,7 +245,12 @@ def queue(state, window, interface_queue):
         state['wallet']['offset'] = 0
 
         state['wallet']['view_string'] = []
-        for entry in state['wallet']['transactions']:
+
+        # ensure 'send' appears below 'receive' if simultaneous
+        state['wallet']['transactions'].sort(key=lambda entry: entry['category'])
+        state['wallet']['transactions'].sort(key=lambda entry: entry['time'], reverse=True)
+
+        for entry in state['wallet']['transactions']: 
             #TODO: sort by date or confirmations
             if 'address' in entry: # TODO: more sanity checking here
                 entry_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(entry['time']))
