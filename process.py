@@ -208,6 +208,9 @@ def queue(state, window, interface_queue):
     elif 'getbalance' in s:
         state['balance'] = s['getbalance']
 
+    elif 'getunconfirmedbalance' in s:
+        state['unconfirmedbalance'] = s['getunconfirmedbalance']
+
     elif 'getblock' in s:
         height = s['getblock']['height']
 

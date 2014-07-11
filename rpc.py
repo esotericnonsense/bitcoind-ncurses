@@ -94,7 +94,9 @@ def loop(interface_queue, rpc_queue, config):
 
             try:
                 balance = rpchandle.getbalance()
+                unconfirmedbalance = rpchandle.getunconfirmedbalance()
                 interface_queue.put({'getbalance' : balance})
+                interface_queue.put({'getunconfirmedbalance' : unconfirmedbalance})
             except: pass
 
             if (prev_blockcount != blockcount): # minimise RPC calls

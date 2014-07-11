@@ -13,8 +13,13 @@ def draw_window(state, window):
         if 'testnet' in state:
             if state['testnet']: color = curses.color_pair(2)
         win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [wallet mode] (press 'W' to refresh)", color + curses.A_BOLD)
+
         if 'balance' in state:
-            win_header.addstr(1, 1, "balance: " + "%0.8f" % state['balance'] + " BTC", curses.A_BOLD)
+            balance_string = "%0.8f" % state['balance'] + " BTC"
+            if 'unconfirmedbalance' in state:
+                if state['unconfirmedbalance'] != 0:
+                    balance_string += " (+" + "%0.8f" % state['unconfirmedbalance'] + " unconf)"
+            window.addstr(1, 1, balance_string, curses.A_BOLD)
         draw_transactions(state)
 
     else:

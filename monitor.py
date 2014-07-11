@@ -19,7 +19,11 @@ def draw_window(state, window):
         window.addstr(0, 32, str(state['peers']) + " peers    ", curses.A_BOLD)
 
     if 'balance' in state:
-        window.addstr(1, 32, "%0.8f" % state['balance'] + " BTC", curses.A_BOLD)
+        balance_string = "%0.8f" % state['balance'] + " BTC"
+        if 'unconfirmedbalance' in state:
+            if state['unconfirmedbalance'] != 0:
+                balance_string += " (+" + "%0.8f" % state['unconfirmedbalance'] + " unconf)"
+        window.addstr(1, 32, balance_string, curses.A_BOLD)
 
     if 'blockcount' in state:
         height = str(state['blockcount'])
@@ -79,8 +83,10 @@ def draw_window(state, window):
         index += 1
 
     if 'totalbytesrecv' in state:
-        window.addstr(0, 57, "D: " + "% 10.2f" % (state['totalbytesrecv']*1.0/1048576) + " MB", curses.A_BOLD)
-        window.addstr(1, 57, "U: " + "% 10.2f" % (state['totalbytessent']*1.0/1048576) + " MB", curses.A_BOLD)
+        recvmb = "%.2f" % (state['totalbytesrecv']*1.0/1048576)
+        sentmb = "%.2f" % (state['totalbytessent']*1.0/1048576)
+        recvsent_string = "D/U: " + recvmb + " / " + sentmb + " MB"
+        window.addstr(0, 43, recvsent_string.rjust(30), curses.A_BOLD)
 
     if 'rawmempool' in state:
         tx_in_mempool = len(state['rawmempool'])
