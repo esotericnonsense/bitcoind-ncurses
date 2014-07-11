@@ -251,13 +251,18 @@ def queue(state, window, interface_queue):
         state['wallet']['transactions'].sort(key=lambda entry: entry['time'], reverse=True)
 
         for entry in state['wallet']['transactions']: 
-            #TODO: sort by date or confirmations
             if 'address' in entry: # TODO: more sanity checking here
                 entry_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(entry['time']))
                 output_string = entry_time + " %8d" % entry['confirmations'] + " confirmations"
                 output_string +=  "% 17.8f" % entry['amount'] + "BTC "
                 state['wallet']['view_string'].append(output_string)
                 output_string = "           " + entry['category'].ljust(9) + entry['address']
+                state['wallet']['view_string'].append(output_string)
+            elif 'txid' in entry:
+                output_string = entry_time + " %8d" % entry['confirmations'] + " confirmations"
+                output_string +=  "% 17.8f" % entry['amount'] + "BTC "
+                state['wallet']['view_string'].append(output_string)
+                output_string = "unk " + entry['txid']
                 state['wallet']['view_string'].append(output_string)
 
         if state['mode'] == "wallet":
