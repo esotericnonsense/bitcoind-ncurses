@@ -5,6 +5,7 @@ ncurses front-end for bitcoind
 ![ScreenShot](/screenshots/bitcoind-ncurses-block.png)
 ![ScreenShot](/screenshots/bitcoind-ncurses-tx.png)
 ![ScreenShot](/screenshots/bitcoind-ncurses-peers.png)
+![ScreenShot](/screenshots/bitcoind-ncurses-wallet.png)
 
 produced by Amphibian (azeteki, atelopus_zeteki)
 
