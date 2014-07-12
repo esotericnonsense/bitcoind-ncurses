@@ -38,7 +38,6 @@ $ python main.py -c some_other_config_file.conf
 * handle all crashes such that terminal returns to a sane state
 * mean block size/tx count over last X blocks
 * fee estimation / fee data
-* seek block by timestamp
 * bandwidth chart
 * transaction creation support (if I feel suicidal)
 * more testing for edge cases (paramount for above)
