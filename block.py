@@ -63,7 +63,7 @@ def draw_input_window(state, window, rpc_queue):
     window.clear()
     window.addstr(0, 1, "bitcoind-ncurses " + g.version + " [block input mode]", color + curses.A_BOLD)
     window.addstr(1, 1, "please enter block height or hash", curses.A_BOLD)
-    window.addstr(2, 1, "or timestamp (format: YYYY-MM-DD hh:mm:ss or YYYY-MM-DD", curses.A_BOLD)
+    window.addstr(2, 1, "or timestamp (accepted formats: YYYY-MM-DD hh:mm:ss, YYYY-MM-DD)", curses.A_BOLD)
     window.refresh()
 
     win_textbox = curses.newwin(1,67,4,1) # h,w,y,x
