@@ -177,6 +177,36 @@ def user_input(state, window, rpc_queue):
                             s = {'getblockhash': state['blocks']['browse_height']}
                             rpc_queue.put(s)
 
+    if c == curses.KEY_HOME:
+        if state['mode'] == "block":
+            if 'blocks' in state:
+                if (state['blocks']['browse_height']) > 999:
+                    if state['blocks']['loaded'] == 1:
+                        state['blocks']['loaded'] = 0
+                        state['blocks']['browse_height'] -= 1000
+                        state['blocks']['cursor'] = 0
+                        state['blocks']['offset'] = 0
+                        if str(state['blocks']['browse_height']) in state['blocks']:
+                            block.draw_window(state, window)
+                        else:
+                            s = {'getblockhash': state['blocks']['browse_height']}
+                            rpc_queue.put(s)
+
+    if c == curses.KEY_END:
+        if state['mode'] == "block":
+            if 'blocks' in state:
+                if (state['blocks']['browse_height']) < state['blockcount'] - 999:
+                    if state['blocks']['loaded'] == 1:
+                        state['blocks']['loaded'] = 0
+                        state['blocks']['browse_height'] += 1000
+                        state['blocks']['cursor'] = 0
+                        state['blocks']['offset'] = 0
+                        if str(state['blocks']['browse_height']) in state['blocks']:
+                            block.draw_window(state, window)
+                        else:
+                            s = {'getblockhash': state['blocks']['browse_height']}
+                            rpc_queue.put(s)
+
     return False
 
 def queue(state, window, interface_queue):

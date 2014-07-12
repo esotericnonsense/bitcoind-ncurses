@@ -18,7 +18,7 @@ def draw_window(state, window):
                 if 'testnet' in state:
                     if state['testnet']: color = curses.color_pair(2)
                 win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [block view] (press 'G' to enter a block)", color + curses.A_BOLD)
-                win_header.addstr(1, 1, "height: " + height.zfill(6) + " (LEFT/RIGHT: browse, L: go to latest)", curses.A_BOLD)
+                win_header.addstr(1, 1, "height: " + height.zfill(6) + " (LEFT/RIGHT: browse, HOME/END: quick browse, L: latest)", curses.A_BOLD)
                 win_header.addstr(2, 1, "hash: " + blockdata['hash'], curses.A_BOLD)
                 win_header.addstr(3, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ", curses.A_BOLD)
                 win_header.addstr(3, 52, time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(blockdata['time'])), curses.A_BOLD)
