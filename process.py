@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import curses, Queue, textwrap, time, calendar 
+import curses, Queue, textwrap, time
 
 import tx
 import block

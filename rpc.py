@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from bitcoinrpc.authproxy import AuthServiceProxy
 import curses, time, Queue 
-import calendar
 
 def stop(interface_queue, error_message):
     interface_queue.put({'stop': error_message})
