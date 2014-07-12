@@ -156,7 +156,7 @@ def user_input(state, window, rpc_queue):
                         state['blocks']['browse_height'] -= 1
                         state['blocks']['cursor'] = 0
                         state['blocks']['offset'] = 0
-                        if state['blocks']['browse_height'] in state['blocks']:
+                        if str(state['blocks']['browse_height']) in state['blocks']:
                             block.draw_window(state, window)
                         else:
                             s = {'getblockhash': state['blocks']['browse_height']}
@@ -171,7 +171,7 @@ def user_input(state, window, rpc_queue):
                         state['blocks']['browse_height'] += 1
                         state['blocks']['cursor'] = 0
                         state['blocks']['offset'] = 0
-                        if state['blocks']['browse_height'] in state['blocks']:
+                        if str(state['blocks']['browse_height']) in state['blocks']:
                             block.draw_window(state, window)
                         else:
                             s = {'getblockhash': state['blocks']['browse_height']}
