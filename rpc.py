@@ -18,6 +18,14 @@ def init(config):
     except:
         return False
 
+def rpcrequest(rpchandle, request, interface_queue):
+    try:
+        response = getattr(rpchandle, request)()
+        interface_queue.put({request: response})
+        return response
+    except:
+        return False
+
 def getblock(rpchandle, interface_queue, block_to_get, queried = False):
     try:
         if (len(str(block_to_get)) < 7) and str(block_to_get).isdigit(): 
@@ -46,10 +54,8 @@ def loop(interface_queue, rpc_queue, config):
 
     last_update = time.time() - 2
     
-    try:
-        info = rpchandle.getinfo()
-        interface_queue.put({'getinfo': info})
-    except:
+    info = rpcrequest(rpchandle, 'getinfo', interface_queue)
+    if not info:
         stop(interface_queue, "first getinfo failed")
         return True
 
@@ -80,20 +86,15 @@ def loop(interface_queue, rpc_queue, config):
                 return True
 
         elif 'getpeerinfo' in s:
-            try:
-                peerinfo = rpchandle.getpeerinfo()
-                interface_queue.put({'getpeerinfo': peerinfo})
-            except: pass
+            rpcrequest(rpchandle, 'getpeerinfo', interface_queue)
 
         elif 'listsinceblock' in s:
-            try:
-                sinceblock = rpchandle.listsinceblock()
-                interface_queue.put({'listsinceblock': sinceblock})
-            except: pass
+            rpcrequest(rpchandle, 'listsinceblock', interface_queue)
 
         elif 'findblockbytimestamp' in s:
             request = s['findblockbytimestamp']
 
+            # initializing the while loop 
             block_to_try = 0
             delta = 10000 
             iterations = 0
@@ -102,8 +103,6 @@ def loop(interface_queue, rpc_queue, config):
                 block = getblock(rpchandle, interface_queue, block_to_try, True)
                 if not block:
                     break
-
-                iterations += 1
 
                 delta = request - block['time']
                 block_to_try += int(delta / 600) # guess 10 mins per block. seems to work on testnet anyway 
@@ -116,49 +115,36 @@ def loop(interface_queue, rpc_queue, config):
                     block = getblock(rpchandle, interface_queue, blockcount, True)
                     break
 
+                iterations += 1
+
         if (time.time() - last_update) > 2:
-            try:
-                nettotals = rpchandle.getnettotals()
-                connectioncount = rpchandle.getconnectioncount()
-                blockcount = rpchandle.getblockcount()
-                rawmempool = rpchandle.getrawmempool()
+            rpcrequest(rpchandle, 'getnettotals', interface_queue)
+            rpcrequest(rpchandle, 'getconnectioncount', interface_queue)
+            rpcrequest(rpchandle, 'getrawmempool', interface_queue)
+            rpcrequest(rpchandle, 'getbalance', interface_queue)
+            rpcrequest(rpchandle, 'getunconfirmedbalance', interface_queue)
 
-                interface_queue.put({'getnettotals' : nettotals})
-                interface_queue.put({'getconnectioncount' : connectioncount})
-                interface_queue.put({'getblockcount' : blockcount})
-                interface_queue.put({'getrawmempool' : rawmempool})
-            except: pass
+            blockcount = rpcrequest(rpchandle, 'getblockcount', interface_queue)
+            if blockcount:
+                if (prev_blockcount != blockcount): # minimise RPC calls
+                    if prev_blockcount == 0:
+                        lastblocktime = {'lastblocktime': 0}
+                    else:
+                        lastblocktime = {'lastblocktime': time.time()}
+                    interface_queue.put(lastblocktime)
 
-            try:
-                balance = rpchandle.getbalance()
-                unconfirmedbalance = rpchandle.getunconfirmedbalance()
-                interface_queue.put({'getbalance' : balance})
-                interface_queue.put({'getunconfirmedbalance' : unconfirmedbalance})
-            except: pass
+                    block = getblock(rpchandle, interface_queue, blockcount)
+                    if block:
+                        prev_blockcount = blockcount
 
-            if (prev_blockcount != blockcount): # minimise RPC calls
-                if prev_blockcount == 0:
-                    lastblocktime = {'lastblocktime': 0}
-                else:
-                    lastblocktime = {'lastblocktime': time.time()}
-                interface_queue.put(lastblocktime)
+                    rpcrequest(rpchandle, 'getdifficulty', interface_queue)
 
-                block = getblock(rpchandle, interface_queue, blockcount)
-                if block:
-                    prev_blockcount = blockcount
-
-                try:
-                    difficulty = rpchandle.getdifficulty()
-                    interface_queue.put({'getdifficulty': difficulty})
-                except: pass
-
-                try:
-                    nethash144 = rpchandle.getnetworkhashps(144)
-                    nethash2016 = rpchandle.getnetworkhashps(2016)
-                    interface_queue.put({'getnetworkhashps': {'blocks': 144, 'value': nethash144}})
-                    interface_queue.put({'getnetworkhashps': {'blocks': 2016, 'value': nethash2016}})
-                except: pass
-
+                    try:
+                        nethash144 = rpchandle.getnetworkhashps(144)
+                        nethash2016 = rpchandle.getnetworkhashps(2016)
+                        interface_queue.put({'getnetworkhashps': {'blocks': 144, 'value': nethash144}})
+                        interface_queue.put({'getnetworkhashps': {'blocks': 2016, 'value': nethash2016}})
+                    except: pass
 
             last_update = time.time()
 
