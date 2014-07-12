@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import curses, Queue, textwrap, time 
+import curses, Queue, textwrap, time, calendar 
 
 import tx
 import block
@@ -47,11 +47,11 @@ def user_input(state, window, rpc_queue):
     if c == ord('l') or c == ord('L'):
         if state['mode'] == "block":
             if 'blockcount' in state:
-                state['blocks']['browse_height'] = state['blockcount']
-                if 'browse_height' not in state['blocks']:
-                    s = {'getblockhash': state['blocks']['browse_height']}
+                if state['blockcount'] not in state['blocks']:
+                    s = {'getblockhash': state['blockcount']}
                     rpc_queue.put(s)
                 else:
+                    state['blocks']['browse_height'] = state['blockcount']
                     block.draw_window(state, window)
 
     if c == curses.KEY_DOWN:
@@ -219,11 +219,12 @@ def queue(state, window, interface_queue):
         if state['mode'] == "monitor":
             monitor.draw_window(state, window)
         if state['mode'] == "block":
-            if 'queried_block' in state['blocks']:
-                if s['getblock']['hash'] == state['blocks']['queried_block']:
-                    state['blocks'].pop('queried_block')
-                    state['blocks']['browse_height'] = height
-            block.draw_window(state, window)
+            if 'queried' in s['getblock']:
+                state['blocks'][str(height)].pop('queried')
+                state['blocks']['browse_height'] = height
+                state['blocks']['offset'] = 0
+                state['blocks']['cursor'] = 0
+                block.draw_window(state, window)
 
     elif 'getdifficulty' in s:
         state['difficulty'] = s['getdifficulty']

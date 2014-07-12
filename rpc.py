@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from bitcoinrpc.authproxy import AuthServiceProxy
 import curses, time, Queue 
+import calendar
 
 def stop(interface_queue, error_message):
     interface_queue.put({'stop': error_message})
@@ -48,12 +49,14 @@ def loop(interface_queue, rpc_queue, config):
             try:
                 blockhash = rpchandle.getblockhash(s['getblockhash'])
                 block = rpchandle.getblock(blockhash)
+                block['queried'] = 1
                 interface_queue.put({'getblock': block})
             except: pass
 
         elif 'getblock' in s:
             try:
                 block = rpchandle.getblock(s['getblock'])
+                block['queried'] = 1
                 interface_queue.put({'getblock': block})
             except: pass
 
@@ -78,6 +81,40 @@ def loop(interface_queue, rpc_queue, config):
                 sinceblock = rpchandle.listsinceblock()
                 interface_queue.put({'listsinceblock': sinceblock})
             except: pass
+
+        elif 'findblockbytimestamp' in s:
+            request = s['findblockbytimestamp']
+
+            block_to_try = 0
+            delta = 10000 
+            iterations = 0
+ 
+            while abs(delta) > 3600 and iterations < 15: # one day
+                blockhash = rpchandle.getblockhash(block_to_try)
+                block = rpchandle.getblock(blockhash)
+                block['queried'] = 1
+                interface_queue.put({'getblock': block})
+
+                iterations += 1
+
+                delta = request - block['time']
+                block_to_try += int(delta / 600) # guess 10 mins per block. seems to work on testnet anyway 
+
+                if (block_to_try < 0):
+                    blockhash = rpchandle.getblockhash(0)
+                    block = rpchandle.getblock(blockhash)
+                    block['queried'] = 1
+                    interface_queue.put({'getblock': block})
+
+                    break # assume genesis has earliest timestamp
+
+                elif (block_to_try > blockcount):
+                    blockhash = rpchandle.getblockhash(blockcount)
+                    block = rpchandle.getblock(blockhash)
+                    block['queried'] = 1
+                    interface_queue.put({'getblock': block})
+
+                    break
 
         if (time.time() - last_update) > 2:
             try:
