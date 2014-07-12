@@ -18,6 +18,25 @@ def init(config):
     except:
         return False
 
+def getblock(rpchandle, interface_queue, block_to_get, queried = False):
+    try:
+        if (len(str(block_to_get)) < 7) and str(block_to_get).isdigit(): 
+            blockhash = rpchandle.getblockhash(block_to_get)
+        elif len(block_to_get) == 64:
+            blockhash = block_to_get
+
+        block = rpchandle.getblock(blockhash)
+
+        if queried:
+            block['queried'] = 1
+
+        interface_queue.put({'getblock': block})
+
+        return block
+
+    except:
+        return 0
+
 def loop(interface_queue, rpc_queue, config):
     # TODO: add error checking for broken config, improve exceptions
     rpchandle = init(config)
@@ -45,19 +64,10 @@ def loop(interface_queue, rpc_queue, config):
             break
 
         elif 'getblockhash' in s:
-            try:
-                blockhash = rpchandle.getblockhash(s['getblockhash'])
-                block = rpchandle.getblock(blockhash)
-                block['queried'] = 1
-                interface_queue.put({'getblock': block})
-            except: pass
+            getblock(rpchandle, interface_queue, s['getblockhash'], True)
 
         elif 'getblock' in s:
-            try:
-                block = rpchandle.getblock(s['getblock'])
-                block['queried'] = 1
-                interface_queue.put({'getblock': block})
-            except: pass
+            getblock(rpchandle, interface_queue, s['getblock'], True)
 
         elif 'txid' in s:
             try:
@@ -89,10 +99,9 @@ def loop(interface_queue, rpc_queue, config):
             iterations = 0
  
             while abs(delta) > 3600 and iterations < 15: # one day
-                blockhash = rpchandle.getblockhash(block_to_try)
-                block = rpchandle.getblock(blockhash)
-                block['queried'] = 1
-                interface_queue.put({'getblock': block})
+                block = getblock(rpchandle, interface_queue, block_to_try, True)
+                if not block:
+                    break
 
                 iterations += 1
 
@@ -100,19 +109,11 @@ def loop(interface_queue, rpc_queue, config):
                 block_to_try += int(delta / 600) # guess 10 mins per block. seems to work on testnet anyway 
 
                 if (block_to_try < 0):
-                    blockhash = rpchandle.getblockhash(0)
-                    block = rpchandle.getblock(blockhash)
-                    block['queried'] = 1
-                    interface_queue.put({'getblock': block})
-
+                    block = getblock(rpchandle, interface_queue, 0, True)
                     break # assume genesis has earliest timestamp
 
                 elif (block_to_try > blockcount):
-                    blockhash = rpchandle.getblockhash(blockcount)
-                    block = rpchandle.getblock(blockhash)
-                    block['queried'] = 1
-                    interface_queue.put({'getblock': block})
-
+                    block = getblock(rpchandle, interface_queue, blockcount, True)
                     break
 
         if (time.time() - last_update) > 2:
@@ -142,13 +143,9 @@ def loop(interface_queue, rpc_queue, config):
                     lastblocktime = {'lastblocktime': time.time()}
                 interface_queue.put(lastblocktime)
 
-                try:
-                    blockhash = rpchandle.getblockhash(blockcount)
-                    block = rpchandle.getblock(blockhash)
-                    interface_queue.put({'getblock': block})
-
+                block = getblock(rpchandle, interface_queue, blockcount)
+                if block:
                     prev_blockcount = blockcount
-                except: pass
 
                 try:
                     difficulty = rpchandle.getdifficulty()
