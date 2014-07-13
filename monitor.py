@@ -46,12 +46,13 @@ def draw_window(state, window):
                     coinbase_amount = blockdata['coinbase_amount']
                     total_fees = coinbase_amount - block_subsidy # assumption, mostly correct
 
-                    fee_percentage = "%0.2f" % ((total_fees / coinbase_amount) * 100)
-                    coinbase_amount_str = "%0.8f" % coinbase_amount
-                    window.addstr(7, 1, "Total block reward: " + coinbase_amount_str + " BTC (" + fee_percentage + "% fees)") 
+                    if coinbase_amount > 0:
+                        fee_percentage = "%0.2f" % ((total_fees / coinbase_amount) * 100)
+                        coinbase_amount_str = "%0.8f" % coinbase_amount
+                        window.addstr(7, 1, "Total block reward: " + coinbase_amount_str + " BTC (" + fee_percentage + "% fees)") 
 
                     fees_per_tx = (total_fees / tx_count) * 1000
-                    fees_per_kb = (total_fees / (blockdata['size'] / 1024)) * 1000
+                    fees_per_kb = ((total_fees * 1024) / blockdata['size']) * 1000
                     total_fees_str = "%0.8f" % total_fees + " BTC"
                     fees_per_tx = "%0.5f" % fees_per_tx + " mBTC/tx"
                     fees_per_kb = "%0.5f" % fees_per_kb + " mBTC/KB"
