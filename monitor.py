@@ -32,7 +32,9 @@ def draw_window(state, window):
 
             window.addstr(3, 1, height.zfill(6) + ": " + str(blockdata['hash']))
             window.addstr(4, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ")
-            window.addstr(5, 1, "Transactions:" + "% 4d" % len(blockdata['tx']))
+            tx_count = len(blockdata['tx'])
+            bytes_per_tx = blockdata['size'] / tx_count
+            window.addstr(5, 1, "Transactions: " + str(tx_count) + " (" + str(bytes_per_tx) + " bytes/tx)")
 
             if 'coinbase_amount' in blockdata:
                 if state['blockcount'] < 210000:
@@ -42,7 +44,7 @@ def draw_window(state, window):
 
                 if block_subsidy: # this will fail after block 420,000. TODO: stop being lazy and do it properly
                     total_fees = blockdata['coinbase_amount'] - block_subsidy # assumption, mostly correct
-                    fees_per_tx = (total_fees / len(blockdata['tx'])) * 1000
+                    fees_per_tx = (total_fees / tx_count) * 1000
                     fees_per_kb = (total_fees / (blockdata['size'] / 1024)) * 1000
                     total_fees = "%0.8f" % total_fees + " BTC"
                     fees_per_tx = "%0.5f" % fees_per_tx + " mBTC/tx"
