@@ -43,13 +43,20 @@ def draw_window(state, window):
                     block_subsidy = 25
 
                 if block_subsidy: # this will fail after block 420,000. TODO: stop being lazy and do it properly
-                    total_fees = blockdata['coinbase_amount'] - block_subsidy # assumption, mostly correct
+                    coinbase_amount = blockdata['coinbase_amount']
+                    total_fees = coinbase_amount - block_subsidy # assumption, mostly correct
+
+                    fee_percentage = "%0.2f" % ((total_fees / coinbase_amount) * 100)
+                    coinbase_amount_str = "%0.8f" % coinbase_amount
+                    window.addstr(7, 1, "Total block reward: " + coinbase_amount_str + " BTC (" + fee_percentage + "% fees)") 
+
                     fees_per_tx = (total_fees / tx_count) * 1000
                     fees_per_kb = (total_fees / (blockdata['size'] / 1024)) * 1000
-                    total_fees = "%0.8f" % total_fees + " BTC"
+                    total_fees_str = "%0.8f" % total_fees + " BTC"
                     fees_per_tx = "%0.5f" % fees_per_tx + " mBTC/tx"
                     fees_per_kb = "%0.5f" % fees_per_kb + " mBTC/KB"
-                    window.addstr(7, 1, "Fees: " + total_fees + " (" +  fees_per_tx + ", " + fees_per_kb + ")")
+                    window.addstr(8, 1, "Fees: " + total_fees_str + " (" +  fees_per_tx + ", " + fees_per_kb + ")")
+
 
             window.addstr(4, 37, "Block timestamp: " + time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(blockdata['time'])))
 
@@ -76,16 +83,16 @@ def draw_window(state, window):
 
     if 'difficulty' in state:
         diff = int(state['difficulty'])
-        window.addstr(9, 1, "Diff:  " + "{:,d}".format(diff))
+        window.addstr(10, 1, "Diff:  " + "{:,d}".format(diff))
 
-    index = 9
+    index = 10
     for block_avg in state['networkhashps']:
         rate = state['networkhashps'][block_avg]
         if block_avg == 2016:
             nextdiff = (rate*600)/(2**32)
             if state['testnet'] == 1:
                 nextdiff *= 2 # testnet has 1200 est. block interval, not 600
-            window.addstr(10, 1, "Next: ~" + "{:,d}".format(nextdiff))
+            window.addstr(11, 1, "Next: ~" + "{:,d}".format(nextdiff))
         if rate > 10**18:
             rate /= 10**18
             suffix = " EH/s"
@@ -107,7 +114,7 @@ def draw_window(state, window):
 
     if 'rawmempool' in state:
         tx_in_mempool = len(state['rawmempool'])
-        window.addstr(12, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
+        window.addstr(13, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
 
     window.addstr(18, 1, "Hotkeys: T (transaction viewer), B (block viewer), P (peer viewer)", curses.A_BOLD)
     window.addstr(19, 1, "         W (wallet viewer), M (this screen), Q (exit)", curses.A_BOLD)
