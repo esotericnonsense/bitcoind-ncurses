@@ -37,7 +37,9 @@ def draw_transactions(state):
     blockdata = state['blocks'][height]
 
     win_transactions = curses.newwin(16, 75, 4, 0)
-    win_transactions.addstr(0, 1, "Transactions:" + "% 4d" % len(blockdata['tx']) + " (UP/DOWN: scroll, SPACE: view)", curses.A_BOLD)
+    tx_count = len(blockdata['tx'])
+    bytes_per_tx = blockdata['size'] / tx_count
+    win_transactions.addstr(0, 1, "Transactions: " + "% 4d" % tx_count + " (" + str(bytes_per_tx) + " bytes/tx) (UP/DOWN: scroll, SPACE: view)", curses.A_BOLD)
 
     offset = state['blocks']['offset']
 
