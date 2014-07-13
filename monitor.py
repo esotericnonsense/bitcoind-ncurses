@@ -51,12 +51,14 @@ def draw_window(state, window):
                         coinbase_amount_str = "%0.8f" % coinbase_amount
                         window.addstr(7, 1, "Total block reward: " + coinbase_amount_str + " BTC (" + fee_percentage + "% fees)") 
 
-                    fees_per_tx = (total_fees / tx_count) * 1000
-                    fees_per_kb = ((total_fees * 1024) / blockdata['size']) * 1000
-                    total_fees_str = "%0.8f" % total_fees + " BTC"
-                    fees_per_tx = "%0.5f" % fees_per_tx + " mBTC/tx"
-                    fees_per_kb = "%0.5f" % fees_per_kb + " mBTC/KB"
-                    window.addstr(8, 1, "Fees: " + total_fees_str + " (" +  fees_per_tx + ", " + fees_per_kb + ")")
+                    if tx_count > 1:
+                        tx_count -= 1 # the coinbase can't pay a fee
+                        fees_per_tx = (total_fees / tx_count) * 1000
+                        fees_per_kb = ((total_fees * 1024) / blockdata['size']) * 1000
+                        total_fees_str = "%0.8f" % total_fees + " BTC"
+                        fees_per_tx = "%0.5f" % fees_per_tx + " mBTC/tx"
+                        fees_per_kb = "%0.5f" % fees_per_kb + " mBTC/KB"
+                        window.addstr(8, 1, "Fees: " + total_fees_str + " (avg " +  fees_per_tx + ", ~" + fees_per_kb + ")")
 
 
             window.addstr(4, 37, "Block timestamp: " + time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(blockdata['time'])))
