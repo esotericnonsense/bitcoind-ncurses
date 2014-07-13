@@ -256,6 +256,11 @@ def queue(state, window, interface_queue):
                 state['blocks']['cursor'] = 0
                 block.draw_window(state, window)
 
+    elif 'coinbase' in s:
+        height = str(s['height'])
+        if height in state['blocks']:
+            state['blocks'][height]['coinbase_amount'] = s['coinbase']
+
     elif 'getdifficulty' in s:
         state['difficulty'] = s['getdifficulty']
 

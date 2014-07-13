@@ -34,6 +34,13 @@ def draw_window(state, window):
             window.addstr(4, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ")
             window.addstr(5, 1, "Transactions:" + "% 4d" % len(blockdata['tx']))
 
+            if 'coinbase_amount' in blockdata:
+                block_subsidy = 50 >> (state['blockcount'] / 210000)
+                total_fees = blockdata['coinbase_amount'] - block_subsidy # assumption, mostly correct
+                fees_per_tx = total_fees / len(blockdata['tx']) 
+                window.addstr(6, 1, "Total fees:      " + "%0.8f" % total_fees + " BTC")
+                window.addstr(7, 1, "Per transaction: " + "%0.8f" % fees_per_tx + " BTC")
+
             window.addstr(4, 37, "Block timestamp: " + time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(blockdata['time'])))
 
             if state['lastblocktime'] == 0:
@@ -59,16 +66,16 @@ def draw_window(state, window):
 
     if 'difficulty' in state:
         diff = int(state['difficulty'])
-        window.addstr(7, 1, "Diff:  " + "{:,d}".format(diff))
+        window.addstr(9, 1, "Diff:  " + "{:,d}".format(diff))
 
-    index = 7
+    index = 9
     for block_avg in state['networkhashps']:
         rate = state['networkhashps'][block_avg]
         if block_avg == 2016:
             nextdiff = (rate*600)/(2**32)
             if state['testnet'] == 1:
                 nextdiff *= 2 # testnet has 1200 est. block interval, not 600
-            window.addstr(8, 1, "Next: ~" + "{:,d}".format(nextdiff))
+            window.addstr(10, 1, "Next: ~" + "{:,d}".format(nextdiff))
         if rate > 10**18:
             rate /= 10**18
             suffix = " EH/s"
@@ -90,7 +97,7 @@ def draw_window(state, window):
 
     if 'rawmempool' in state:
         tx_in_mempool = len(state['rawmempool'])
-        window.addstr(10, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
+        window.addstr(12, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
 
     window.addstr(18, 1, "Hotkeys: T (transaction viewer), B (block viewer), P (peer viewer)", curses.A_BOLD)
     window.addstr(19, 1, "         W (wallet viewer), M (this screen), Q (exit)", curses.A_BOLD)

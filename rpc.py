@@ -137,6 +137,20 @@ def loop(interface_queue, rpc_queue, config):
                     if block:
                         prev_blockcount = blockcount
 
+                        try:
+                            raw_tx = rpchandle.getrawtransaction(block['tx'][0])
+                            decoded_tx = rpchandle.decoderawtransaction(raw_tx)
+
+                            coinbase_amount = 0
+                            for output in decoded_tx['vout']:
+                                if 'value' in output:
+                                    coinbase_amount += output['value']
+
+                            interface_queue.put({"coinbase": coinbase_amount, "height": blockcount})
+                            
+                        except: pass 
+
+
                     rpcrequest(rpchandle, 'getdifficulty', interface_queue)
 
                     try:
