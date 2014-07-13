@@ -35,11 +35,16 @@ def draw_window(state, window):
             window.addstr(5, 1, "Transactions:" + "% 4d" % len(blockdata['tx']))
 
             if 'coinbase_amount' in blockdata:
-                block_subsidy = 50 >> (state['blockcount'] / 210000)
-                total_fees = blockdata['coinbase_amount'] - block_subsidy # assumption, mostly correct
-                fees_per_tx = total_fees / len(blockdata['tx']) 
-                window.addstr(6, 1, "Total fees:      " + "%0.8f" % total_fees + " BTC")
-                window.addstr(7, 1, "Per transaction: " + "%0.8f" % fees_per_tx + " BTC")
+                if state['blockcount'] < 210000:
+                    block_subsidy = 50
+                elif state['blockcount'] < 420000:
+                    block_subsidy = 25
+
+                if block_subsidy: # this will fail after block 420,000. TODO: stop being lazy and do it properly
+                    total_fees = blockdata['coinbase_amount'] - block_subsidy # assumption, mostly correct
+                    fees_per_tx = total_fees / len(blockdata['tx']) 
+                    window.addstr(6, 1, "Total fees:      " + "%0.8f" % total_fees + " BTC")
+                    window.addstr(7, 1, "Per transaction: " + "%0.8f" % fees_per_tx + " BTC")
 
             window.addstr(4, 37, "Block timestamp: " + time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(blockdata['time'])))
 
