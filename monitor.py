@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import curses, time
+import curses, time, math
 
 import global_mod as g
 
@@ -84,6 +84,10 @@ def draw_window(state, window):
 
             window.addstr(5, 37, "Age: " + recvdelta_string + " " + stampdelta_string)
 
+        if 'chainwork' in blockdata:
+            log2_chainwork = math.log(int(blockdata['chainwork'], 16), 2)
+            window.addstr(13, 1, "Total chain work: 2**" + "%0.2f" % log2_chainwork + " hashes")
+
     if 'difficulty' in state:
         diff = int(state['difficulty'])
         window.addstr(10, 1, "Diff:  " + "{:,d}".format(diff))
@@ -117,7 +121,7 @@ def draw_window(state, window):
 
     if 'rawmempool' in state:
         tx_in_mempool = len(state['rawmempool'])
-        window.addstr(13, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
+        window.addstr(15, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
 
     window.addstr(18, 1, "Hotkeys: T (transaction viewer), B (block viewer), P (peer viewer)", curses.A_BOLD)
     window.addstr(19, 1, "         W (wallet viewer), M (this screen), Q (exit)", curses.A_BOLD)
