@@ -4,12 +4,11 @@ import curses, sys, time
 import monitor
 import process
 
-def check_window_size(window, y, x):
+def check_window_size(interface_queue, window, y, x):
     if (window.getmaxyx()[0] < y) or (window.getmaxyx()[1] < x):
         curses.nocbreak()
         curses.endwin()
-        sys.stderr.write("Window is too small - must be at least " + str(x) + "x" + str(y) +"\n")
-        sys.exit(1) # this is harsh, need to die gracefully
+        interface_queue.put({ 'stop': "Window is too small - must be at least " + str(x) + "x" + str(y)}) 
 
 def init_curses():
     window = curses.initscr()
@@ -37,7 +36,7 @@ def loop(interface_queue, rpc_queue):
     }
 
     while 1:
-        check_window_size(window, 20, 75) # y, x
+        check_window_size(interface_queue, window, 20, 75) # y, x
         error_message = process.queue(state, window, interface_queue)
         if error_message:
             break # ends if stop command sent by rpc
