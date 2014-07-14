@@ -3,6 +3,7 @@ import curses, sys, time
 
 import monitor
 import process
+import hotkey
 
 def check_window_size(interface_queue, window, y, x):
     if (window.getmaxyx()[0] < y) or (window.getmaxyx()[1] < x):
@@ -45,7 +46,7 @@ def loop(interface_queue, rpc_queue):
             if (int(time.time() * 1000) % 1000) < 100: # hackish idle
               monitor.draw_window(state, window)
 
-        if process.user_input(state, window, rpc_queue):
+        if hotkey.check(state, window, rpc_queue): # poll for user input
             break # returns 1 when quit key is pressed
 
         time.sleep(0.05) # TODO: base updates on interrupts to avoid needless polling
