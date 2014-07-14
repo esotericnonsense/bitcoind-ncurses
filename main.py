@@ -12,8 +12,6 @@ import rpc
 import interface
 
 def interrupt_signal(signal, frame):
-    s = {'stop': 1 }
-    rpc_queue.put(s)
     s = {'stop': "Interrupt signal caught"}
     interface_queue.put(s)
 
