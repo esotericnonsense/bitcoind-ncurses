@@ -84,9 +84,9 @@ def draw_window(state, window):
 
             window.addstr(5, 37, "Age: " + recvdelta_string + " " + stampdelta_string)
 
-        if 'chainwork' in blockdata:
-            log2_chainwork = math.log(int(blockdata['chainwork'], 16), 2)
-            window.addstr(13, 1, "Total chain work: 2**" + "%0.2f" % log2_chainwork + " hashes")
+            if 'chainwork' in blockdata:
+                log2_chainwork = math.log(int(blockdata['chainwork'], 16), 2)
+                window.addstr(13, 1, "Total chain work: 2**" + "%0.2f" % log2_chainwork + " hashes")
 
     if 'difficulty' in state:
         diff = int(state['difficulty'])
