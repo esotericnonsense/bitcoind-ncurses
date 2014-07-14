@@ -13,26 +13,26 @@ def check(state, window, rpc_queue):
     if not c:
         return False
 
-    if c == ord('q') or c == ord('Q'):
+    elif c == ord('q') or c == ord('Q'):
         return True
 
-    if c == ord('m') or c == ord('M'):
+    elif c == ord('m') or c == ord('M'):
         state['mode'] = "monitor"
         monitor.draw_window(state, window)
 
-    if c == ord('t') or c == ord('T'):
+    elif c == ord('t') or c == ord('T'):
         state['mode'] = "transaction"
         tx.draw_window(state, window)
 
-    if c == ord('p') or c == ord('P'):
+    elif c == ord('p') or c == ord('P'):
         rpc_queue.put('getpeerinfo')
         state['mode'] = "peers"
 
-    if c == ord('w') or c == ord('W'):
+    elif c == ord('w') or c == ord('W'):
         rpc_queue.put('listsinceblock')
         state['mode'] = "wallet"
 
-    if c == ord('g') or c == ord('G'):
+    elif c == ord('g') or c == ord('G'):
         if state['mode'] == "transaction":
             state['mode'] = "transaction-input"
             tx.draw_input_window(state, window, rpc_queue)
@@ -40,11 +40,11 @@ def check(state, window, rpc_queue):
             state['mode'] = "block-input"
             block.draw_input_window(state, window, rpc_queue)
 
-    if c == ord('b') or c == ord('B'):
+    elif c == ord('b') or c == ord('B'):
         state['mode'] = "block"
         block.draw_window(state, window)
 
-    if c == ord('l') or c == ord('L'):
+    elif c == ord('l') or c == ord('L'):
         if state['mode'] == "block":
             if 'blockcount' in state:
                 if state['blockcount'] not in state['blocks']:
@@ -54,7 +54,7 @@ def check(state, window, rpc_queue):
                     state['blocks']['browse_height'] = state['blockcount']
                     block.draw_window(state, window)
 
-    if c == curses.KEY_DOWN:
+    elif c == curses.KEY_DOWN:
         if state['mode'] == "transaction":
             if 'tx' in state:
                 if state['tx']['cursor'] < (len(state['tx']['vin']) - 1):
@@ -86,7 +86,7 @@ def check(state, window, rpc_queue):
                     state['wallet']['offset'] += 4
                     wallet.draw_transactions(state)
 
-    if c == curses.KEY_UP:
+    elif c == curses.KEY_UP:
         if state['mode'] == "transaction":
             if 'tx' in state:
                 if state['tx']['cursor'] > 0:
@@ -115,21 +115,21 @@ def check(state, window, rpc_queue):
                     state['wallet']['offset'] -= 4
                     wallet.draw_transactions(state)
 
-    if c == curses.KEY_PPAGE:
+    elif c == curses.KEY_PPAGE:
         if state['mode'] == "transaction":
             if 'tx' in state:
                 if state['tx']['out_offset'] > 1:
                     state['tx']['out_offset'] -= 2
                     tx.draw_outputs(state)
 
-    if c == curses.KEY_NPAGE:
+    elif c == curses.KEY_NPAGE:
         if state['mode'] == "transaction":
             if 'tx' in state:
                 if state['tx']['out_offset'] < (len(state['tx']['vout_string']) - 7):
                     state['tx']['out_offset'] += 2
                     tx.draw_outputs(state)
 
-    if c == ord(' '):
+    elif c == ord(' '):
         # TODO: some sort of indicator that a transaction is loading
         if state['mode'] == "transaction":
             if 'tx' in state:
@@ -147,7 +147,7 @@ def check(state, window, rpc_queue):
                         rpc_queue.put(s)
                         state['mode'] = "transaction"
 
-    if c == curses.KEY_LEFT:
+    elif c == curses.KEY_LEFT:
         if state['mode'] == "block":
             if 'blocks' in state:
                 if (state['blocks']['browse_height']) > 0:
@@ -162,7 +162,7 @@ def check(state, window, rpc_queue):
                             s = {'getblockhash': state['blocks']['browse_height']}
                             rpc_queue.put(s)
 
-    if c == curses.KEY_RIGHT:
+    elif c == curses.KEY_RIGHT:
         if state['mode'] == "block":
             if 'blocks' in state:
                 if (state['blocks']['browse_height']) < state['blockcount']:
@@ -177,7 +177,7 @@ def check(state, window, rpc_queue):
                             s = {'getblockhash': state['blocks']['browse_height']}
                             rpc_queue.put(s)
 
-    if c == curses.KEY_HOME:
+    elif c == curses.KEY_HOME:
         if state['mode'] == "block":
             if 'blocks' in state:
                 if (state['blocks']['browse_height']) > 999:
@@ -192,7 +192,7 @@ def check(state, window, rpc_queue):
                             s = {'getblockhash': state['blocks']['browse_height']}
                             rpc_queue.put(s)
 
-    if c == curses.KEY_END:
+    elif c == curses.KEY_END:
         if state['mode'] == "block":
             if 'blocks' in state:
                 if (state['blocks']['browse_height']) < state['blockcount'] - 999:
