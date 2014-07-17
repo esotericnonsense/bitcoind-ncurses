@@ -43,13 +43,13 @@ def draw_inputs(state):
 
                         if 'value' in vout:
                             if vout['scriptPubKey']['type'] == "pubkeyhash":
-                                buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['addresses'][0]
+                                buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['addresses'][0].ljust(34)
                             else:
-                                buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
-                            buffer_string += " " + state['tx']['vin'][index]['txid'][:5] + "...:" + "%03d" % state['tx']['vin'][index]['vout']
-
-                if len(buffer_string) > 71:
-                    buffer_string = buffer_string[0:68] + "..."
+                                if (vout['scriptPubKey']['asm']) > 34:
+                                    buffer_string = "% 14.8f" % vout['value'] + ": ..." + vout['scriptPubKey']['asm'][-31:]
+                                else:
+                                    buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
+                            buffer_string += " " + state['tx']['vin'][index]['txid'][:8] + "[...]:" + "%03d" % state['tx']['vin'][index]['vout']
 
                 if index == (state['tx']['cursor']):
                     win_inputs.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
