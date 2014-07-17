@@ -146,7 +146,10 @@ def queue(state, window, interface_queue):
             if 'coinbase' in vin:
                 state['tx']['vin'].append({'coinbase':  vin['coinbase']})
             elif 'txid' in vin:
-                state['tx']['vin'].append({'txid': vin['txid'], 'vout': vin['vout']})
+                if 'prev_tx' in vin:
+                    state['tx']['vin'].append({'txid': vin['txid'], 'vout': vin['vout'], 'prev_tx': vin['prev_tx']})
+                else:
+                    state['tx']['vin'].append({'txid': vin['txid'], 'vout': vin['vout']})
 
         for vout in s['vout']:
             if 'value' in vout:

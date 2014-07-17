@@ -29,24 +29,37 @@ def draw_window(state, window):
 
 def draw_inputs(state):
     win_inputs = curses.newwin(9, 75, 3, 0)
-    win_inputs.addstr(0, 1, "inputs (UP/DOWN: select, SPACE: view)", curses.A_BOLD)
+    win_inputs.addstr(0, 1, "inputs (UP/DOWN: select, SPACE: view, V: verbose)", curses.A_BOLD)
 
     offset = state['tx']['offset']
 
     for index in xrange(offset, offset+7):
         if index < len(state['tx']['vin']):
             if 'txid' in state['tx']['vin'][index]:
+
+                buffer_string = state['tx']['vin'][index]['txid'] + ":" + "%03d" % state['tx']['vin'][index]['vout']
+                if 'prev_tx' in state['tx']['vin'][index]:
+                        vout = state['tx']['vin'][index]['prev_tx']
+
+                        if 'value' in vout:
+                            if vout['scriptPubKey']['type'] == "pubkeyhash":
+                                buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['addresses'][0]
+                            else:
+                                buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
+                            buffer_string += " " + state['tx']['vin'][index]['txid'][:5] + "...:" + "%03d" % state['tx']['vin'][index]['vout']
+
+                if len(buffer_string) > 71:
+                    buffer_string = buffer_string[0:68] + "..."
+
                 if index == (state['tx']['cursor']):
                     win_inputs.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
 
-                string = state['tx']['vin'][index]['txid'] + ":" + "%03d" % state['tx']['vin'][index]['vout']
-
                 if (index == offset+6) and (index+1 < len(state['tx']['vin'])):
-                    win_inputs.addstr(index+1-offset, 3, "... " + string)
+                    win_inputs.addstr(index+1-offset, 3, "... ")
                 elif (index == offset) and (index > 0):
-                    win_inputs.addstr(index+1-offset, 3, "... " + string)
+                    win_inputs.addstr(index+1-offset, 3, "... ")
                 else:
-                    win_inputs.addstr(index+1-offset, 3, string)
+                    win_inputs.addstr(index+1-offset, 3, buffer_string)
 
             elif 'coinbase' in state['tx']['vin'][index]:
                 win_inputs.addstr(index+1-offset, 3, "coinbase " + state['tx']['vin'][index]['coinbase'])
@@ -64,12 +77,12 @@ def draw_outputs(state):
 
     for index in xrange(offset, offset+7):
         if index < len(state['tx']['vout_string']):
-                if (index == offset+6) and (index+1 < len(state['tx']['vout_string'])):
-                    win_outputs.addstr(index+1-offset, 1, "... " + state['tx']['vout_string'][index])
-                elif (index == offset) and (index > 0):
-                    win_outputs.addstr(index+1-offset, 1, "... " + state['tx']['vout_string'][index])
-                else:
-                    win_outputs.addstr(index+1-offset, 1, state['tx']['vout_string'][index])
+            if (index == offset+6) and (index+1 < len(state['tx']['vout_string'])):
+                win_outputs.addstr(index+1-offset, 1, "... ")
+            elif (index == offset) and (index > 0):
+                win_outputs.addstr(index+1-offset, 1, "... ")
+            else:
+                win_outputs.addstr(index+1-offset, 1, state['tx']['vout_string'][index])
     win_outputs.refresh()
 
 def draw_input_window(state, window, rpc_queue):

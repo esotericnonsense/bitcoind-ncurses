@@ -78,9 +78,20 @@ def loop(interface_queue, rpc_queue, config):
         elif 'txid' in s:
             try:
                 raw_tx = rpchandle.getrawtransaction(s['txid'])
-                decoded_tx = rpchandle.decoderawtransaction(raw_tx)
-                decoded_tx['size'] = len(raw_tx)/2
-                interface_queue.put(decoded_tx)
+                tx = rpchandle.decoderawtransaction(raw_tx)
+                tx['size'] = len(raw_tx)/2
+
+                if 'verbose' in s:
+                    for vin in tx['vin']:
+                        if 'txid' in vin:
+                            try:
+                                raw_tx = rpchandle.getrawtransaction(vin['txid'])
+                                prev_tx = rpchandle.decoderawtransaction(raw_tx)
+
+                                vin['prev_tx'] = prev_tx['vout'][vin['vout']]
+                            except: pass
+
+                interface_queue.put(tx)
             except: 
                 stop(interface_queue, "getrawtransaction failed. consider running with -txindex")
                 return True

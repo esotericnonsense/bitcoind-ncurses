@@ -147,6 +147,13 @@ def check(state, window, rpc_queue):
                         rpc_queue.put(s)
                         state['mode'] = "transaction"
 
+    elif c == ord("v") or c == ord("V"):
+        if state['mode'] == "transaction":
+            if 'tx' in state:
+                if 'txid' in state['tx']:
+                    s = {'txid': state['tx']['txid'], 'verbose': 1}
+                    rpc_queue.put(s)
+
     elif c == curses.KEY_LEFT:
         if state['mode'] == "block":
             if 'blocks' in state:
