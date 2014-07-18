@@ -139,7 +139,8 @@ def queue(state, window, interface_queue):
             'cursor': 0,
             'offset': 0,
             'out_offset': 0,
-            'size': s['size']
+            'size': s['size'],
+            'confirmations': s['confirmations']
         }
 
         for vin in s['vin']:

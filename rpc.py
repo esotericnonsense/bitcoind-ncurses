@@ -77,17 +77,15 @@ def loop(interface_queue, rpc_queue, config):
 
         elif 'txid' in s:
             try:
-                raw_tx = rpchandle.getrawtransaction(s['txid'])
-                tx = rpchandle.decoderawtransaction(raw_tx)
-                tx['size'] = len(raw_tx)/2
+                tx = rpchandle.getrawtransaction(s['txid'], 1)
+                tx['size'] = len(tx['hex'])/2
 
                 if 'verbose' in s:
                     tx['total_inputs'] = 0
                     for vin in tx['vin']:
                         if 'txid' in vin:
                             try:
-                                raw_tx = rpchandle.getrawtransaction(vin['txid'])
-                                prev_tx = rpchandle.decoderawtransaction(raw_tx)
+                                prev_tx = rpchandle.getrawtransaction(vin['txid'], 1)
 
                                 vin['prev_tx'] = prev_tx['vout'][vin['vout']]
                                 if 'value' in vin['prev_tx']:
