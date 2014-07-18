@@ -11,7 +11,7 @@ def check_window_size(interface_queue, state, window, min_y, min_x):
     new_y = window.getmaxyx()[0]
     if (new_y < min_y) or (new_x < min_x):
         interface_queue.put({ 'stop': "Window is too small - must be at least " + str(min_x) + "x" + str(min_y)}) 
-    if 'x' in state and 'y' in state:
+    elif 'x' in state and 'y' in state:
         if state['x'] != new_x or state['y'] != new_y:
             state['x'] = new_x
             state['y'] = new_y
@@ -46,7 +46,7 @@ def loop(interface_queue, rpc_queue):
     }
 
     while 1:
-        check_window_size(interface_queue, state, window, 20, 75) # min_y, min_x
+        check_window_size(interface_queue, state, window, 12, 75) # min_y, min_x
         error_message = process.queue(state, window, interface_queue)
         if error_message:
             break # ends if stop command sent by rpc

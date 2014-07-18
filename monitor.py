@@ -3,9 +3,11 @@ import curses, time, math
 
 import global_mod as g
 
-def draw_window(state, window):
+def draw_window(state, old_window):
     # TODO: only draw parts that actually changed
-    window.clear()
+    old_window.clear()
+    old_window.refresh()
+    window = curses.newwin(20, 75, 0, 0)
 
     if 'version' in state:
         if state['testnet'] == 1:
