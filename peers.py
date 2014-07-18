@@ -44,8 +44,9 @@ def draw_peers(state):
             else:
                 if peer['inbound']:
                     win_peers.addstr(index-offset, 1, 'I')
-                elif peer['syncnode']: # syncnodes are outgoing only
-                    win_peers.addstr(index-offset, 1, 'S') 
+                elif 'syncnode' in peer:
+                    if peer['syncnode']: # syncnodes are outgoing only
+                        win_peers.addstr(index-offset, 1, 'S')
                 win_peers.addstr(index-offset, 3, peer['addr'])
                 win_peers.addstr(index-offset, 32, peer['subver'].strip("/"))
 
