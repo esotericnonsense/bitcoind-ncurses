@@ -41,7 +41,8 @@ def draw_window(state, window):
 
 def draw_inputs(state):
     window_height = (state['y'] - 4) / 2
-    win_inputs = curses.newwin(window_height, 75, 4, 0)
+    window_width = state['x']
+    win_inputs = curses.newwin(window_height, window_width+1, 4, 0)
     win_inputs.addstr(0, 1, "inputs (UP/DOWN: select, SPACE: view, V: verbose)", curses.A_BOLD)
 
     # reset cursor if it's been resized off the bottom
@@ -56,17 +57,22 @@ def draw_inputs(state):
 
                 buffer_string = state['tx']['vin'][index]['txid'] + ":" + "%03d" % state['tx']['vin'][index]['vout']
                 if 'prev_tx' in state['tx']['vin'][index]:
-                        vout = state['tx']['vin'][index]['prev_tx']
+                    vout = state['tx']['vin'][index]['prev_tx']
 
-                        if 'value' in vout:
-                            if vout['scriptPubKey']['type'] == "pubkeyhash":
-                                buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['addresses'][0].ljust(34)
+                    if 'value' in vout:
+                        if vout['scriptPubKey']['type'] == "pubkeyhash":
+                            buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['addresses'][0].ljust(34)
+                        else:
+                            if len(vout['scriptPubKey']['asm']) > window_width-37:
+                                buffer_string = "% 14.8f" % vout['value'] + ": ..." + vout['scriptPubKey']['asm'][-(window_width-40):]
                             else:
-                                if (vout['scriptPubKey']['asm']) > 34:
-                                    buffer_string = "% 14.8f" % vout['value'] + ": ..." + vout['scriptPubKey']['asm'][-31:]
-                                else:
-                                    buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
-                            buffer_string += " " + state['tx']['vin'][index]['txid'][:8] + "[...]:" + "%03d" % state['tx']['vin'][index]['vout']
+                                buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
+
+                        length = len(buffer_string)
+                        if length + 71 < window_width:
+                            buffer_string += " " + state['tx']['vin'][index]['txid'] + ":" + "%03d" % state['tx']['vin'][index]['vout']
+                        else:
+                            buffer_string += " " + state['tx']['vin'][index]['txid'][:(window_width-length-13)] + "[...]:" + "%03d" % state['tx']['vin'][index]['vout']
 
                 if index == (state['tx']['cursor']):
                     win_inputs.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
