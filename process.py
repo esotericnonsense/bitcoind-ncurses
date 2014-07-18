@@ -17,6 +17,12 @@ def queue(state, window, interface_queue):
     if 'resize' in s:
         if state['mode'] == 'transaction':
             tx.draw_window(state, window)
+        elif state['mode'] == 'block':
+            block.draw_window(state, window)
+        elif state['mode'] == 'peers':
+            peers.draw_window(state, window)
+        elif state['mode'] == 'wallet':
+            wallet.draw_window(state, window)
         # redraw_all_the_things
         pass
 

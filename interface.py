@@ -10,10 +10,8 @@ def check_window_size(interface_queue, state, window, min_y, min_x):
     new_x = window.getmaxyx()[1]
     new_y = window.getmaxyx()[0]
     if (new_y < min_y) or (new_x < min_x):
-        curses.nocbreak()
-        curses.endwin()
         interface_queue.put({ 'stop': "Window is too small - must be at least " + str(min_x) + "x" + str(min_y)}) 
-    elif 'x' in state and 'y' in state:
+    if 'x' in state and 'y' in state:
         if state['x'] != new_x or state['y'] != new_y:
             state['x'] = new_x
             state['y'] = new_y

@@ -73,19 +73,22 @@ def check(state, window, rpc_queue):
                     blockdata = state['blocks'][height]
                     if state['blocks']['cursor'] < (len(blockdata['tx']) - 1):
                         state['blocks']['cursor'] += 1
-                        if (state['blocks']['cursor'] - state['blocks']['offset']) > 14:
+                        window_height = state['y'] - 4
+                        if (state['blocks']['cursor'] - state['blocks']['offset']) > window_height-2:
                             state['blocks']['offset'] += 1
                         block.draw_transactions(state)
 
         elif state['mode'] == "peers":
             if 'peerinfo' in state and 'peerinfo_offset' in state:
-                if state['peerinfo_offset'] < (len(state['peerinfo']) - 17):
+                window_height = state['y'] - 3
+                if state['peerinfo_offset'] < (len(state['peerinfo']) - window_height):
                     state['peerinfo_offset'] += 1
                     peers.draw_peers(state)
 
         elif state['mode'] == "wallet":
             if 'wallet' in state: 
-                if state['wallet']['offset'] < (len(state['wallet']['view_string']) - 16):
+                window_height = state['y'] - 3
+                if state['wallet']['offset'] < (len(state['wallet']['view_string']) - (window_height-1)):
                     state['wallet']['offset'] += 4
                     wallet.draw_transactions(state)
 

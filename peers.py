@@ -14,7 +14,9 @@ def draw_window(state, window):
             if state['testnet']: color = curses.color_pair(2)
         win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [peer view] (press 'P' to refresh)", color + curses.A_BOLD)
 
-        if len(state['peerinfo']) > 17:
+        window_height = state['y'] - 3
+
+        if len(state['peerinfo']) > window_height:
             win_header.addstr(1, 1, "Peers: " + "% 4d" % len(state['peerinfo']) + " (UP/DOWN: scroll)", curses.A_BOLD)
         else:
             win_header.addstr(1, 1, "Peers: " + "% 4d" % len(state['peerinfo']), curses.A_BOLD)
@@ -30,14 +32,15 @@ def draw_window(state, window):
     win_header.refresh()
 
 def draw_peers(state):
-    win_peers = curses.newwin(17, 75, 3, 0)
+    window_height = state['y'] - 3
+    win_peers = curses.newwin(window_height, 75, 3, 0)
 
     offset = state['peerinfo_offset']
 
-    for index in xrange(offset, offset+17):
+    for index in xrange(offset, offset+window_height):
         if index < len(state['peerinfo']):
             peer = state['peerinfo'][index]
-            if (index == offset+16) and (index+1 < len(state['peerinfo'])):
+            if (index == offset+window_height-1) and (index+1 < len(state['peerinfo'])):
                 win_peers.addstr(index-offset, 3, "... " + peer['addr'])
             elif (index == offset) and (index > 0):
                 win_peers.addstr(index-offset, 3, "... " + peer['addr'])

@@ -30,18 +30,19 @@ def draw_window(state, window):
     win_header.refresh()
 
 def draw_transactions(state):
-    win_transactions = curses.newwin(17, 75, 3, 0)
-    if len(state['wallet']['view_string']) > 16:
+    window_height = state['y'] - 3
+    win_transactions = curses.newwin(window_height, 76, 3, 0)
+    if len(state['wallet']['view_string']) > window_height-1:
         win_transactions.addstr(0, 1, "transactions (UP/DOWN): scroll", curses.A_BOLD)
     else:
         win_transactions.addstr(0, 1, "transactions", curses.A_BOLD)
 
     offset = state['wallet']['offset']
 
-    for index in xrange(offset, offset+16):
+    for index in xrange(offset, offset+window_height-1):
         if index < len(state['wallet']['view_string']):
                 win_transactions.addstr(index+1-offset, 1, state['wallet']['view_string'][index])
-                if (index == offset+15) and (index+1 < len(state['wallet']['view_string'])):
+                if (index == offset+window_height-2) and (index+1 < len(state['wallet']['view_string'])):
                     win_transactions.addstr(index+1-offset, 1, "...")
                 elif (index == offset) and (index > 0):
                     win_transactions.addstr(index+1-offset, 1, "...                ")

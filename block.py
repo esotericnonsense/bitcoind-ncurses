@@ -33,22 +33,28 @@ def draw_window(state, window):
     win_header.refresh()
 
 def draw_transactions(state):
+    window_height = state['y'] - 4
+    win_transactions = curses.newwin(window_height, 75, 4, 0)
+
     height = str(state['blocks']['browse_height'])
     blockdata = state['blocks'][height]
-
-    win_transactions = curses.newwin(16, 75, 4, 0)
     tx_count = len(blockdata['tx'])
     bytes_per_tx = blockdata['size'] / tx_count
+
     win_transactions.addstr(0, 1, "Transactions: " + "% 4d" % tx_count + " (" + str(bytes_per_tx) + " bytes/tx) (UP/DOWN: scroll, SPACE: view)", curses.A_BOLD)
+
+    # reset cursor if it's been resized off the bottom
+    if state['blocks']['cursor'] > state['blocks']['offset'] + (window_height-2):
+        state['blocks']['offset'] = state['blocks']['cursor'] - (window_height-2)
 
     offset = state['blocks']['offset']
 
-    for index in xrange(offset, offset+15):
+    for index in xrange(offset, offset+window_height-1):
         if index < len(blockdata['tx']):
             if index == state['blocks']['cursor']:
                 win_transactions.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
 
-            if (index == offset+14) and (index+1 < len(blockdata['tx'])):
+            if (index == offset+window_height-2) and (index+1 < len(blockdata['tx'])):
                 win_transactions.addstr(index+1-offset, 3, "... " + blockdata['tx'][index])
             elif (index == offset) and (index > 0):
                 win_transactions.addstr(index+1-offset, 3, "... " + blockdata['tx'][index])

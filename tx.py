@@ -86,7 +86,7 @@ def draw_inputs(state):
 def draw_outputs(state):
     window_height = (state['y'] - 4) / 2
     win_outputs = curses.newwin(window_height, 75, 4+window_height, 0)
-    if len(state['tx']['vout_string']) > 7:
+    if len(state['tx']['vout_string']) > window_height-1:
         win_outputs.addstr(0, 1, "outputs (PGUP/PGDOWN: scroll)", curses.A_BOLD)
     else:
         win_outputs.addstr(0, 1, "outputs", curses.A_BOLD)
