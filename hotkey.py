@@ -59,7 +59,10 @@ def check(state, window, rpc_queue):
             if 'tx' in state:
                 if state['tx']['cursor'] < (len(state['tx']['vin']) - 1):
                     state['tx']['cursor'] += 1
-                    if (state['tx']['cursor'] - state['tx']['offset']) > 6:
+
+                    window_height = (state['y'] - 4) / 2
+
+                    if (state['tx']['cursor'] - state['tx']['offset']) > window_height-2:
                         state['tx']['offset'] += 1
                     tx.draw_inputs(state)
 
@@ -125,7 +128,8 @@ def check(state, window, rpc_queue):
     elif c == curses.KEY_NPAGE:
         if state['mode'] == "transaction":
             if 'tx' in state:
-                if state['tx']['out_offset'] < (len(state['tx']['vout_string']) - 7):
+                window_height = (state['y'] - 4) / 2
+                if state['tx']['out_offset'] < (len(state['tx']['vout_string']) - (window_height-1)):
                     state['tx']['out_offset'] += 2
                     tx.draw_outputs(state)
 

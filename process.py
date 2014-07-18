@@ -14,6 +14,12 @@ def queue(state, window, interface_queue):
     if 'stop' in s:
         return s['stop']
 
+    if 'resize' in s:
+        if state['mode'] == 'transaction':
+            tx.draw_window(state, window)
+        # redraw_all_the_things
+        pass
+
     if 'getinfo' in s:
         state['version'] = str(s['getinfo']['version'] / 1000000)
         state['version'] += '.' + str((s['getinfo']['version'] % 1000000) / 10000)

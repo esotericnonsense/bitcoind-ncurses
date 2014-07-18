@@ -40,12 +40,17 @@ def draw_window(state, window):
     win_header.refresh()
 
 def draw_inputs(state):
-    win_inputs = curses.newwin(8, 75, 4, 0)
+    window_height = (state['y'] - 4) / 2
+    win_inputs = curses.newwin(window_height, 75, 4, 0)
     win_inputs.addstr(0, 1, "inputs (UP/DOWN: select, SPACE: view, V: verbose)", curses.A_BOLD)
+
+    # reset cursor if it's been resized off the bottom
+    if state['tx']['cursor'] > state['tx']['offset'] + (window_height-2):
+        state['tx']['offset'] = state['tx']['cursor'] - (window_height-2)
 
     offset = state['tx']['offset']
 
-    for index in xrange(offset, offset+7):
+    for index in xrange(offset, offset+window_height-1):
         if index < len(state['tx']['vin']):
             if 'txid' in state['tx']['vin'][index]:
 
@@ -66,7 +71,7 @@ def draw_inputs(state):
                 if index == (state['tx']['cursor']):
                     win_inputs.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
 
-                if (index == offset+6) and (index+1 < len(state['tx']['vin'])):
+                if (index == offset+window_height-2) and (index+1 < len(state['tx']['vin'])):
                     win_inputs.addstr(index+1-offset, 3, "... ")
                 elif (index == offset) and (index > 0):
                     win_inputs.addstr(index+1-offset, 3, "... ")
@@ -79,7 +84,8 @@ def draw_inputs(state):
     win_inputs.refresh()
 
 def draw_outputs(state):
-    win_outputs = curses.newwin(8, 75, 12, 0)
+    window_height = (state['y'] - 4) / 2
+    win_outputs = curses.newwin(window_height, 75, 4+window_height, 0)
     if len(state['tx']['vout_string']) > 7:
         win_outputs.addstr(0, 1, "outputs (PGUP/PGDOWN: scroll)", curses.A_BOLD)
     else:
@@ -87,9 +93,9 @@ def draw_outputs(state):
 
     offset = state['tx']['out_offset']
 
-    for index in xrange(offset, offset+7):
+    for index in xrange(offset, offset+window_height-1):
         if index < len(state['tx']['vout_string']):
-            if (index == offset+6) and (index+1 < len(state['tx']['vout_string'])):
+            if (index == offset+window_height-2) and (index+1 < len(state['tx']['vout_string'])):
                 win_outputs.addstr(index+1-offset, 1, "... ")
             elif (index == offset) and (index > 0):
                 win_outputs.addstr(index+1-offset, 1, "... ")
