@@ -1,4 +1,4 @@
-# bitcoind-ncurses
+# bitcoind-ncurses v0.0.10
 ncurses front-end for bitcoind
 
 ![ScreenShot](/screenshots/bitcoind-ncurses-monitor.png)
