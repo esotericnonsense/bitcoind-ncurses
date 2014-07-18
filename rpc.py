@@ -82,6 +82,7 @@ def loop(interface_queue, rpc_queue, config):
                 tx['size'] = len(raw_tx)/2
 
                 if 'verbose' in s:
+                    tx['total_inputs'] = 0
                     for vin in tx['vin']:
                         if 'txid' in vin:
                             try:
@@ -89,6 +90,8 @@ def loop(interface_queue, rpc_queue, config):
                                 prev_tx = rpchandle.decoderawtransaction(raw_tx)
 
                                 vin['prev_tx'] = prev_tx['vout'][vin['vout']]
+                                if 'value' in vin['prev_tx']:
+                                    tx['total_inputs'] += vin['prev_tx']['value']
                             except: pass
 
                 interface_queue.put(tx)

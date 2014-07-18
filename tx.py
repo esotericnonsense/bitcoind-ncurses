@@ -8,7 +8,7 @@ def draw_window(state, window):
     # TODO: add transaction locktime, add sequence to inputs
     window.clear()
     window.refresh()
-    win_header = curses.newwin(3, 75, 0, 0)
+    win_header = curses.newwin(4, 75, 0, 0)
 
     if 'tx' in state:
         color = curses.color_pair(1)
@@ -17,6 +17,16 @@ def draw_window(state, window):
         win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [transaction mode] (press 'G' to enter a txid)", color + curses.A_BOLD)
         win_header.addstr(1, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
         win_header.addstr(2, 1, str(state['tx']['size']) + " bytes (" + str(state['tx']['size']/1024) + " KB)       ", curses.A_BOLD)
+
+        if 'total_outputs' in state['tx']:
+            output_string = "%.8f" % state['tx']['total_outputs'] + " BTC"
+            if 'total_inputs' in state['tx']:
+                fee = state['tx']['total_inputs'] - state['tx']['total_outputs']
+                output_string += " + " + "%.8f" % fee + " BTC fee"
+            else:
+                output_string += " + ??? BTC fee"
+            win_header.addstr(2, 26, output_string.rjust(45), curses.A_BOLD)
+
         draw_inputs(state)
         draw_outputs(state)
 
@@ -28,7 +38,7 @@ def draw_window(state, window):
     win_header.refresh()
 
 def draw_inputs(state):
-    win_inputs = curses.newwin(9, 75, 3, 0)
+    win_inputs = curses.newwin(8, 75, 4, 0)
     win_inputs.addstr(0, 1, "inputs (UP/DOWN: select, SPACE: view, V: verbose)", curses.A_BOLD)
 
     offset = state['tx']['offset']

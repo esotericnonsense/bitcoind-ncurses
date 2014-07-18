@@ -151,13 +151,18 @@ def queue(state, window, interface_queue):
                 else:
                     state['tx']['vin'].append({'txid': vin['txid'], 'vout': vin['vout']})
 
+        state['tx']['total_outputs'] = 0
         for vout in s['vout']:
             if 'value' in vout:
                 if vout['scriptPubKey']['type'] == "pubkeyhash":
                     buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['addresses'][0]
                 else:
                     buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
+                state['tx']['total_outputs'] += vout['value']
                 state['tx']['vout_string'].extend(textwrap.wrap(buffer_string,70)) # change this to scale with window ?
+
+        if 'total_inputs' in s:
+            state['tx']['total_inputs'] = s['total_inputs']
 
         if state['mode'] == "transaction":
             tx.draw_window(state, window)
