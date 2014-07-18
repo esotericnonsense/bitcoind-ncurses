@@ -5,13 +5,18 @@ import curses, time, Queue
 def stop(interface_queue, error_message):
     interface_queue.put({'stop': error_message})
 
-def init(config):
-    rpcuser = config.get('rpc', 'rpcuser')
-    rpcpassword = config.get('rpc', 'rpcpassword')
-    rpcip = config.get('rpc', 'rpcip')
-    rpcport = config.get('rpc', 'rpcport')
+def init(interface_queue, config):
+    try:
+        rpcuser = config.get('rpc', 'rpcuser')
+        rpcpassword = config.get('rpc', 'rpcpassword')
+        rpcip = config.get('rpc', 'rpcip')
+        rpcport = config.get('rpc', 'rpcport')
 
-    rpcurl = "http://" + rpcuser + ":" + rpcpassword + "@" + rpcip + ":" + rpcport
+        rpcurl = "http://" + rpcuser + ":" + rpcpassword + "@" + rpcip + ":" + rpcport
+    except:
+        stop(interface_queue, "invalid configuration file or missing values")
+        return False
+
     try:
         rpchandle = AuthServiceProxy(rpcurl, None, 500)
         return rpchandle
@@ -47,7 +52,7 @@ def getblock(rpchandle, interface_queue, block_to_get, queried = False):
 
 def loop(interface_queue, rpc_queue, config):
     # TODO: add error checking for broken config, improve exceptions
-    rpchandle = init(config)
+    rpchandle = init(interface_queue, config)
     if not rpchandle: # TODO: this doesn't appear to trigger, investigate
         stop(interface_queue, "failed to connect to bitcoind")
         return True
@@ -56,7 +61,7 @@ def loop(interface_queue, rpc_queue, config):
     
     info = rpcrequest(rpchandle, 'getinfo', interface_queue)
     if not info:
-        stop(interface_queue, "first getinfo failed")
+        stop(interface_queue, "failed to connect to bitcoind")
         return True
 
     prev_blockcount = 0
