@@ -27,7 +27,11 @@ def draw_window(state, window):
                 output_string += " + ??? BTC fee"
             win_header.addstr(2, 26, output_string.rjust(45), curses.A_BOLD)
 
-        win_header.addstr(3, 1, str(state['tx']['confirmations']) + " confirmations", curses.A_BOLD)
+        if 'confirmations' in state['tx']:
+            win_header.addstr(3, 1, str(state['tx']['confirmations']) + " confirmations", curses.A_BOLD)
+        else:
+            win_header.addstr(3, 1, "unconfirmed", curses.A_BOLD)
+
 
         draw_inputs(state)
         draw_outputs(state)

@@ -154,7 +154,6 @@ def queue(state, window, interface_queue):
             'offset': 0,
             'out_offset': 0,
             'size': s['size'],
-            'confirmations': s['confirmations']
         }
 
         for vin in s['vin']:
@@ -178,6 +177,9 @@ def queue(state, window, interface_queue):
 
         if 'total_inputs' in s:
             state['tx']['total_inputs'] = s['total_inputs']
+
+        if 'confirmations' in s:
+            state['tx']['confirmations'] = s['confirmations']
 
         if state['mode'] == "transaction":
             tx.draw_window(state, window)
