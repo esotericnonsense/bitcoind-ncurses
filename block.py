@@ -21,6 +21,7 @@ def draw_window(state, window):
                 win_header.addstr(1, 1, "height: " + height.zfill(6) + " (LEFT/RIGHT: browse, HOME/END: quick browse, L: latest)", curses.A_BOLD)
                 win_header.addstr(2, 1, "hash: " + blockdata['hash'], curses.A_BOLD)
                 win_header.addstr(3, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ", curses.A_BOLD)
+                win_header.addstr(3, 27, "diff " + "{:15,d}".format(int(blockdata['difficulty'])), curses.A_BOLD)
                 win_header.addstr(3, 52, time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(blockdata['time'])), curses.A_BOLD)
                 draw_transactions(state)
                 state['blocks']['loaded'] = 1
