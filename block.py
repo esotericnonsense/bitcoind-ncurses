@@ -7,7 +7,7 @@ import getstr
 def draw_window(state, window):
     window.clear()
     window.refresh()
-    win_header = curses.newwin(4, 75, 0, 0)
+    win_header = curses.newwin(6, 75, 0, 0)
 
     if 'blocks' in state:
         if 'browse_height' in state['blocks']:
@@ -17,12 +17,21 @@ def draw_window(state, window):
                 color = curses.color_pair(1)
                 if 'testnet' in state:
                     if state['testnet']: color = curses.color_pair(2)
-                win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [block view] (press 'G' to enter a block)", color + curses.A_BOLD)
+
+                win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "   [block view]   (press 'G' to enter a block)", color + curses.A_BOLD)
+
                 win_header.addstr(1, 1, "height: " + height.zfill(6) + " (LEFT/RIGHT: browse, HOME/END: quick browse, L: latest)", curses.A_BOLD)
+
                 win_header.addstr(2, 1, "hash: " + blockdata['hash'], curses.A_BOLD)
-                win_header.addstr(3, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ", curses.A_BOLD)
-                win_header.addstr(3, 27, "diff " + "{:15,d}".format(int(blockdata['difficulty'])), curses.A_BOLD)
-                win_header.addstr(3, 52, time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(blockdata['time'])), curses.A_BOLD)
+
+                win_header.addstr(3, 1, "root: " + blockdata['merkleroot'], curses.A_BOLD)
+
+                win_header.addstr(4, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ", curses.A_BOLD)
+                win_header.addstr(4, 26, "diff: " + "{:,d}".format(int(blockdata['difficulty'])), curses.A_BOLD)
+                win_header.addstr(4, 52, time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(blockdata['time'])), curses.A_BOLD)
+
+                win_header.addstr(5, 51, ("v" + str(blockdata['version'])).rjust(20), curses.A_BOLD)
+
                 draw_transactions(state)
                 state['blocks']['loaded'] = 1
 
@@ -34,15 +43,15 @@ def draw_window(state, window):
     win_header.refresh()
 
 def draw_transactions(state):
-    window_height = state['y'] - 4
-    win_transactions = curses.newwin(window_height, 75, 4, 0)
+    window_height = state['y'] - 6
+    win_transactions = curses.newwin(window_height, 75, 6, 0)
 
     height = str(state['blocks']['browse_height'])
     blockdata = state['blocks'][height]
     tx_count = len(blockdata['tx'])
     bytes_per_tx = blockdata['size'] / tx_count
 
-    win_transactions.addstr(0, 1, "Transactions: " + "% 4d" % tx_count + " (" + str(bytes_per_tx) + " bytes/tx) (UP/DOWN: scroll, SPACE: view)", curses.A_BOLD)
+    win_transactions.addstr(0, 1, "Transactions: " + ("% 4d" % tx_count + " (" + str(bytes_per_tx) + " bytes/tx)").ljust(22) + "(UP/DOWN: scroll, SPACE: view)", curses.A_BOLD + curses.color_pair(5))
 
     # reset cursor if it's been resized off the bottom
     if state['blocks']['cursor'] > state['blocks']['offset'] + (window_height-2):
@@ -56,9 +65,9 @@ def draw_transactions(state):
                 win_transactions.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
 
             if (index == offset+window_height-2) and (index+1 < len(blockdata['tx'])):
-                win_transactions.addstr(index+1-offset, 3, "... " + blockdata['tx'][index])
+                win_transactions.addstr(index+1-offset, 3, "...")
             elif (index == offset) and (index > 0):
-                win_transactions.addstr(index+1-offset, 3, "... " + blockdata['tx'][index])
+                win_transactions.addstr(index+1-offset, 3, "...")
             else:
                 win_transactions.addstr(index+1-offset, 3, blockdata['tx'][index])
 

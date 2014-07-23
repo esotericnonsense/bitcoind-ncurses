@@ -73,7 +73,7 @@ def check(state, window, rpc_queue):
                     blockdata = state['blocks'][height]
                     if state['blocks']['cursor'] < (len(blockdata['tx']) - 1):
                         state['blocks']['cursor'] += 1
-                        window_height = state['y'] - 4
+                        window_height = state['y'] - 6
                         if (state['blocks']['cursor'] - state['blocks']['offset']) > window_height-2:
                             state['blocks']['offset'] += 1
                         block.draw_transactions(state)
