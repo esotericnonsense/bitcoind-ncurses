@@ -6,6 +6,7 @@ import block
 import monitor
 import peers
 import wallet
+import splash
 
 def queue(state, window, interface_queue):
     try: s = interface_queue.get(False)
@@ -38,6 +39,9 @@ def queue(state, window, interface_queue):
         else:
             state['testnet'] = 0
         state['peers'] = s['getinfo']['connections']
+
+        if state['mode'] == "splash":
+            splash.draw_window(state, window)
     
     elif 'getconnectioncount' in s:
         state['peers'] = s['getconnectioncount']
@@ -79,6 +83,10 @@ def queue(state, window, interface_queue):
     elif 'getnetworkhashps' in s:
         blocks = s['getnetworkhashps']['blocks']
         state['networkhashps'][blocks] = s['getnetworkhashps']['value']
+
+        if state['mode'] == "splash" and blocks == 2016: # initialization complete
+            state['mode'] = "monitor"
+            monitor.draw_window(state, window)
 
     elif 'getnettotals' in s:
         state['totalbytesrecv'] = s['getnettotals']['totalbytesrecv']

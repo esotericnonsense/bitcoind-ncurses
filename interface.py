@@ -4,6 +4,7 @@ import curses, sys, time
 import monitor
 import process
 import hotkey
+import splash
 
 def check_window_size(interface_queue, state, window, min_y, min_x):
     # TODO: use SIGWINCH interrupt
@@ -40,10 +41,12 @@ def loop(interface_queue, rpc_queue):
     window = init_curses()
 
     state = {
-        'mode': "monitor",
+        'mode': "splash",
         'blocks': { 'cursor': 0, 'offset': 0 },
         'networkhashps': {}
     }
+
+    splash.draw_window(state, window)
 
     while 1:
         check_window_size(interface_queue, state, window, 12, 75) # min_y, min_x
