@@ -12,7 +12,7 @@ def draw_window(state, window):
         color = curses.color_pair(1)
         if 'testnet' in state:
             if state['testnet']: color = curses.color_pair(2)
-        win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [peer view] (press 'P' to refresh)", color + curses.A_BOLD)
+        win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "     [peer view]      (press 'P' to refresh)", color + curses.A_BOLD)
 
         window_height = state['y'] - 3
 
