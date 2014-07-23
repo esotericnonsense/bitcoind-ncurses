@@ -28,7 +28,7 @@ def draw_window(state, window):
             win_header.addstr(2, 26, output_string.rjust(45), curses.A_BOLD)
 
         if 'confirmations' in state['tx']:
-            win_header.addstr(3, 1, str(state['tx']['confirmations']) + " confirmations", curses.A_BOLD)
+            win_header.addstr(3, 1, str(state['tx']['confirmations']) + " conf", curses.A_BOLD)
         else:
             win_header.addstr(3, 1, "unconfirmed", curses.A_BOLD)
 
@@ -47,7 +47,7 @@ def draw_inputs(state):
     window_height = (state['y'] - 4) / 2
     window_width = state['x']
     win_inputs = curses.newwin(window_height, window_width+1, 4, 0)
-    win_inputs.addstr(0, 1, "inputs (UP/DOWN: select, SPACE: view, V: verbose)", curses.A_BOLD)
+    win_inputs.addstr(0, 1, "inputs:                     (UP/DOWN: select, SPACE: view, V: verbose)", curses.A_BOLD + curses.color_pair(5))
 
     # reset cursor if it's been resized off the bottom
     if state['tx']['cursor'] > state['tx']['offset'] + (window_height-2):
@@ -97,9 +97,9 @@ def draw_outputs(state):
     window_height = (state['y'] - 4) / 2
     win_outputs = curses.newwin(window_height, 75, 4+window_height, 0)
     if len(state['tx']['vout_string']) > window_height-1:
-        win_outputs.addstr(0, 1, "outputs (PGUP/PGDOWN: scroll)", curses.A_BOLD)
+        win_outputs.addstr(0, 1, "outputs:                                         (PGUP/PGDOWN: scroll)", curses.A_BOLD + curses.color_pair(5))
     else:
-        win_outputs.addstr(0, 1, "outputs", curses.A_BOLD)
+        win_outputs.addstr(0, 1, "outputs:", curses.A_BOLD + curses.color_pair(5))
 
     offset = state['tx']['out_offset']
 
