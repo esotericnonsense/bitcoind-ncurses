@@ -84,8 +84,7 @@ def draw_input_window(state, window, rpc_queue):
     window.addstr(2, 1, "or timestamp (accepted formats: YYYY-MM-DD hh:mm:ss, YYYY-MM-DD)", curses.A_BOLD)
     window.refresh()
 
-    win_textbox = curses.newwin(1,67,4,1) # h,w,y,x
-    entered_block = getstr.getstr(win_textbox)
+    entered_block = getstr.getstr(67, 4, 1) # w, y, x
     entered_block_timestamp = 0
 
     try:

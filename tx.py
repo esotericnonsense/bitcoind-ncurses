@@ -123,8 +123,7 @@ def draw_input_window(state, window, rpc_queue):
     window.addstr(1, 1, "please enter txid", curses.A_BOLD)
     window.refresh()
 
-    win_textbox = curses.newwin(1,67,3,1) # h,w,y,x
-    entered_txid = getstr.getstr(win_textbox)
+    entered_txid = getstr.getstr(67, 3, 1) # w, y, x
 
     if len(entered_txid) == 64: # TODO: better checking for valid txid here
         s = {'txid': entered_txid}
