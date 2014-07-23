@@ -80,7 +80,7 @@ def check(state, window, rpc_queue):
 
         elif state['mode'] == "peers":
             if 'peerinfo' in state and 'peerinfo_offset' in state:
-                window_height = state['y'] - 3
+                window_height = state['y'] - 4
                 if state['peerinfo_offset'] < (len(state['peerinfo']) - window_height):
                     state['peerinfo_offset'] += 1
                     peers.draw_peers(state)

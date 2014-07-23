@@ -6,7 +6,7 @@ import global_mod as g
 def draw_window(state, window):
     window.clear()
     window.refresh()
-    win_header = curses.newwin(3, 75, 0, 0)
+    win_header = curses.newwin(4, 75, 0, 0)
 
     if 'peerinfo' in state:
         color = curses.color_pair(1)
@@ -17,11 +17,11 @@ def draw_window(state, window):
         window_height = state['y'] - 3
 
         if len(state['peerinfo']) > window_height:
-            win_header.addstr(1, 1, "Peers: " + "% 4d" % len(state['peerinfo']) + " (UP/DOWN: scroll)", curses.A_BOLD)
+            win_header.addstr(1, 1, "connected peers: " + str(len(state['peerinfo'])).ljust(10) + "                        (UP/DOWN: scroll)", curses.A_BOLD)
         else:
-            win_header.addstr(1, 1, "Peers: " + "% 4d" % len(state['peerinfo']), curses.A_BOLD)
+            win_header.addstr(1, 1, "connected peers: " + str(len(state['peerinfo'])), curses.A_BOLD)
 
-        win_header.addstr(2, 1, "  Node IP                      Version           Recv      Sent", curses.A_BOLD)
+        win_header.addstr(3, 1, "  Node IP                      Version                Recv      Sent", curses.A_BOLD + curses.color_pair(5))
 
         draw_peers(state)
 
@@ -32,8 +32,8 @@ def draw_window(state, window):
     win_header.refresh()
 
 def draw_peers(state):
-    window_height = state['y'] - 3
-    win_peers = curses.newwin(window_height, 75, 3, 0)
+    window_height = state['y'] - 4
+    win_peers = curses.newwin(window_height, 75, 4, 0)
 
     offset = state['peerinfo_offset']
 
