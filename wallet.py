@@ -12,10 +12,10 @@ def draw_window(state, window):
         color = curses.color_pair(1)
         if 'testnet' in state:
             if state['testnet']: color = curses.color_pair(2)
-        win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [wallet mode] (press 'W' to refresh)", color + curses.A_BOLD)
+        win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "        [wallet mode]       (press 'W' to refresh)", color + curses.A_BOLD)
 
         if 'balance' in state:
-            balance_string = "%0.8f" % state['balance'] + " BTC"
+            balance_string = "balance: " + "%0.8f" % state['balance'] + " BTC"
             if 'unconfirmedbalance' in state:
                 if state['unconfirmedbalance'] != 0:
                     balance_string += " (+" + "%0.8f" % state['unconfirmedbalance'] + " unconf)"
@@ -33,9 +33,9 @@ def draw_transactions(state):
     window_height = state['y'] - 3
     win_transactions = curses.newwin(window_height, 76, 3, 0)
     if len(state['wallet']['view_string']) > window_height-1:
-        win_transactions.addstr(0, 1, "transactions (UP/DOWN): scroll", curses.A_BOLD)
+        win_transactions.addstr(0, 1, "transactions:                                            (UP/DOWN: scroll)", curses.A_BOLD + curses.color_pair(5))
     else:
-        win_transactions.addstr(0, 1, "transactions", curses.A_BOLD)
+        win_transactions.addstr(0, 1, "transactions:", curses.A_BOLD + curses.color_pair(5))
 
     offset = state['wallet']['offset']
 
@@ -43,7 +43,7 @@ def draw_transactions(state):
         if index < len(state['wallet']['view_string']):
                 win_transactions.addstr(index+1-offset, 1, state['wallet']['view_string'][index])
                 if (index == offset+window_height-2) and (index+1 < len(state['wallet']['view_string'])):
-                    win_transactions.addstr(index+1-offset, 1, "...")
+                    win_transactions.addstr(index+1-offset, 1, "...                                                                       ")
                 elif (index == offset) and (index > 0):
                     win_transactions.addstr(index+1-offset, 1, "...                ")
     win_transactions.refresh()
