@@ -1,6 +1,7 @@
-# bitcoind-ncurses v0.0.11
+# bitcoind-ncurses v0.0.12
 ncurses front-end for bitcoind
 
+![ScreenShot](/screenshots/bitcoind-ncurses-splash.png)
 ![ScreenShot](/screenshots/bitcoind-ncurses-monitor.png)
 ![ScreenShot](/screenshots/bitcoind-ncurses-block.png)
 ![ScreenShot](/screenshots/bitcoind-ncurses-tx.png)
@@ -16,6 +17,8 @@ produced by Amphibian (azeteki, atelopus_zeteki)
 ## features
 * updating ticker showing bitcoind's status (via RPC)
 * facility to view transactions in current block and trace back through their inputs (with -txindex)
+* view transactions from your wallet - txid, amounts, etcetera
+* view connected peers
 
 ## usage
 pretty bare bones for now; expect breakage. this will improve over time.
