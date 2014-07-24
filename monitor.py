@@ -126,6 +126,6 @@ def draw_window(state, old_window):
         window.addstr(15, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
 
     window.addstr(18, 1, "Hotkeys: T (transaction viewer), B (block viewer), P (peer viewer)", curses.A_BOLD)
-    window.addstr(19, 1, "         W (wallet viewer), M (this screen), Q (exit)", curses.A_BOLD)
+    window.addstr(19, 1, "         W (wallet viewer), C (console), M (this screen), Q (exit)", curses.A_BOLD)
 
     window.refresh()
