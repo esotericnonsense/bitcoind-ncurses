@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from bitcoinrpc.authproxy import AuthServiceProxy
-import curses, time, Queue 
+import curses, time, Queue, decimal
 
 def stop(interface_queue, error_message):
     interface_queue.put({'stop': error_message})
@@ -73,6 +73,29 @@ def loop(interface_queue, rpc_queue, config):
 
         if 'stop' in s:
             break
+
+        elif 'consolecommand' in s:
+            arguments = s['consolecommand'].split()
+            command = arguments[0]
+            arguments = arguments[1:]
+
+            # TODO: figure out how to encode properly for submission; this is hacky.
+            index = 0
+            while index < len(arguments):
+                if arguments[index].isdigit():
+                    arguments[index] = int(arguments[index])
+                else:
+                    try:
+                        arguments[index] = decimal.Decimal(arguments[index])
+                    except:
+                        pass
+                index += 1
+
+            try:
+                response = getattr(rpchandle, command)(*arguments)
+                interface_queue.put({'consolecommand': s['consolecommand'], 'consoleresponse': response})
+            except:
+                interface_queue.put({'consolecommand': s['consolecommand'], 'consoleresponse': "ERROR"})
 
         elif 'getblockhash' in s:
             getblock(rpchandle, interface_queue, s['getblockhash'], True)

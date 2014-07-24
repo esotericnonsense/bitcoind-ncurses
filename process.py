@@ -7,6 +7,7 @@ import monitor
 import peers
 import wallet
 import splash
+import console
 
 def queue(state, window, interface_queue):
     try: s = interface_queue.get(False)
@@ -26,6 +27,8 @@ def queue(state, window, interface_queue):
             wallet.draw_window(state, window)
         elif state['mode'] == 'monitor':
             monitor.draw_window(state, window)
+        elif state['mode'] == 'console':
+            console.draw_window(state, window)
         # redraw_all_the_things
         pass
 
@@ -191,5 +194,12 @@ def queue(state, window, interface_queue):
 
         if state['mode'] == "transaction":
             tx.draw_window(state, window)
+
+    elif 'consolecommand' in s:
+        state['console']['buffer'].append(s['consolecommand'])
+        state['console']['buffer'].append(s['consoleresponse'])
+        state['console']['offset'] = 0
+        if state['mode'] == "console":
+            console.draw_window(state, window)
 
     return False

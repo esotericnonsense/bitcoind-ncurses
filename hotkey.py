@@ -6,6 +6,7 @@ import block
 import monitor
 import peers
 import wallet
+import console
 
 def check(state, window, rpc_queue):
     c = window.getch()
@@ -39,10 +40,16 @@ def check(state, window, rpc_queue):
         elif state['mode'] == "block":
             state['mode'] = "block-input"
             block.draw_input_window(state, window, rpc_queue)
+        elif state['mode'] == "console":
+            console.draw_input_box(state, rpc_queue)
 
     elif c == ord('b') or c == ord('B'):
         state['mode'] = "block"
         block.draw_window(state, window)
+
+    elif c == ord('c') or c == ord('C'):
+        state['mode'] = "console"
+        console.draw_window(state, window)
 
     elif c == ord('l') or c == ord('L'):
         if state['mode'] == "block":
@@ -92,6 +99,11 @@ def check(state, window, rpc_queue):
                     state['wallet']['offset'] += 4
                     wallet.draw_transactions(state)
 
+        elif state['mode'] == "console":
+            if state['console']['offset'] > 0:
+                state['console']['offset'] -= 1
+                console.draw_buffer(state)
+
     elif c == curses.KEY_UP:
         if state['mode'] == "transaction":
             if 'tx' in state:
@@ -121,12 +133,21 @@ def check(state, window, rpc_queue):
                     state['wallet']['offset'] -= 4
                     wallet.draw_transactions(state)
 
+        elif state['mode'] == "console":
+            state['console']['offset'] += 1
+            console.draw_buffer(state)
+
     elif c == curses.KEY_PPAGE:
         if state['mode'] == "transaction":
             if 'tx' in state:
                 if state['tx']['out_offset'] > 1:
                     state['tx']['out_offset'] -= 2
                     tx.draw_outputs(state)
+
+        elif state['mode'] == "console":
+            window_height = state['y'] - 2 - 2
+            state['console']['offset'] += window_height
+            console.draw_buffer(state)
 
     elif c == curses.KEY_NPAGE:
         if state['mode'] == "transaction":
@@ -135,6 +156,14 @@ def check(state, window, rpc_queue):
                 if state['tx']['out_offset'] < (len(state['tx']['vout_string']) - (window_height-1)):
                     state['tx']['out_offset'] += 2
                     tx.draw_outputs(state)
+
+        elif state['mode'] == "console":
+            window_height = state['y'] - 2 - 2
+            if state['console']['offset'] > window_height:
+                state['console']['offset'] -= window_height
+            else:
+                state['console']['offset'] = 0
+            console.draw_buffer(state)
 
     elif c == ord(' '):
         # TODO: some sort of indicator that a transaction is loading

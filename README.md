@@ -1,4 +1,4 @@
-# bitcoind-ncurses v0.0.12
+# bitcoind-ncurses v0.0.13
 ncurses front-end for bitcoind
 
 ![ScreenShot](/screenshots/bitcoind-ncurses-splash.png)
@@ -19,6 +19,7 @@ produced by Amphibian (azeteki, atelopus_zeteki)
 * facility to view transactions in current block and trace back through their inputs (with -txindex)
 * view transactions from your wallet - txid, amounts, etcetera
 * view connected peers
+* basic debug console functionality (WARNING: may break; recommend use only on testnet)
 
 ## usage
 pretty bare bones for now; expect breakage. this will improve over time.

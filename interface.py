@@ -45,7 +45,8 @@ def loop(interface_queue, rpc_queue):
     state = {
         'mode': "splash",
         'blocks': { 'cursor': 0, 'offset': 0 },
-        'networkhashps': {}
+        'networkhashps': {},
+        'console': { 'buffer': [], 'offset': 0 }
     }
 
     splash.draw_window(state, window)
