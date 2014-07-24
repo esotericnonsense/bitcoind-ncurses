@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import curses, pprint, re
+import curses, pprint
 
 import global_mod as g
 import getstr
