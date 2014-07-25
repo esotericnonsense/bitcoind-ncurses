@@ -165,7 +165,7 @@ def check(state, window, rpc_queue):
                 state['console']['offset'] = 0
             console.draw_buffer(state)
 
-    elif c == ord(' '):
+    elif c == curses.KEY_ENTER or c == ord('\n'):
         # TODO: some sort of indicator that a transaction is loading
         if state['mode'] == "transaction":
             if 'tx' in state:
