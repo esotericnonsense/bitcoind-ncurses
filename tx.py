@@ -18,7 +18,7 @@ def draw_window(state, window):
         win_header.addstr(1, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
         win_header.addstr(2, 1, str(state['tx']['size']) + " bytes (" + str(state['tx']['size']/1024) + " KB)       ", curses.A_BOLD)
 
-        if 'total_outputs' in state['tx']:
+        if 'total_outputs' in state['tx']: # Verbose mode
             output_string = "%.8f" % state['tx']['total_outputs'] + " BTC"
             if 'total_inputs' in state['tx']:
                 fee = state['tx']['total_inputs'] - state['tx']['total_outputs']
@@ -31,7 +31,6 @@ def draw_window(state, window):
             win_header.addstr(3, 1, str(state['tx']['confirmations']) + " conf", curses.A_BOLD)
         else:
             win_header.addstr(3, 1, "unconfirmed", curses.A_BOLD)
-
 
         draw_inputs(state)
         draw_outputs(state)
@@ -81,10 +80,10 @@ def draw_inputs(state):
                 if index == (state['tx']['cursor']):
                     win_inputs.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
 
-                if (index == offset+window_height-2) and (index+1 < len(state['tx']['vin'])):
-                    win_inputs.addstr(index+1-offset, 3, "... ")
-                elif (index == offset) and (index > 0):
-                    win_inputs.addstr(index+1-offset, 3, "... ")
+                condition = (index == offset+window_height-2) and (index+1 < len(state['tx']['vin']))
+                condition = condition or ( (index == offset) and (index > 0) )
+                if condition:
+                    win_inputs.addstr(index+1-offset, 3, "...")
                 else:
                     win_inputs.addstr(index+1-offset, 3, buffer_string)
 
@@ -105,9 +104,9 @@ def draw_outputs(state):
 
     for index in xrange(offset, offset+window_height-1):
         if index < len(state['tx']['vout_string']):
-            if (index == offset+window_height-2) and (index+1 < len(state['tx']['vout_string'])):
-                win_outputs.addstr(index+1-offset, 1, "... ")
-            elif (index == offset) and (index > 0):
+            condition = (index == offset+window_height-2) and (index+1 < len(state['tx']['vout_string']))
+            condition = condition or ( (index == offset) and (index > 0) )
+            if condition:
                 win_outputs.addstr(index+1-offset, 1, "... ")
             else:
                 win_outputs.addstr(index+1-offset, 1, state['tx']['vout_string'][index])
