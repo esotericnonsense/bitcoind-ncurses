@@ -64,7 +64,7 @@ def check(state, window, rpc_queue):
     elif c == curses.KEY_DOWN:
         if state['mode'] == "transaction":
             if 'tx' in state:
-                if state['tx']['cursor'] < (len(state['tx']['vin']) - 1):
+                if state['tx']['cursor'] < (len(state['tx']['vin']) - 1) and state['tx']['mode'] == 'inputs':
                     state['tx']['cursor'] += 1
 
                     window_height = (state['y'] - 4) / 2
@@ -72,6 +72,11 @@ def check(state, window, rpc_queue):
                     if (state['tx']['cursor'] - state['tx']['offset']) > window_height-2:
                         state['tx']['offset'] += 1
                     tx.draw_inputs(state)
+
+                window_height = (state['y'] - 4) / 2
+                if state['tx']['out_offset'] < (len(state['tx']['vout_string']) - (window_height-1)) and state['tx']['mode'] == 'outputs':
+                    state['tx']['out_offset'] += 1
+                    tx.draw_outputs(state)
 
         elif state['mode'] == "block":
             if 'blocks' in state:
@@ -107,11 +112,15 @@ def check(state, window, rpc_queue):
     elif c == curses.KEY_UP:
         if state['mode'] == "transaction":
             if 'tx' in state:
-                if state['tx']['cursor'] > 0:
+                if state['tx']['cursor'] > 0 and state['tx']['mode'] == 'inputs':
                     if (state['tx']['cursor'] - state['tx']['offset']) == 0:
                         state['tx']['offset'] -= 1
                     state['tx']['cursor'] -= 1
                     tx.draw_inputs(state)
+
+                if state['tx']['out_offset'] > 0 and state['tx']['mode'] == 'outputs':
+                    state['tx']['out_offset'] -= 1
+                    tx.draw_outputs(state)
 
         elif state['mode'] == "block":
             if 'blocks' in state:
@@ -138,32 +147,29 @@ def check(state, window, rpc_queue):
             console.draw_buffer(state)
 
     elif c == curses.KEY_PPAGE:
-        if state['mode'] == "transaction":
-            if 'tx' in state:
-                if state['tx']['out_offset'] > 1:
-                    state['tx']['out_offset'] -= 2
-                    tx.draw_outputs(state)
-
-        elif state['mode'] == "console":
+        if state['mode'] == "console":
             window_height = state['y'] - 2 - 2
             state['console']['offset'] += window_height
             console.draw_buffer(state)
 
     elif c == curses.KEY_NPAGE:
-        if state['mode'] == "transaction":
-            if 'tx' in state:
-                window_height = (state['y'] - 4) / 2
-                if state['tx']['out_offset'] < (len(state['tx']['vout_string']) - (window_height-1)):
-                    state['tx']['out_offset'] += 2
-                    tx.draw_outputs(state)
-
-        elif state['mode'] == "console":
+        if state['mode'] == "console":
             window_height = state['y'] - 2 - 2
             if state['console']['offset'] > window_height:
                 state['console']['offset'] -= window_height
             else:
                 state['console']['offset'] = 0
             console.draw_buffer(state)
+
+    elif c == ord('\t') or c == 9:
+        if state['mode'] == "transaction":
+            if 'tx' in state:
+                if 'mode' in state['tx']:
+                    if state['tx']['mode'] == 'inputs':
+                        state['tx']['mode'] = 'outputs'
+                    else:
+                        state['tx']['mode'] = 'inputs'
+                    tx.draw_window(state, window)
 
     elif c == curses.KEY_ENTER or c == ord('\n'):
         # TODO: some sort of indicator that a transaction is loading

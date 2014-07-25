@@ -164,6 +164,7 @@ def queue(state, window, interface_queue):
             'cursor': 0,
             'offset': 0,
             'out_offset': 0,
+            'mode': 'inputs',
             'size': s['size'],
         }
 

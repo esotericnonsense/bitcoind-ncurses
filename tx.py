@@ -50,7 +50,10 @@ def draw_inputs(state):
     window_height = (state['y'] - 4) / 2
     window_width = state['x']
     win_inputs = curses.newwin(window_height, window_width+1, 4, 0)
-    win_inputs.addstr(0, 1, "inputs:                     (UP/DOWN: select, ENTER: view, V: verbose)", curses.A_BOLD + curses.color_pair(5))
+    if state['tx']['mode'] == 'inputs':
+        win_inputs.addstr(0, 1, "inputs:                     (UP/DOWN: select, ENTER: view, V: verbose)", curses.A_BOLD + curses.color_pair(3))
+    else:
+        win_inputs.addstr(0, 1, "inputs:                                   (TAB: switch to, V: verbose)", curses.A_BOLD + curses.color_pair(5))
 
     # reset cursor if it's been resized off the bottom
     if state['tx']['cursor'] > state['tx']['offset'] + (window_height-2):
@@ -99,10 +102,10 @@ def draw_inputs(state):
 def draw_outputs(state):
     window_height = (state['y'] - 4) / 2
     win_outputs = curses.newwin(window_height, 75, 4+window_height, 0)
-    if len(state['tx']['vout_string']) > window_height-1:
-        win_outputs.addstr(0, 1, "outputs:                                         (PGUP/PGDOWN: scroll)", curses.A_BOLD + curses.color_pair(5))
+    if state['tx']['mode'] == 'outputs':
+        win_outputs.addstr(0, 1, "outputs:                                             (UP/DOWN: scroll)", curses.A_BOLD + curses.color_pair(3))
     else:
-        win_outputs.addstr(0, 1, "outputs:", curses.A_BOLD + curses.color_pair(5))
+        win_outputs.addstr(0, 1, "outputs:                                              (TAB: switch to)", curses.A_BOLD + curses.color_pair(5))
 
     offset = state['tx']['out_offset']
 
