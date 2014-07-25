@@ -115,6 +115,7 @@ def loop(interface_queue, rpc_queue, config):
                 tx = rpchandle.getrawtransaction(s['txid'], 1)
                 tx['size'] = len(tx['hex'])/2
 
+
                 if 'verbose' in s:
                     tx['total_inputs'] = 0
                     for vin in tx['vin']:
@@ -127,6 +128,8 @@ def loop(interface_queue, rpc_queue, config):
                                     tx['total_inputs'] += vin['prev_tx']['value']
                             except:
                                 pass
+                        elif 'coinbase' in vin:
+                            tx['total_inputs'] = 'coinbase'
                     for vout in tx['vout']:
                         try:
                             utxo = rpchandle.gettxout(s['txid'], vout['n'])

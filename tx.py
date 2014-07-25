@@ -21,7 +21,10 @@ def draw_window(state, window):
         if 'total_outputs' in state['tx']: # Verbose mode
             output_string = "%.8f" % state['tx']['total_outputs'] + " BTC"
             if 'total_inputs' in state['tx']:
-                fee = state['tx']['total_inputs'] - state['tx']['total_outputs']
+                if state['tx']['total_inputs'] == 'coinbase':
+                    fee = 0
+                else:
+                    fee = state['tx']['total_inputs'] - state['tx']['total_outputs']
                 output_string += " + " + "%.8f" % fee + " BTC fee"
             else:
                 output_string += " + ??? BTC fee"
