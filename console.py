@@ -16,7 +16,7 @@ def draw_window(state, window):
     win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "   [debug console]   (press 'G' to enter command)", color + curses.A_BOLD)
     win_header.refresh()
 
-    if len(state['console']['buffer']):
+    if len(state['console']['rbuffer']):
         draw_buffer(state)
 
 def draw_buffer(state):
@@ -25,8 +25,12 @@ def draw_buffer(state):
 
     #TODO: reimplement and print JSON dicts in a more readable format
     lines = []
-    for index in xrange(0,len(state['console']['buffer'])):
-        item = state['console']['buffer'][index]
+    for index in xrange(0,len(state['console']['rbuffer'])):
+        command = state['console']['cbuffer'][index]
+        lines.append("> " + command)
+
+        # rbuffer should always exist if cbuffer does
+        item = state['console']['rbuffer'][index]
         # str.replace accounts for 'help' sending literal \n
         lines.extend( pprint.pformat(item,width=(state['x']-2)).replace('\\n','\n').splitlines() )
 
@@ -42,10 +46,19 @@ def draw_buffer(state):
                 win_buffer.addstr(window_height-(index-offset)-1, 1, "...")
             else:
                 line = lines[(numlines-1)-index]
-                if len(line) > state['x']-1:
-                    win_buffer.addstr(window_height-(index-offset)-1, 1, line[:(state['x']-5)] + ' ...' )
+
+                if line[0] == ">":
+                    if state['testnet']:
+                        fmt = curses.color_pair(2) + curses.A_BOLD
+                    else:
+                        fmt = curses.color_pair(1) + curses.A_BOLD
                 else:
-                    win_buffer.addstr(window_height-(index-offset)-1, 1, line)
+                    fmt = False
+
+                if len(line) > state['x']-1:
+                    win_buffer.addstr(window_height-(index-offset)-1, 1, line[:(state['x']-5)] + ' ...', fmt)
+                else:
+                    win_buffer.addstr(window_height-(index-offset)-1, 1, line, fmt)
         elif index == offset and index: 
             win_buffer.addstr(window_height-(index-offset)-1, 1, "...")
  

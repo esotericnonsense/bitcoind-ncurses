@@ -196,8 +196,8 @@ def queue(state, window, interface_queue):
             tx.draw_window(state, window)
 
     elif 'consolecommand' in s:
-        state['console']['buffer'].append(s['consolecommand'])
-        state['console']['buffer'].append(s['consoleresponse'])
+        state['console']['cbuffer'].append(s['consolecommand'])
+        state['console']['rbuffer'].append(s['consoleresponse'])
         state['console']['offset'] = 0
         if state['mode'] == "console":
             console.draw_window(state, window)
