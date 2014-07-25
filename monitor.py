@@ -32,6 +32,11 @@ def draw_window(state, old_window):
         if height in state['blocks']:
             blockdata = state['blocks'][str(height)]
 
+            if 'new' in blockdata:
+                if blockdata['new'] > 0:
+                    window.attrset(curses.A_REVERSE + curses.color_pair(5) + curses.A_BOLD)
+                    blockdata['new'] -= 1
+
             window.addstr(3, 1, height.zfill(6) + ": " + str(blockdata['hash']))
             window.addstr(4, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ")
             tx_count = len(blockdata['tx'])

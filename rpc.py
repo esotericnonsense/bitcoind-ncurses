@@ -31,7 +31,7 @@ def rpcrequest(rpchandle, request, interface_queue):
     except:
         return False
 
-def getblock(rpchandle, interface_queue, block_to_get, queried = False):
+def getblock(rpchandle, interface_queue, block_to_get, queried = False, new = False):
     try:
         if (len(str(block_to_get)) < 7) and str(block_to_get).isdigit(): 
             blockhash = rpchandle.getblockhash(block_to_get)
@@ -42,6 +42,9 @@ def getblock(rpchandle, interface_queue, block_to_get, queried = False):
 
         if queried:
             block['queried'] = 1
+
+        if new:
+            block['new'] = 2 # counts down each time monitor mode is displayed
 
         interface_queue.put({'getblock': block})
 
@@ -183,7 +186,7 @@ def loop(interface_queue, rpc_queue, config):
                         lastblocktime = {'lastblocktime': time.time()}
                     interface_queue.put(lastblocktime)
 
-                    block = getblock(rpchandle, interface_queue, blockcount)
+                    block = getblock(rpchandle, interface_queue, blockcount, False, True)
                     if block:
                         prev_blockcount = blockcount
 
@@ -199,7 +202,6 @@ def loop(interface_queue, rpc_queue, config):
                             interface_queue.put({"coinbase": coinbase_amount, "height": blockcount})
                             
                         except: pass 
-
 
                     rpcrequest(rpchandle, 'getdifficulty', interface_queue)
 
