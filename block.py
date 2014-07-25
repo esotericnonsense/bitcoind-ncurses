@@ -14,22 +14,18 @@ def draw_window(state, window):
             height = str(state['blocks']['browse_height'])
             if height in state['blocks']:
                 blockdata = state['blocks'][height]
+
                 color = curses.color_pair(1)
                 if 'testnet' in state:
                     if state['testnet']: color = curses.color_pair(2)
 
                 win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "   [block view]   (press 'G' to enter a block)", color + curses.A_BOLD)
-
                 win_header.addstr(1, 1, "height: " + height.zfill(6) + " (LEFT/RIGHT: browse, HOME/END: quick browse, L: latest)", curses.A_BOLD)
-
                 win_header.addstr(2, 1, "hash: " + blockdata['hash'], curses.A_BOLD)
-
                 win_header.addstr(3, 1, "root: " + blockdata['merkleroot'], curses.A_BOLD)
-
                 win_header.addstr(4, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ", curses.A_BOLD)
                 win_header.addstr(4, 26, "diff: " + "{:,d}".format(int(blockdata['difficulty'])), curses.A_BOLD)
                 win_header.addstr(4, 52, time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(blockdata['time'])), curses.A_BOLD)
-
                 win_header.addstr(5, 51, ("v" + str(blockdata['version'])).rjust(20), curses.A_BOLD)
 
                 draw_transactions(state)
@@ -64,9 +60,10 @@ def draw_transactions(state):
             if index == state['blocks']['cursor']:
                 win_transactions.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
 
-            if (index == offset+window_height-2) and (index+1 < len(blockdata['tx'])):
-                win_transactions.addstr(index+1-offset, 3, "...")
-            elif (index == offset) and (index > 0):
+            condition = (index == offset+window_height-2) and (index+1 < len(blockdata['tx']))
+            condition = condition or ( (index == offset) and (index > 0) )
+
+            if condition:
                 win_transactions.addstr(index+1-offset, 3, "...")
             else:
                 win_transactions.addstr(index+1-offset, 3, blockdata['tx'][index])
