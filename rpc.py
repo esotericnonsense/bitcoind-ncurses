@@ -115,6 +115,8 @@ def loop(interface_queue, rpc_queue, config):
                 tx = rpchandle.getrawtransaction(s['txid'], 1)
                 tx['size'] = len(tx['hex'])/2
 
+                if 'coinbase' in tx['vin'][0]: # should always be at least 1 vin
+                    tx['total_inputs'] = 'coinbase'
 
                 if 'verbose' in s:
                     tx['total_inputs'] = 0

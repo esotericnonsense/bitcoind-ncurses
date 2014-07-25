@@ -18,14 +18,15 @@ def draw_window(state, window):
         win_header.addstr(1, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
         win_header.addstr(2, 1, str(state['tx']['size']) + " bytes (" + str(state['tx']['size']/1024) + " KB)       ", curses.A_BOLD)
 
-        if 'total_outputs' in state['tx']: # Verbose mode
+        if 'total_outputs' in state['tx']:
             output_string = "%.8f" % state['tx']['total_outputs'] + " BTC"
             if 'total_inputs' in state['tx']:
                 if state['tx']['total_inputs'] == 'coinbase':
                     fee = 0
-                else:
+                    output_string += " (coinbase)"
+                else: # Verbose mode only
                     fee = state['tx']['total_inputs'] - state['tx']['total_outputs']
-                output_string += " + " + "%.8f" % fee + " BTC fee"
+                    output_string += " + " + "%.8f" % fee + " BTC fee"
             else:
                 output_string += " + ??? BTC fee"
             win_header.addstr(2, 26, output_string.rjust(45), curses.A_BOLD)
