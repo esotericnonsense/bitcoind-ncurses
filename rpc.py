@@ -118,7 +118,17 @@ def loop(interface_queue, rpc_queue, config):
                                 vin['prev_tx'] = prev_tx['vout'][vin['vout']]
                                 if 'value' in vin['prev_tx']:
                                     tx['total_inputs'] += vin['prev_tx']['value']
-                            except: pass
+                            except:
+                                pass
+                    for vout in tx['vout']:
+                        try:
+                            utxo = rpchandle.gettxout(s['txid'], vout['n'])
+                            if utxo == None:
+                                vout['spent'] = True
+                            else:
+                                vout['spent'] = False
+                        except:
+                            pass
 
                 interface_queue.put(tx)
             except: 
