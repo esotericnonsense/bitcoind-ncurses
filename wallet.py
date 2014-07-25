@@ -9,13 +9,16 @@ def draw_window(state, window):
     win_header = curses.newwin(3, 75, 0, 0)
 
     color = curses.color_pair(1)
+    unit = 'BTC'
     if 'testnet' in state:
-        if state['testnet']: color = curses.color_pair(2)
+        if state['testnet']:
+            color = curses.color_pair(2)
+            unit = 'TNC'
 
     win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "        [wallet mode]       (press 'W' to refresh)", color + curses.A_BOLD)
 
     if 'balance' in state:
-        balance_string = "balance: " + "%0.8f" % state['balance'] + " BTC"
+        balance_string = "balance: " + "%0.8f" % state['balance'] + " " + unit
         if 'unconfirmedbalance' in state:
             if state['unconfirmedbalance'] != 0:
                 balance_string += " (+" + "%0.8f" % state['unconfirmedbalance'] + " unconf)"

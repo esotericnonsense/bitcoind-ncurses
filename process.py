@@ -128,6 +128,11 @@ def queue(state, window, interface_queue):
 
         state['wallet']['transactions'].sort(key=lambda entry: entry['nonce'], reverse=True)
 
+        unit = 'BTC'
+        if 'testnet' in state:
+            if state['testnet']:
+                unit = 'TNC'
+
         for entry in state['wallet']['transactions']: 
             if 'txid' in entry:
                 entry_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(entry['time']))
@@ -135,8 +140,8 @@ def queue(state, window, interface_queue):
                 delta = entry['amount']
                 if 'fee' in entry:
                     delta += entry['fee']
-                output_string +=  "% 17.8f" % delta + "BTC "
-                output_string +=  "% 17.8f" % entry['cumulative_balance'] + "BTC"
+                output_string += "% 17.8f" % delta + unit
+                output_string += " " + "% 17.8f" % entry['cumulative_balance'] + unit
                 state['wallet']['view_string'].append(output_string)
 
                 output_string = entry['txid'].rjust(74)

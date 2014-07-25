@@ -12,23 +12,26 @@ def draw_window(state, window):
 
     if 'tx' in state:
         color = curses.color_pair(1)
+        unit = 'BTC'
         if 'testnet' in state:
-            if state['testnet']: color = curses.color_pair(2)
+            if state['testnet']:
+                color = curses.color_pair(2)
+                unit = 'TNC'
         win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [transaction mode] (press 'G' to enter a txid)", color + curses.A_BOLD)
         win_header.addstr(1, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
         win_header.addstr(2, 1, str(state['tx']['size']) + " bytes (" + str(state['tx']['size']/1024) + " KB)       ", curses.A_BOLD)
 
         if 'total_outputs' in state['tx']:
-            output_string = "%.8f" % state['tx']['total_outputs'] + " BTC"
+            output_string = "%.8f" % state['tx']['total_outputs'] + " " + unit
             if 'total_inputs' in state['tx']:
                 if state['tx']['total_inputs'] == 'coinbase':
                     fee = 0
                     output_string += " (coinbase)"
                 else: # Verbose mode only
                     fee = state['tx']['total_inputs'] - state['tx']['total_outputs']
-                    output_string += " + " + "%.8f" % fee + " BTC fee"
+                    output_string += " + " + "%.8f" % fee + " " + unit + " fee"
             else:
-                output_string += " + ??? BTC fee"
+                output_string += " + unknown fee"
             win_header.addstr(2, 26, output_string.rjust(45), curses.A_BOLD)
 
         if 'confirmations' in state['tx']:

@@ -13,15 +13,17 @@ def draw_window(state, old_window):
         if state['testnet'] == 1:
             window.addstr(0, 1, "bitcoind-ncurses " + g.version, curses.color_pair(2) + curses.A_BOLD)
             window.addstr(1, 1, "bitcoind v" + state['version'] + " (testnet)", curses.color_pair(2) + curses.A_BOLD)
+            unit = 'TNC'
         else:
             window.addstr(0, 1, "bitcoind-ncurses " + g.version, curses.color_pair(1) + curses.A_BOLD)
             window.addstr(1, 1, "bitcoind v" + state['version'] + " ", curses.color_pair(1) + curses.A_BOLD)
+            unit = 'BTC'
 
     if 'peers' in state:
         window.addstr(0, 32, str(state['peers']) + " peers    ", curses.A_BOLD)
 
     if 'balance' in state:
-        balance_string = "%0.8f" % state['balance'] + " BTC"
+        balance_string = "%0.8f" % state['balance'] + " " + unit
         if 'unconfirmedbalance' in state:
             if state['unconfirmedbalance'] != 0:
                 balance_string += " (+" + "%0.8f" % state['unconfirmedbalance'] + " unconf)"
@@ -56,15 +58,15 @@ def draw_window(state, old_window):
                     if coinbase_amount > 0:
                         fee_percentage = "%0.2f" % ((total_fees / coinbase_amount) * 100)
                         coinbase_amount_str = "%0.8f" % coinbase_amount
-                        window.addstr(7, 1, "Total block reward: " + coinbase_amount_str + " BTC (" + fee_percentage + "% fees)") 
+                        window.addstr(7, 1, "Total block reward: " + coinbase_amount_str + " " + unit + " (" + fee_percentage + "% fees)")
 
                     if tx_count > 1:
                         tx_count -= 1 # the coinbase can't pay a fee
                         fees_per_tx = (total_fees / tx_count) * 1000
                         fees_per_kb = ((total_fees * 1024) / blockdata['size']) * 1000
-                        total_fees_str = "%0.8f" % total_fees + " BTC"
-                        fees_per_tx = "%0.5f" % fees_per_tx + " mBTC/tx"
-                        fees_per_kb = "%0.5f" % fees_per_kb + " mBTC/KB"
+                        total_fees_str = "%0.8f" % total_fees + " " + unit
+                        fees_per_tx = "%0.5f" % fees_per_tx + " m" + unit + "/tx"
+                        fees_per_kb = "%0.5f" % fees_per_kb + " m" + unit + "/KB"
                         window.addstr(8, 1, "Fees: " + total_fees_str + " (avg " +  fees_per_tx + ", ~" + fees_per_kb + ")")
 
 
