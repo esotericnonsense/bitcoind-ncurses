@@ -87,6 +87,10 @@ def loop(interface_queue, rpc_queue, config):
             while index < len(arguments):
                 if arguments[index].isdigit():
                     arguments[index] = int(arguments[index])
+                elif arguments[index] == "False":
+                    arguments[index] = False
+                elif arguments[index] == "True":
+                    arguments[index] = True
                 else:
                     try:
                         arguments[index] = decimal.Decimal(arguments[index])
