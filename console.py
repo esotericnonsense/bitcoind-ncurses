@@ -27,7 +27,7 @@ def draw_buffer(state):
     lines = []
     for index in xrange(0,len(state['console']['rbuffer'])):
         command = state['console']['cbuffer'][index]
-        lines.append("> " + command)
+        lines.append(">> " + command)
 
         # rbuffer should always exist if cbuffer does
         item = state['console']['rbuffer'][index]
@@ -47,13 +47,13 @@ def draw_buffer(state):
             else:
                 line = lines[(numlines-1)-index]
 
-                if line[0] == ">":
-                    if state['testnet']:
-                        fmt = curses.color_pair(2) + curses.A_BOLD
-                    else:
-                        fmt = curses.color_pair(1) + curses.A_BOLD
-                else:
-                    fmt = False
+                fmt = False
+                if len(line) > 1:
+                    if line[1] == ">":
+                        if state['testnet']:
+                            fmt = curses.color_pair(2) + curses.A_BOLD
+                        else:
+                            fmt = curses.color_pair(1) + curses.A_BOLD
 
                 if len(line) > state['x']-1:
                     win_buffer.addstr(window_height-(index-offset)-1, 1, line[:(state['x']-5)] + ' ...', fmt)
