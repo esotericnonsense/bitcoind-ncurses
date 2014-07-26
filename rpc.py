@@ -5,12 +5,17 @@ import curses, time, Queue, decimal
 def stop(interface_queue, error_message):
     interface_queue.put({'stop': error_message})
 
-def init(interface_queue, config):
+def init(interface_queue, cfg):
     try:
-        rpcuser = config.get('rpc', 'rpcuser')
-        rpcpassword = config.get('rpc', 'rpcpassword')
-        rpcip = config.get('rpc', 'rpcip')
-        rpcport = config.get('rpc', 'rpcport')
+        rpcuser = cfg.get('rpcuser')
+        rpcpassword = cfg.get('rpcpassword')
+        rpcip = cfg.get('rpcip', '127.0.0.1')
+        if cfg.get('rpcport'):
+            rpcport = cfg.get('rpcport')
+        elif cfg.get('testnet') == "1":
+            rpcport = '18332'
+        else:
+            rpcport = '8332'
 
         rpcurl = "http://" + rpcuser + ":" + rpcpassword + "@" + rpcip + ":" + rpcport
     except:
@@ -53,9 +58,9 @@ def getblock(rpchandle, interface_queue, block_to_get, queried = False, new = Fa
     except:
         return 0
 
-def loop(interface_queue, rpc_queue, config):
+def loop(interface_queue, rpc_queue, cfg):
     # TODO: add error checking for broken config, improve exceptions
-    rpchandle = init(interface_queue, config)
+    rpchandle = init(interface_queue, cfg)
     if not rpchandle: # TODO: this doesn't appear to trigger, investigate
         stop(interface_queue, "failed to connect to bitcoind")
         return True

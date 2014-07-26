@@ -30,7 +30,15 @@ features
 usage
 -----
 
-rename example.conf to bitcoind-ncurses.conf and enter your details.
+copy your bitcoin.conf to bitcoind-ncurses's folder
+
+alternatively, create a file with the following details:
+```
+rpcuser=xxx
+rpcpassword=yyy
+testnet=0
+```
+
 this is an early development release. expect (safe) breakage
 
 launch
