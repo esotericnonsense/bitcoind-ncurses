@@ -115,6 +115,7 @@ def queue(state, window, interface_queue):
 
         # add cumulative balance field to transactiosn once ordered by time
         state['wallet']['transactions'].sort(key=lambda entry: entry['time'])
+        state['wallet']['transactions'].sort(key=lambda entry: entry['confirmations'], reverse=True)
         cumulative_balance = 0
         nonce = 0 # ensures a definitive ordering of transactions for cumulative balance
         for entry in state['wallet']['transactions']:
@@ -139,7 +140,7 @@ def queue(state, window, interface_queue):
                 output_string = entry_time + " %8d" % entry['confirmations'] + " conf"
                 delta = entry['amount']
                 if 'fee' in entry:
-                    delta += entry['fee']
+                    delta += entry['fee'] # this fails if not all inputs owned by wallet; could be 'too negative'
                 output_string += "% 17.8f" % delta + unit
                 output_string += " " + "% 17.8f" % entry['cumulative_balance'] + unit
                 state['wallet']['view_string'].append(output_string)
