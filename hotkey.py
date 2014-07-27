@@ -33,7 +33,7 @@ def change_mode(state, window, mode):
 def check(state, window, rpc_queue):
     c = window.getch()
 
-    if not c:
+    if c < 0:
         return False
 
     elif c == ord('q') or c == ord('Q'):
