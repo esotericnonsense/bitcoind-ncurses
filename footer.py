@@ -6,7 +6,7 @@ import global_mod as g
 def draw_window(state):
     win_footer = curses.newwin(1, 76, state['y']-1, 0)
 
-    modes = ['transaction', 'block', 'peers', 'wallet', 'console', 'monitor', 'quit']
+    modes = ['monitor', 'wallet', 'peers', 'block', 'transaction', 'console', 'quit']
     x = 2
     for mode_string in modes:
         modifier = curses.A_BOLD
