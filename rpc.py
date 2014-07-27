@@ -188,7 +188,7 @@ def loop(interface_queue, rpc_queue, cfg):
 
                 iterations += 1
 
-        if (time.time() - last_update) > 2:
+        elif (time.time() - last_update) > 2:
             rpcrequest(rpchandle, 'getnettotals', interface_queue)
             rpcrequest(rpchandle, 'getconnectioncount', interface_queue)
             rpcrequest(rpchandle, 'getrawmempool', interface_queue)
