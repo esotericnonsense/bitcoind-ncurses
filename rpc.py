@@ -49,7 +49,7 @@ def getblock(rpchandle, interface_queue, block_to_get, queried = False, new = Fa
             block['queried'] = 1
 
         if new:
-            block['new'] = 2 # counts down each time monitor mode is displayed
+            block['new'] = True
 
         interface_queue.put({'getblock': block})
 
