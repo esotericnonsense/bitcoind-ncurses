@@ -100,8 +100,12 @@ def check(state, window, rpc_queue):
         elif state['mode'] == "wallet":
             if 'wallet' in state: 
                 window_height = state['y'] - 3
-                if state['wallet']['offset'] < (len(state['wallet']['view_string']) - (window_height-1)):
-                    state['wallet']['offset'] += 4
+
+                if state['wallet']['cursor'] < (len(state['wallet']['transactions']) - 1):
+                    state['wallet']['cursor'] += 1
+                    window_height = state['y'] - 3
+                    if ( (state['wallet']['cursor']*4 +1 ) - state['wallet']['offset']) > window_height-2:
+                        state['wallet']['offset'] += 4
                     wallet.draw_transactions(state)
 
         elif state['mode'] == "console":
@@ -138,8 +142,10 @@ def check(state, window, rpc_queue):
 
         elif state['mode'] == "wallet":
             if 'wallet' in state:
-                if state['wallet']['offset'] > 0:
-                    state['wallet']['offset'] -= 4
+                if state['wallet']['cursor'] > 0:
+                    state['wallet']['cursor'] -= 1
+                    if ((state['wallet']['cursor']*4 +1) - state['wallet']['offset']) == -3:
+                        state['wallet']['offset'] -= 4
                     wallet.draw_transactions(state)
 
         elif state['mode'] == "console":
@@ -188,6 +194,13 @@ def check(state, window, rpc_queue):
                         s = {'txid': blockdata['tx'][ state['blocks']['cursor'] ]}
                         rpc_queue.put(s)
                         state['mode'] = "transaction"
+
+        if state['mode'] == "wallet":
+            if 'wallet' in state:
+                if 'transactions' in state['wallet']:
+                    s = {'txid': state['wallet']['transactions'][ state['wallet']['cursor'] ]['txid']}
+                    rpc_queue.put(s)
+                    state['mode'] = "transaction"
 
     elif c == ord("v") or c == ord("V"):
         if state['mode'] == "transaction":
