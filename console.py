@@ -3,6 +3,7 @@ import curses, pprint
 
 import global_mod as g
 import getstr
+import footer
 
 def draw_window(state, window):
     window.clear()
@@ -19,8 +20,10 @@ def draw_window(state, window):
     if len(state['console']['rbuffer']):
         draw_buffer(state)
 
+    footer.draw_window(state)
+
 def draw_buffer(state):
-    window_height = state['y'] - 2
+    window_height = state['y'] - 3
     win_buffer = curses.newwin(window_height, state['x'], 1, 0)
 
     #TODO: reimplement and print JSON dicts in a more readable format
@@ -65,7 +68,7 @@ def draw_buffer(state):
     win_buffer.refresh()
 
 def draw_input_box(state, rpc_queue):
-    entered_command = getstr.getstr(state['x'], state['y']-1, 1) # w, y, x
+    entered_command = getstr.getstr(state['x'], state['y']-2, 1) # w, y, x
 
     if entered_command == "":
         pass

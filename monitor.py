@@ -2,22 +2,24 @@
 import curses, time, math
 
 import global_mod as g
+import footer
 
 def draw_window(state, old_window):
     # TODO: only draw parts that actually changed
     old_window.clear()
     old_window.refresh()
-    window = curses.newwin(20, 75, 0, 0)
+    window = curses.newwin(16, 76, 0, 0)
 
     if 'version' in state:
         if state['testnet'] == 1:
-            window.addstr(0, 1, "bitcoind-ncurses " + g.version, curses.color_pair(2) + curses.A_BOLD)
-            window.addstr(1, 1, "bitcoind v" + state['version'] + " (testnet)", curses.color_pair(2) + curses.A_BOLD)
+            color = curses.color_pair(2)
+            window.addstr(1, 1, "bitcoind v" + state['version'] + " (testnet)", color + curses.A_BOLD)
             unit = 'TNC'
         else:
-            window.addstr(0, 1, "bitcoind-ncurses " + g.version, curses.color_pair(1) + curses.A_BOLD)
-            window.addstr(1, 1, "bitcoind v" + state['version'] + " ", curses.color_pair(1) + curses.A_BOLD)
+            color = curses.color_pair(1)
+            window.addstr(1, 1, "bitcoind v" + state['version'] + " ", color + curses.A_BOLD)
             unit = 'BTC'
+        window.addstr(0, 1, "bitcoind-ncurses " + g.version, color + curses.A_BOLD)
 
     if 'peers' in state:
         window.addstr(0, 32, str(state['peers']) + " peers    ", curses.A_BOLD)
@@ -132,7 +134,5 @@ def draw_window(state, old_window):
         tx_in_mempool = len(state['rawmempool'])
         window.addstr(15, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
 
-    window.addstr(18, 1, "Hotkeys: T (transaction viewer), B (block viewer), P (peer viewer)", curses.A_BOLD)
-    window.addstr(19, 1, "         W (wallet viewer), C (console), M (this screen), Q (exit)", curses.A_BOLD)
-
     window.refresh()
+    footer.draw_window(state)

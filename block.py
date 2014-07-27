@@ -3,6 +3,7 @@ import curses, time, calendar
 
 import global_mod as g
 import getstr
+import footer
 
 def draw_window(state, window):
     window.clear()
@@ -37,9 +38,10 @@ def draw_window(state, window):
             win_header.addstr(2, 1, "or 'M' to return to monitor window", curses.A_BOLD)
 
     win_header.refresh()
+    footer.draw_window(state)
 
 def draw_transactions(state):
-    window_height = state['y'] - 6
+    window_height = state['y'] - 7
     win_transactions = curses.newwin(window_height, 75, 6, 0)
 
     height = str(state['blocks']['browse_height'])

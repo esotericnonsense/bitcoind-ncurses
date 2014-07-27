@@ -64,17 +64,15 @@ def check(state, window, rpc_queue):
     elif c == curses.KEY_DOWN:
         if state['mode'] == "transaction":
             if 'tx' in state:
+                window_height = (state['y'] - 5) / 2
                 if state['tx']['cursor'] < (len(state['tx']['vin']) - 1) and state['tx']['mode'] == 'inputs':
                     state['tx']['cursor'] += 1
-
-                    window_height = (state['y'] - 4) / 2
 
                     if (state['tx']['cursor'] - state['tx']['offset']) > window_height-2:
                         state['tx']['offset'] += 1
                     tx.draw_inputs(state)
 
-                window_height = (state['y'] - 4) / 2
-                if state['tx']['out_offset'] < (len(state['tx']['vout_string']) - (window_height-1)) and state['tx']['mode'] == 'outputs':
+                elif state['tx']['out_offset'] < (len(state['tx']['vout_string']) - (window_height-1)) and state['tx']['mode'] == 'outputs':
                     state['tx']['out_offset'] += 1
                     tx.draw_outputs(state)
 
@@ -85,25 +83,23 @@ def check(state, window, rpc_queue):
                     blockdata = state['blocks'][height]
                     if state['blocks']['cursor'] < (len(blockdata['tx']) - 1):
                         state['blocks']['cursor'] += 1
-                        window_height = state['y'] - 6
+                        window_height = state['y'] - 7
                         if (state['blocks']['cursor'] - state['blocks']['offset']) > window_height-2:
                             state['blocks']['offset'] += 1
                         block.draw_transactions(state)
 
         elif state['mode'] == "peers":
             if 'peerinfo' in state and 'peerinfo_offset' in state:
-                window_height = state['y'] - 4
+                window_height = state['y'] - 5
                 if state['peerinfo_offset'] < (len(state['peerinfo']) - window_height):
                     state['peerinfo_offset'] += 1
                     peers.draw_peers(state)
 
         elif state['mode'] == "wallet":
             if 'wallet' in state: 
-                window_height = state['y'] - 3
-
                 if state['wallet']['cursor'] < (len(state['wallet']['transactions']) - 1):
                     state['wallet']['cursor'] += 1
-                    window_height = state['y'] - 3
+                    window_height = state['y'] - 4
                     if ( (state['wallet']['cursor']*4 +1 ) - state['wallet']['offset']) > window_height-2:
                         state['wallet']['offset'] += 4
                     wallet.draw_transactions(state)
@@ -154,13 +150,13 @@ def check(state, window, rpc_queue):
 
     elif c == curses.KEY_PPAGE:
         if state['mode'] == "console":
-            window_height = state['y'] - 2 - 2
+            window_height = state['y'] - 3 - 2
             state['console']['offset'] += window_height
             console.draw_buffer(state)
 
     elif c == curses.KEY_NPAGE:
         if state['mode'] == "console":
-            window_height = state['y'] - 2 - 2
+            window_height = state['y'] - 3 - 2
             if state['console']['offset'] > window_height:
                 state['console']['offset'] -= window_height
             else:
@@ -185,7 +181,7 @@ def check(state, window, rpc_queue):
                     s = {'txid': state['tx']['vin'][ state['tx']['cursor'] ]['txid']}
                     rpc_queue.put(s)
 
-        if state['mode'] == "block":
+        elif state['mode'] == "block":
             if 'blocks' in state:
                 if state['blocks']['browse_height'] > 0: # block 0 is not indexed
                     height = str(state['blocks']['browse_height'])
@@ -195,7 +191,7 @@ def check(state, window, rpc_queue):
                         rpc_queue.put(s)
                         state['mode'] = "transaction"
 
-        if state['mode'] == "wallet":
+        elif state['mode'] == "wallet":
             if 'wallet' in state:
                 if 'transactions' in state['wallet']:
                     s = {'txid': state['wallet']['transactions'][ state['wallet']['cursor'] ]['txid']}

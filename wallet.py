@@ -2,6 +2,7 @@
 import curses
 
 import global_mod as g
+import footer
 
 def draw_window(state, window):
     window.clear()
@@ -26,9 +27,10 @@ def draw_window(state, window):
 
     win_header.refresh()
     draw_transactions(state)
+    footer.draw_window(state)
 
 def draw_transactions(state):
-    window_height = state['y'] - 3
+    window_height = state['y'] - 4
     win_transactions = curses.newwin(window_height, 76, 3, 0)
 
     win_transactions.addstr(0, 1, "transactions:                               (UP/DOWN: scroll, ENTER: view)", curses.A_BOLD + curses.color_pair(5))

@@ -3,6 +3,7 @@ import curses, time
 
 import global_mod as g
 import getstr
+import footer
 
 def draw_window(state, window):
     # TODO: add transaction locktime, add sequence to inputs
@@ -48,9 +49,10 @@ def draw_window(state, window):
         win_header.addstr(2, 1, "or 'M' to return to monitor window", curses.A_BOLD)
 
     win_header.refresh()
+    footer.draw_window(state)
 
 def draw_inputs(state):
-    window_height = (state['y'] - 4) / 2
+    window_height = (state['y'] - 5) / 2
     window_width = state['x']
     win_inputs = curses.newwin(window_height, window_width+1, 4, 0)
     if state['tx']['mode'] == 'inputs':
@@ -103,7 +105,7 @@ def draw_inputs(state):
     win_inputs.refresh()
 
 def draw_outputs(state):
-    window_height = (state['y'] - 4) / 2
+    window_height = (state['y'] - 5) / 2
     win_outputs = curses.newwin(window_height, 75, 4+window_height, 0)
     if state['tx']['mode'] == 'outputs':
         win_outputs.addstr(0, 1, "outputs:                                             (UP/DOWN: scroll)", curses.A_BOLD + curses.color_pair(3))

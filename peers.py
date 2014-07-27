@@ -2,6 +2,7 @@
 import curses
 
 import global_mod as g
+import footer
 
 def draw_window(state, window):
     window.clear()
@@ -19,9 +20,10 @@ def draw_window(state, window):
     win_header.refresh()
 
     draw_peers(state)
+    footer.draw_window(state)
 
 def draw_peers(state):
-    window_height = state['y'] - 4
+    window_height = state['y'] - 5
     win_peers = curses.newwin(window_height, 75, 4, 0)
 
     offset = state['peerinfo_offset']
