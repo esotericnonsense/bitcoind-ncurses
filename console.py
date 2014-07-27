@@ -8,13 +8,9 @@ import footer
 def draw_window(state, window):
     window.clear()
     window.refresh()
-    win_header = curses.newwin(1, 75, 0, 0)
+    win_header = curses.newwin(1, 76, 0, 0)
 
-    color = curses.color_pair(1)
-    if 'testnet' in state:
-        if state['testnet']: color = curses.color_pair(2)
-
-    win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "   [debug console]   (press 'G' to enter command)", color + curses.A_BOLD)
+    win_header.addstr(0, 1, "G: enter command".rjust(72), curses.A_BOLD + curses.color_pair(5))
     win_header.refresh()
 
     if len(state['console']['rbuffer']):

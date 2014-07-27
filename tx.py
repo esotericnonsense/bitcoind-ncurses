@@ -9,19 +9,15 @@ def draw_window(state, window):
     # TODO: add transaction locktime, add sequence to inputs
     window.clear()
     window.refresh()
-    win_header = curses.newwin(4, 75, 0, 0)
+    win_header = curses.newwin(3, 75, 0, 0)
 
-    color = curses.color_pair(1)
     unit = 'BTC'
     if 'testnet' in state:
         if state['testnet']:
-            color = curses.color_pair(2)
             unit = 'TNC'
-    win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [transaction mode] (press 'G' to enter a txid)", color + curses.A_BOLD)
-
     if 'tx' in state:
-        win_header.addstr(1, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
-        win_header.addstr(2, 1, str(state['tx']['size']) + " bytes (" + str(state['tx']['size']/1024) + " KB)       ", curses.A_BOLD)
+        win_header.addstr(0, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
+        win_header.addstr(1, 1, str(state['tx']['size']) + " bytes (" + str(state['tx']['size']/1024) + " KB)       ", curses.A_BOLD)
 
         if 'total_outputs' in state['tx']:
             output_string = "%.8f" % state['tx']['total_outputs'] + " " + unit
@@ -34,26 +30,29 @@ def draw_window(state, window):
                     output_string += " + " + "%.8f" % fee + " " + unit + " fee"
             else:
                 output_string += " + unknown fee"
-            win_header.addstr(2, 26, output_string.rjust(45), curses.A_BOLD)
+            win_header.addstr(1, 26, output_string.rjust(45), curses.A_BOLD)
 
         if 'confirmations' in state['tx']:
-            win_header.addstr(3, 1, str(state['tx']['confirmations']) + " conf", curses.A_BOLD)
+            win_header.addstr(2, 1, str(state['tx']['confirmations']) + " conf", curses.A_BOLD)
         else:
-            win_header.addstr(3, 1, "unconfirmed", curses.A_BOLD)
+            win_header.addstr(2, 1, "unconfirmed", curses.A_BOLD)
+
+        win_header.addstr(2, 56, "(G: enter txid)", curses.A_BOLD)
 
         draw_inputs(state)
         draw_outputs(state)
 
     else:
-        win_header.addstr(2, 1, "no transaction loaded", curses.A_BOLD)
+        win_header.addstr(0, 1, "no transaction loaded", curses.A_BOLD + curses.color_pair(3))
+        win_header.addstr(1, 1, "press 'G' to enter a txid", curses.A_BOLD)
 
     win_header.refresh()
     footer.draw_window(state)
 
 def draw_inputs(state):
-    window_height = (state['y'] - 5) / 2
+    window_height = (state['y'] - 4) / 2
     window_width = state['x']
-    win_inputs = curses.newwin(window_height, window_width+1, 4, 0)
+    win_inputs = curses.newwin(window_height, window_width+1, 3, 0)
     if state['tx']['mode'] == 'inputs':
         win_inputs.addstr(0, 1, "inputs:                     (UP/DOWN: select, ENTER: view, V: verbose)", curses.A_BOLD + curses.color_pair(3))
     else:
@@ -104,8 +103,8 @@ def draw_inputs(state):
     win_inputs.refresh()
 
 def draw_outputs(state):
-    window_height = (state['y'] - 5) / 2
-    win_outputs = curses.newwin(window_height, 75, 4+window_height, 0)
+    window_height = (state['y'] - 4) / 2
+    win_outputs = curses.newwin(window_height, 75, 3+window_height, 0)
     if state['tx']['mode'] == 'outputs':
         win_outputs.addstr(0, 1, "outputs:                                             (UP/DOWN: scroll)", curses.A_BOLD + curses.color_pair(3))
     else:

@@ -7,16 +7,12 @@ import footer
 def draw_window(state, window):
     window.clear()
     window.refresh()
-    win_header = curses.newwin(3, 75, 0, 0)
+    win_header = curses.newwin(2, 75, 0, 0)
 
-    color = curses.color_pair(1)
     unit = 'BTC'
     if 'testnet' in state:
         if state['testnet']:
-            color = curses.color_pair(2)
             unit = 'TNC'
-
-    win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "        [wallet mode]       (press 'W' to refresh)", color + curses.A_BOLD)
 
     if 'wallet' in state:
         if 'balance' in state:
@@ -24,19 +20,20 @@ def draw_window(state, window):
             if 'unconfirmedbalance' in state:
                 if state['unconfirmedbalance'] != 0:
                     balance_string += " (+" + "%0.8f" % state['unconfirmedbalance'] + " unconf)"
-            window.addstr(1, 1, balance_string, curses.A_BOLD)
+            window.addstr(0, 1, balance_string, curses.A_BOLD)
 
         draw_transactions(state)
 
     else:
-        win_header.addstr(2, 1, "no wallet information loaded", curses.A_BOLD)
+        win_header.addstr(0, 1, "no wallet information loaded. -disablewallet, perhaps?", curses.A_BOLD + curses.color_pair(3))
+        win_header.addstr(1, 1, "press 'W' to refresh", curses.A_BOLD)
 
     win_header.refresh()
     footer.draw_window(state)
 
 def draw_transactions(state):
-    window_height = state['y'] - 4
-    win_transactions = curses.newwin(window_height, 76, 3, 0)
+    window_height = state['y'] - 3
+    win_transactions = curses.newwin(window_height, 76, 2, 0)
 
     win_transactions.addstr(0, 1, "transactions:                               (UP/DOWN: scroll, ENTER: view)", curses.A_BOLD + curses.color_pair(5))
 

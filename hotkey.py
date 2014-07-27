@@ -101,7 +101,7 @@ def check(state, window, rpc_queue):
     elif c == curses.KEY_DOWN:
         if state['mode'] == "transaction":
             if 'tx' in state:
-                window_height = (state['y'] - 5) / 2
+                window_height = (state['y'] - 4) / 2
                 if state['tx']['cursor'] < (len(state['tx']['vin']) - 1) and state['tx']['mode'] == 'inputs':
                     state['tx']['cursor'] += 1
 
@@ -120,14 +120,14 @@ def check(state, window, rpc_queue):
                     blockdata = state['blocks'][height]
                     if state['blocks']['cursor'] < (len(blockdata['tx']) - 1):
                         state['blocks']['cursor'] += 1
-                        window_height = state['y'] - 7
+                        window_height = state['y'] - 6
                         if (state['blocks']['cursor'] - state['blocks']['offset']) > window_height-2:
                             state['blocks']['offset'] += 1
                         block.draw_transactions(state)
 
         elif state['mode'] == "peers":
             if 'peerinfo' in state and 'peerinfo_offset' in state:
-                window_height = state['y'] - 5
+                window_height = state['y'] - 4
                 if state['peerinfo_offset'] < (len(state['peerinfo']) - window_height):
                     state['peerinfo_offset'] += 1
                     peers.draw_peers(state)
@@ -136,7 +136,7 @@ def check(state, window, rpc_queue):
             if 'wallet' in state: 
                 if state['wallet']['cursor'] < (len(state['wallet']['transactions']) - 1):
                     state['wallet']['cursor'] += 1
-                    window_height = state['y'] - 4
+                    window_height = state['y'] - 3
                     if ( (state['wallet']['cursor']*4 +1 ) - state['wallet']['offset']) > window_height-2:
                         state['wallet']['offset'] += 4
                     wallet.draw_transactions(state)
@@ -242,7 +242,7 @@ def check(state, window, rpc_queue):
                     s = {'txid': state['tx']['txid'], 'verbose': 1}
                     rpc_queue.put(s)
 
-    elif c == curses.KEY_LEFT:
+    elif c == ord('j') or c == ord('J'):
         if state['mode'] == "block":
             if 'blocks' in state:
                 if (state['blocks']['browse_height']) > 0:
@@ -257,7 +257,7 @@ def check(state, window, rpc_queue):
                             s = {'getblockhash': state['blocks']['browse_height']}
                             rpc_queue.put(s)
 
-    elif c == curses.KEY_RIGHT:
+    elif c == ord('k') or c == ord('K'):
         if state['mode'] == "block":
             if 'blocks' in state:
                 if (state['blocks']['browse_height']) < state['blockcount']:
