@@ -1,4 +1,4 @@
-bitcoind-ncurses v0.0.17
+bitcoind-ncurses v0.0.18
 ========================
 
 ncurses front-end for bitcoind
@@ -54,8 +54,7 @@ $ python main.py -c some_other_config_file.conf
 todo
 ----
 
-* improve CPU efficiency; change polling method to use interrupts more
-* handle all crashes such that terminal returns to a sane state
+* ensure terminal always returns to sane state on program exit
 * mean block size/tx count over last X blocks
 * fee estimation / fee data
 * bandwidth chart
