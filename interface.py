@@ -51,6 +51,7 @@ def loop(interface_queue, rpc_queue):
 
     splash.draw_window(state, window)
 
+    iterations = 0
     while 1:
         check_window_size(interface_queue, state, window, 12, 75) # min_y, min_x
         error_message = process.queue(state, window, interface_queue)
@@ -58,13 +59,14 @@ def loop(interface_queue, rpc_queue):
             break # ends if stop command sent by rpc
 
         if state['mode'] == "monitor":
-            if (int(time.time() * 1000) % 1000) < 100: # hackish idle
+            if not iterations % 20:
               monitor.draw_window(state, window)
 
         if hotkey.check(state, window, rpc_queue): # poll for user input
             break # returns 1 when quit key is pressed
 
         time.sleep(0.05) # TODO: base updates on interrupts to avoid needless polling
+        iterations += 1
 
     curses.nocbreak()
     curses.endwin()
