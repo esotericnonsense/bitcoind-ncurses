@@ -75,7 +75,7 @@ def loop(interface_queue, rpc_queue, cfg):
     prev_blockcount = 0
     while True:
         try:
-            s = rpc_queue.get(False)
+            s = rpc_queue.get(True, 0.1)
         except Queue.Empty:
             s = {}
 
@@ -231,5 +231,3 @@ def loop(interface_queue, rpc_queue, cfg):
                     except: pass
 
             last_update = time.time()
-
-        time.sleep(0.05) # TODO: investigate a better way to idle CPU

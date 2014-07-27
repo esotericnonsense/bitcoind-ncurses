@@ -215,8 +215,10 @@ def check(state, window, rpc_queue):
         if state['mode'] == "transaction":
             if 'tx' in state:
                 if 'txid' in state['tx']['vin'][ state['tx']['cursor'] ]: 
-                    s = {'txid': state['tx']['vin'][ state['tx']['cursor'] ]['txid']}
-                    rpc_queue.put(s)
+                    if state['tx']['loaded']:
+                        state['tx']['loaded'] = 0
+                        s = {'txid': state['tx']['vin'][ state['tx']['cursor'] ]['txid']}
+                        rpc_queue.put(s)
 
         elif state['mode'] == "block":
             if 'blocks' in state:
@@ -239,8 +241,10 @@ def check(state, window, rpc_queue):
         if state['mode'] == "transaction":
             if 'tx' in state:
                 if 'txid' in state['tx']:
-                    s = {'txid': state['tx']['txid'], 'verbose': 1}
-                    rpc_queue.put(s)
+                    if state['tx']['loaded']:
+                        state['tx']['loaded'] = 0
+                        s = {'txid': state['tx']['txid'], 'verbose': 1}
+                        rpc_queue.put(s)
 
     elif c == ord('j') or c == ord('J'):
         if state['mode'] == "block":
