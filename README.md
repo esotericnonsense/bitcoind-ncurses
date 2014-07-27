@@ -1,4 +1,4 @@
-bitcoind-ncurses v0.0.15
+bitcoind-ncurses v0.0.16
 ========================
 
 ncurses front-end for bitcoind
