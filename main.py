@@ -49,9 +49,9 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, interrupt_signal)
 
     # start RPC thread
-    rpc_thread = multiprocessing.Process(target=rpc.loop, args = (interface_queue, rpc_queue, cfg))
-    rpc_thread.daemon = True
-    rpc_thread.start()
+    rpc_process = multiprocessing.Process(target=rpc.loop, args = (interface_queue, rpc_queue, cfg))
+    rpc_process.daemon = True
+    rpc_process.start()
 
     #debug(rpc_queue)
 
@@ -59,4 +59,4 @@ if __name__ == '__main__':
     interface.loop(interface_queue, rpc_queue)
 
     # ensure RPC thread exits cleanly
-    rpc_thread.join()
+    rpc_process.join()
