@@ -1,4 +1,4 @@
-bitcoind-ncurses v0.0.16
+bitcoind-ncurses v0.0.17
 ========================
 
 ncurses front-end for bitcoind
@@ -22,6 +22,7 @@ features
 --------
 
 * updating ticker showing bitcoind's status (via RPC)
+* view arbitrary block contents quickly
 * facility to view transactions in current block and trace back through their inputs (with -txindex)
 * view transactions from your wallet - txid, amounts, cumulative balance
 * view connected peers
