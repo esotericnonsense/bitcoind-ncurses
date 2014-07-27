@@ -11,14 +11,15 @@ def draw_window(state, window):
     window.refresh()
     win_header = curses.newwin(4, 75, 0, 0)
 
+    color = curses.color_pair(1)
+    unit = 'BTC'
+    if 'testnet' in state:
+        if state['testnet']:
+            color = curses.color_pair(2)
+            unit = 'TNC'
+    win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [transaction mode] (press 'G' to enter a txid)", color + curses.A_BOLD)
+
     if 'tx' in state:
-        color = curses.color_pair(1)
-        unit = 'BTC'
-        if 'testnet' in state:
-            if state['testnet']:
-                color = curses.color_pair(2)
-                unit = 'TNC'
-        win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + " [transaction mode] (press 'G' to enter a txid)", color + curses.A_BOLD)
         win_header.addstr(1, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
         win_header.addstr(2, 1, str(state['tx']['size']) + " bytes (" + str(state['tx']['size']/1024) + " KB)       ", curses.A_BOLD)
 
@@ -44,9 +45,7 @@ def draw_window(state, window):
         draw_outputs(state)
 
     else:
-        win_header.addstr(0, 1, "no transaction loaded", curses.A_BOLD)
-        win_header.addstr(1, 1, "press 'G' to enter a txid", curses.A_BOLD)
-        win_header.addstr(2, 1, "or 'M' to return to monitor window", curses.A_BOLD)
+        win_header.addstr(2, 1, "no transaction loaded", curses.A_BOLD)
 
     win_header.refresh()
     footer.draw_window(state)

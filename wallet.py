@@ -18,15 +18,20 @@ def draw_window(state, window):
 
     win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "        [wallet mode]       (press 'W' to refresh)", color + curses.A_BOLD)
 
-    if 'balance' in state:
-        balance_string = "balance: " + "%0.8f" % state['balance'] + " " + unit
-        if 'unconfirmedbalance' in state:
-            if state['unconfirmedbalance'] != 0:
-                balance_string += " (+" + "%0.8f" % state['unconfirmedbalance'] + " unconf)"
-        window.addstr(1, 1, balance_string, curses.A_BOLD)
+    if 'wallet' in state:
+        if 'balance' in state:
+            balance_string = "balance: " + "%0.8f" % state['balance'] + " " + unit
+            if 'unconfirmedbalance' in state:
+                if state['unconfirmedbalance'] != 0:
+                    balance_string += " (+" + "%0.8f" % state['unconfirmedbalance'] + " unconf)"
+            window.addstr(1, 1, balance_string, curses.A_BOLD)
+
+        draw_transactions(state)
+
+    else:
+        win_header.addstr(2, 1, "no wallet information loaded", curses.A_BOLD)
 
     win_header.refresh()
-    draw_transactions(state)
     footer.draw_window(state)
 
 def draw_transactions(state):

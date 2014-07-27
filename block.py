@@ -10,32 +10,33 @@ def draw_window(state, window):
     window.refresh()
     win_header = curses.newwin(6, 75, 0, 0)
 
-    if 'blocks' in state:
-        if 'browse_height' in state['blocks']:
-            height = str(state['blocks']['browse_height'])
-            if height in state['blocks']:
-                blockdata = state['blocks'][height]
+    color = curses.color_pair(1)
+    if 'testnet' in state:
+        if state['testnet']: color = curses.color_pair(2)
 
-                color = curses.color_pair(1)
-                if 'testnet' in state:
-                    if state['testnet']: color = curses.color_pair(2)
+    win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "   [block view]   (press 'G' to enter a block)", color + curses.A_BOLD)
 
-                win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "   [block view]   (press 'G' to enter a block)", color + curses.A_BOLD)
-                win_header.addstr(1, 1, "height: " + height.zfill(6) + " (LEFT/RIGHT: browse, HOME/END: quick browse, L: latest)", curses.A_BOLD)
-                win_header.addstr(2, 1, "hash: " + blockdata['hash'], curses.A_BOLD)
-                win_header.addstr(3, 1, "root: " + blockdata['merkleroot'], curses.A_BOLD)
-                win_header.addstr(4, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ", curses.A_BOLD)
-                win_header.addstr(4, 26, "diff: " + "{:,d}".format(int(blockdata['difficulty'])), curses.A_BOLD)
-                win_header.addstr(4, 52, time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(blockdata['time'])), curses.A_BOLD)
-                win_header.addstr(5, 51, ("v" + str(blockdata['version'])).rjust(20), curses.A_BOLD)
+    if 'browse_height' in state['blocks']:
+        height = str(state['blocks']['browse_height'])
+        if height in state['blocks']:
+            blockdata = state['blocks'][height]
 
-                draw_transactions(state)
-                state['blocks']['loaded'] = 1
+            win_header.addstr(1, 1, "height: " + height.zfill(6) + " (LEFT/RIGHT: browse, HOME/END: quick browse, L: latest)", curses.A_BOLD)
+            win_header.addstr(2, 1, "hash: " + blockdata['hash'], curses.A_BOLD)
+            win_header.addstr(3, 1, "root: " + blockdata['merkleroot'], curses.A_BOLD)
+            win_header.addstr(4, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ", curses.A_BOLD)
+            win_header.addstr(4, 26, "diff: " + "{:,d}".format(int(blockdata['difficulty'])), curses.A_BOLD)
+            win_header.addstr(4, 52, time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(blockdata['time'])), curses.A_BOLD)
+            win_header.addstr(5, 51, ("v" + str(blockdata['version'])).rjust(20), curses.A_BOLD)
+
+            draw_transactions(state)
+            state['blocks']['loaded'] = 1
 
         else:
-            win_header.addstr(0, 1, "no block loaded", curses.A_BOLD)
-            win_header.addstr(1, 1, "press 'G' to enter a block hash or height", curses.A_BOLD)
-            win_header.addstr(2, 1, "or 'M' to return to monitor window", curses.A_BOLD)
+            win_header.addstr(2, 1, "no block information loaded", curses.A_BOLD)
+
+    else:
+        win_header.addstr(2, 1, "no block information loaded", curses.A_BOLD)
 
     win_header.refresh()
     footer.draw_window(state)

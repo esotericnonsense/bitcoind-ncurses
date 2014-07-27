@@ -1,12 +1,34 @@
 #/usr/bin/env python
 import curses
 
+import global_mod as g
 import tx
 import block
 import monitor
 import peers
 import wallet
 import console
+
+def change_mode(state, window, mode):
+    try:
+        g.modes.index(mode)
+    except ValueError:
+        return False
+
+    state['mode'] = mode
+
+    if mode == 'monitor':
+        monitor.draw_window(state, window)
+    elif mode == 'transaction':
+        tx.draw_window(state, window)
+    elif mode == 'peers':
+        peers.draw_window(state, window)
+    elif mode == 'wallet':
+        wallet.draw_window(state, window)
+    elif mode == 'block':
+        block.draw_window(state, window)
+    elif mode == 'console':
+        console.draw_window(state, window)
 
 def check(state, window, rpc_queue):
     c = window.getch()
@@ -15,23 +37,46 @@ def check(state, window, rpc_queue):
         return False
 
     elif c == ord('q') or c == ord('Q'):
+        # quit
         return True
 
+    elif c == curses.KEY_LEFT:
+        try:
+            index = g.modes.index(state['mode']) - 1
+        except:
+            pass
+        if index < 0:
+            index = len(g.modes) - 2
+        change_mode(state, window, g.modes[index])
+
+    elif c == curses.KEY_RIGHT:
+        try:
+            index = g.modes.index(state['mode']) + 1
+        except:
+            pass
+        if index > len(g.modes) - 2: # last index item is 'quit'
+            index = 0
+        change_mode(state, window, g.modes[index])
+
     elif c == ord('m') or c == ord('M'):
-        state['mode'] = "monitor"
-        monitor.draw_window(state, window)
-
-    elif c == ord('t') or c == ord('T'):
-        state['mode'] = "transaction"
-        tx.draw_window(state, window)
-
-    elif c == ord('p') or c == ord('P'):
-        rpc_queue.put('getpeerinfo')
-        state['mode'] = "peers"
+        change_mode(state, window, 'monitor')
 
     elif c == ord('w') or c == ord('W'):
         rpc_queue.put('listsinceblock')
-        state['mode'] = "wallet"
+        change_mode(state, window, 'wallet')
+
+    elif c == ord('p') or c == ord('P'):
+        rpc_queue.put('getpeerinfo')
+        change_mode(state, window, 'peers')
+
+    elif c == ord('b') or c == ord('B'):
+        change_mode(state, window, 'block')
+
+    elif c == ord('t') or c == ord('T'):
+        change_mode(state, window, 'transaction')
+
+    elif c == ord('c') or c == ord('C'):
+        change_mode(state, window, 'console')
 
     elif c == ord('g') or c == ord('G'):
         if state['mode'] == "transaction":
@@ -42,14 +87,6 @@ def check(state, window, rpc_queue):
             block.draw_input_window(state, window, rpc_queue)
         elif state['mode'] == "console":
             console.draw_input_box(state, rpc_queue)
-
-    elif c == ord('b') or c == ord('B'):
-        state['mode'] = "block"
-        block.draw_window(state, window)
-
-    elif c == ord('c') or c == ord('C'):
-        state['mode'] = "console"
-        console.draw_window(state, window)
 
     elif c == ord('l') or c == ord('L'):
         if state['mode'] == "block":

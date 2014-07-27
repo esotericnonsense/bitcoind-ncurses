@@ -8,18 +8,23 @@ def draw_window(state, window):
     window.clear()
     window.refresh()
 
+    win_header = curses.newwin(4, 75, 0, 0)
+
     color = curses.color_pair(1)
     if 'testnet' in state:
         if state['testnet']: color = curses.color_pair(2)
 
-    win_header = curses.newwin(4, 75, 0, 0)
-
     win_header.addstr(0, 1, "bitcoind-ncurses " + g.version + "     [peer view]      (press 'P' to refresh)", color + curses.A_BOLD)
-    win_header.addstr(1, 1, "connected peers: " + str(len(state['peerinfo'])).ljust(10) + "                        (UP/DOWN: scroll)", curses.A_BOLD)
-    win_header.addstr(3, 1, "  Node IP                      Version                Recv      Sent", curses.A_BOLD + curses.color_pair(5))
-    win_header.refresh()
 
-    draw_peers(state)
+    if 'peerinfo' in state:
+        win_header.addstr(1, 1, "connected peers: " + str(len(state['peerinfo'])).ljust(10) + "                        (UP/DOWN: scroll)", curses.A_BOLD)
+        win_header.addstr(3, 1, "  Node IP                      Version                Recv      Sent", curses.A_BOLD + curses.color_pair(5))
+        draw_peers(state)
+
+    else:
+        win_header.addstr(2, 1, "no peer information loaded", curses.A_BOLD)
+
+    win_header.refresh()
     footer.draw_window(state)
 
 def draw_peers(state):

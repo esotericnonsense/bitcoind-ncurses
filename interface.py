@@ -52,7 +52,7 @@ def loop(interface_queue, rpc_queue):
     splash.draw_window(state, window)
 
     while 1:
-        check_window_size(interface_queue, state, window, 10, 75) # min_y, min_x
+        check_window_size(interface_queue, state, window, 12, 75) # min_y, min_x
         error_message = process.queue(state, window, interface_queue)
         if error_message:
             break # ends if stop command sent by rpc
