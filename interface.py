@@ -34,7 +34,7 @@ def init_curses():
     curses.init_pair(4, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
     curses.init_pair(5, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 
-    window.nodelay(1) # TODO: remove once fully interrupt based
+    window.timeout(50)
     window.keypad(1) # interpret arrow keys, etc
 
     return window
@@ -65,7 +65,6 @@ def loop(interface_queue, rpc_queue):
         if hotkey.check(state, window, rpc_queue): # poll for user input
             break # returns 1 when quit key is pressed
 
-        time.sleep(0.05) # TODO: base updates on interrupts to avoid needless polling
         iterations += 1
 
     curses.nocbreak()
