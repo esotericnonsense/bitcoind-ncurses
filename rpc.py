@@ -139,11 +139,15 @@ def loop(interface_queue, rpc_queue, cfg):
                             tx['total_inputs'] = 'coinbase'
                     for vout in tx['vout']:
                         try:
-                            utxo = rpchandle.gettxout(s['txid'], vout['n'])
+                            utxo = rpchandle.gettxout(s['txid'], vout['n'], False)
                             if utxo == None:
-                                vout['spent'] = True
+                                vout['spent'] = 'confirmed'
                             else:
-                                vout['spent'] = False
+                                utxo = rpchandle.gettxout(s['txid'], vout['n'], True)
+                                if utxo == None:
+                                    vout['spent'] = 'unconfirmed'
+                                else:
+                                    vout['spent'] = False
                         except:
                             pass
 

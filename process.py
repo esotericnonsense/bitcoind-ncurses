@@ -191,11 +191,14 @@ def queue(state, window, interface_queue):
                 else:
                     buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
 
-                if 'spent' in vout:
-                    if vout['spent']:
-                        buffer_string += " [SPENT]"
-                    else:
-                        buffer_string += " [UNSPENT]"
+                if 'confirmations' in s:
+                    if 'spent' in vout:
+                        if vout['spent'] == 'confirmed':
+                            buffer_string += " [SPENT]"
+                        elif vout['spent'] == 'unconfirmed':
+                            buffer_string += " [UNCONFIRMED SPEND]"
+                        else:
+                            buffer_string += " [UNSPENT]"
 
                 state['tx']['total_outputs'] += vout['value']
                 state['tx']['vout_string'].extend(textwrap.wrap(buffer_string,70)) # change this to scale with window ?
