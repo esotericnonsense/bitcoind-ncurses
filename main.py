@@ -8,7 +8,7 @@
 # and of course the bitcoin dev team for that bitcoin gizmo, pretty neat stuff
 ###############################################################################
 
-import threading, Queue, ConfigParser, argparse, signal
+import multiprocessing, ConfigParser, argparse, signal
 
 import rpc
 import interface
@@ -27,8 +27,8 @@ def debug(rpc_queue):
 
 if __name__ == '__main__':
     # initialise queues
-    interface_queue = Queue.Queue()
-    rpc_queue = Queue.Queue()
+    interface_queue = multiprocessing.Queue()
+    rpc_queue = multiprocessing.Queue()
 
     # parse commandline arguments
     parser = argparse.ArgumentParser()
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, interrupt_signal)
 
     # start RPC thread
-    rpc_thread = threading.Thread(target=rpc.loop, args = (interface_queue, rpc_queue, cfg))
+    rpc_thread = multiprocessing.Process(target=rpc.loop, args = (interface_queue, rpc_queue, cfg))
     rpc_thread.daemon = True
     rpc_thread.start()
 
