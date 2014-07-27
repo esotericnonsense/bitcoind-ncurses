@@ -1,5 +1,7 @@
 *.pyc
 # ignore configuration files
 *.conf
+# ignore profiling
+*.lprof
 # ignore dependencies
 bitcoinrpc/*

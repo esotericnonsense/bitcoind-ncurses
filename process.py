@@ -10,13 +10,15 @@ import splash
 import console
 
 def queue(state, window, interface_queue):
-    try: s = interface_queue.get(False)
-    except Queue.Empty: s = {}
+    try:
+        s = interface_queue.get(False)
+    except Queue.Empty:
+        return False
 
     if 'stop' in s:
         return s['stop']
 
-    if 'resize' in s:
+    elif 'resize' in s:
         if state['mode'] == 'transaction':
             tx.draw_window(state, window)
         elif state['mode'] == 'block':
@@ -32,7 +34,7 @@ def queue(state, window, interface_queue):
         # redraw_all_the_things
         pass
 
-    if 'getinfo' in s:
+    elif 'getinfo' in s:
         state['version'] = str(s['getinfo']['version'] / 1000000)
         state['version'] += '.' + str((s['getinfo']['version'] % 1000000) / 10000)
         state['version'] += '.' + str((s['getinfo']['version'] % 10000) / 100)
