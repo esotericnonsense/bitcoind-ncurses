@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import curses, time
+import curses, time, binascii
 
 import global_mod as g
 import getstr
@@ -98,7 +98,21 @@ def draw_inputs(state):
                     win_inputs.addstr(index+1-offset, 3, buffer_string)
 
             elif 'coinbase' in state['tx']['vin'][index]:
-                win_inputs.addstr(index+1-offset, 3, "coinbase " + state['tx']['vin'][index]['coinbase'])
+                coinbase = "[coinbase] " + state['tx']['vin'][index]['coinbase']
+                coinbase_string = " [strings] " +  binascii.unhexlify(state['tx']['vin'][index]['coinbase'])
+
+                # strip non-ASCII characters
+                coinbase_string = ''.join([x for x in coinbase_string if 31 < ord(x) < 127])
+
+                if len(coinbase) > window_width-1:
+                    win_inputs.addstr(index+1-offset, 1, coinbase[:window_width-5] + " ...")
+                else:
+                    win_inputs.addstr(index+1-offset, 1, coinbase[:window_width-1])
+
+                if len(coinbase_string) > window_width-1:
+                    win_inputs.addstr(index+2-offset, 1, coinbase_string[:window_width-5] + " ...")
+                else:
+                    win_inputs.addstr(index+2-offset, 1, coinbase_string[:window_width-1])
 
     win_inputs.refresh()
 
