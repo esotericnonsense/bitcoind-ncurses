@@ -243,7 +243,12 @@ def check(state, window, rpc_queue):
                 if 'txid' in state['tx']:
                     if state['tx']['loaded']:
                         state['tx']['loaded'] = 0
-                        s = {'txid': state['tx']['txid'], 'verbose': 1}
+
+                        if 'total_inputs' not in state['tx']:
+                            s = {'txid': state['tx']['txid'], 'verbose': 1}
+                        else:
+                            s = {'txid': state['tx']['txid']}
+
                         rpc_queue.put(s)
 
     elif c == ord('j') or c == ord('J'):
