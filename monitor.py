@@ -22,7 +22,11 @@ def draw_window(state, old_window):
         window.addstr(0, 1, "bitcoind-ncurses " + g.version, color + curses.A_BOLD)
 
     if 'peers' in state:
-        window.addstr(0, 32, str(state['peers']) + " peers    ", curses.A_BOLD)
+        if state['peers'] > 0:
+            color = 0
+        else:
+            color = curses.color_pair(3)
+        window.addstr(0, 32, str(state['peers']) + " peers    ", color + curses.A_BOLD)
 
     if 'balance' in state:
         balance_string = "%0.8f" % state['balance'] + " " + unit
