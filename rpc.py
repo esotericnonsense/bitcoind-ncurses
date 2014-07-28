@@ -125,12 +125,15 @@ def loop(interface_queue, rpc_queue, cfg):
 
                 if 'verbose' in s:
                     tx['total_inputs'] = 0
+                    prev_tx = {}
                     for vin in tx['vin']:
                         if 'txid' in vin:
                             try:
-                                prev_tx = rpchandle.getrawtransaction(vin['txid'], 1)
+                                txid = vin['txid']
+                                if txid not in prev_tx:
+                                    prev_tx[txid] = rpchandle.getrawtransaction(txid, 1)
 
-                                vin['prev_tx'] = prev_tx['vout'][vin['vout']]
+                                vin['prev_tx'] = prev_tx[txid]['vout'][vin['vout']]
                                 if 'value' in vin['prev_tx']:
                                     tx['total_inputs'] += vin['prev_tx']['value']
                             except:
