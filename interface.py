@@ -8,16 +8,15 @@ import splash
 
 def check_window_size(interface_queue, state, window, min_y, min_x):
     # TODO: use SIGWINCH interrupt
-    new_x = window.getmaxyx()[1]
-    new_y = window.getmaxyx()[0]
-    if (new_y < min_y) or (new_x < min_x):
-        interface_queue.put({ 'stop': "Window is too small - must be at least " + str(min_x) + "x" + str(min_y)}) 
-    elif 'x' in state and 'y' in state:
-        if state['x'] != new_x or state['y'] != new_y:
-            state['x'] = new_x
-            state['y'] = new_y
+    if (state['y'], state['x']) != window.getmaxyx():
+        new_y, new_x = window.getmaxyx()
+
+        if (new_y < min_y) or (new_x < min_x):
+            interface_queue.put({ 'stop': "Window is too small - must be at least " + str(min_x) + "x" + str(min_y)})
+
+        if (state['y'], state['x']) != (-1, -1): # initialized
             interface_queue.put({'resize': 1})
-    else:
+
         state['x'] = new_x
         state['y'] = new_y
 
@@ -46,7 +45,9 @@ def loop(interface_queue, rpc_queue):
         'mode': "splash",
         'blocks': { 'cursor': 0, 'offset': 0 },
         'networkhashps': {},
-        'console': { 'cbuffer': [], 'rbuffer': [], 'offset': 0 }
+        'console': { 'cbuffer': [], 'rbuffer': [], 'offset': 0 },
+        'x': -1,
+        'y': -1
     }
 
     splash.draw_window(state, window)
