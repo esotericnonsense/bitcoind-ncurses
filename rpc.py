@@ -62,14 +62,14 @@ def loop(interface_queue, rpc_queue, cfg):
     # TODO: add error checking for broken config, improve exceptions
     rpchandle = init(interface_queue, cfg)
     if not rpchandle: # TODO: this doesn't appear to trigger, investigate
-        stop(interface_queue, "failed to connect to bitcoind")
+        stop(interface_queue, "failed to connect to bitcoind (handle not obtained)")
         return True
 
     last_update = time.time() - 2
     
     info = rpcrequest(rpchandle, 'getinfo', interface_queue)
     if not info:
-        stop(interface_queue, "failed to connect to bitcoind")
+        stop(interface_queue, "failed to connect to bitcoind (getinfo failed)")
         return True
 
     prev_blockcount = 0
