@@ -52,7 +52,7 @@ def draw_window(state, window):
 def draw_inputs(state):
     window_height = (state['y'] - 4) / 2
     window_width = state['x']
-    win_inputs = curses.newwin(window_height, window_width+1, 3, 0)
+    win_inputs = curses.newwin(window_height, window_width, 3, 0)
     if state['tx']['mode'] == 'inputs':
         win_inputs.addstr(0, 1, "inputs:                     (UP/DOWN: select, ENTER: view, V: verbose)", curses.A_BOLD + curses.color_pair(3))
     else:
@@ -82,10 +82,10 @@ def draw_inputs(state):
                                 buffer_string = "% 14.8f" % vout['value'] + ": " + vout['scriptPubKey']['asm']
 
                         length = len(buffer_string)
-                        if length + 71 < window_width:
+                        if length + 72 < window_width:
                             buffer_string += " " + state['tx']['vin'][index]['txid'] + ":" + "%03d" % state['tx']['vin'][index]['vout']
                         else:
-                            buffer_string += " " + state['tx']['vin'][index]['txid'][:(window_width-length-13)] + "[...]:" + "%03d" % state['tx']['vin'][index]['vout']
+                            buffer_string += " " + state['tx']['vin'][index]['txid'][:(window_width-length-14)] + "[...]:" + "%03d" % state['tx']['vin'][index]['vout']
 
                 if index == (state['tx']['cursor']):
                     win_inputs.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
