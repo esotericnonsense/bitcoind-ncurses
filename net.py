@@ -36,8 +36,8 @@ def draw_window(state, old_window):
             sent_deltas = sent_deltas[-chart_width:]
             recv_deltas = recv_deltas[-chart_width:]
 
-        color_sent = curses.color_pair(5)
-        color_recv = curses.color_pair(3)
+        color_sent = curses.color_pair(2)
+        color_recv = curses.color_pair(1)
         max_sent = max(sent_deltas)
         max_recv = max(recv_deltas)
         max_total = max(max_sent, max_recv)
