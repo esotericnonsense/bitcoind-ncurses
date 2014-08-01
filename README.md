@@ -1,4 +1,4 @@
-bitcoind-ncurses v0.0.18
+bitcoind-ncurses v0.0.19
 ========================
 
 ncurses front-end for bitcoind
@@ -9,6 +9,7 @@ ncurses front-end for bitcoind
 ![ScreenShot](/screenshots/bitcoind-ncurses-tx.png)
 ![ScreenShot](/screenshots/bitcoind-ncurses-peers.png)
 ![ScreenShot](/screenshots/bitcoind-ncurses-wallet.png)
+![ScreenShot](/screenshots/bitcoind-ncurses-net.png)
 
 produced by Amphibian (azeteki, Atelopus_zeteki)
 
