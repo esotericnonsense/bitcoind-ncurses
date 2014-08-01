@@ -11,9 +11,9 @@ def draw_window(state):
         if state['testnet']:
             color = curses.color_pair(2)
 
-    win_footer.addstr(0, 1, "bitcoind-ncurses", color + curses.A_BOLD)
+    win_footer.addstr(0, 1, "ncurses", color + curses.A_BOLD)
 
-    x = 18
+    x = 10
     for mode_string in g.modes:
         modifier = curses.A_BOLD
         if state['mode'] == mode_string:

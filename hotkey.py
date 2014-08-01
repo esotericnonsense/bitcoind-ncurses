@@ -8,6 +8,7 @@ import monitor
 import peers
 import wallet
 import console
+import net
 
 def change_mode(state, window, mode):
     try:
@@ -29,6 +30,8 @@ def change_mode(state, window, mode):
         block.draw_window(state, window)
     elif mode == 'console':
         console.draw_window(state, window)
+    elif mode == 'net':
+        net.draw_window(state, window)
 
 def check(state, window, rpc_queue):
     c = window.getch()
@@ -77,6 +80,9 @@ def check(state, window, rpc_queue):
 
     elif c == ord('c') or c == ord('C'):
         change_mode(state, window, 'console')
+
+    elif c == ord('n') or c == ord('N'):
+        change_mode(state, window, 'net')
 
     elif c == ord('g') or c == ord('G'):
         if state['mode'] == "transaction":

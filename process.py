@@ -8,6 +8,7 @@ import peers
 import wallet
 import splash
 import console
+import net
 
 def queue(state, window, interface_queue):
     try:
@@ -31,6 +32,8 @@ def queue(state, window, interface_queue):
             monitor.draw_window(state, window)
         elif state['mode'] == 'console':
             console.draw_window(state, window)
+        elif state['mode'] == 'net':
+            net.draw_window(state, window)
         # redraw_all_the_things
         pass
 
@@ -96,6 +99,15 @@ def queue(state, window, interface_queue):
     elif 'getnettotals' in s:
         state['totalbytesrecv'] = s['getnettotals']['totalbytesrecv']
         state['totalbytessent'] = s['getnettotals']['totalbytessent']
+
+        state['history']['getnettotals'].append(s['getnettotals'])
+
+        # ensure getnettotals history does not fill RAM eventually, 300 items is enough
+        if len(state['history']['getnettotals']) > 500:
+            state['history']['getnettotals'] = state['history']['getnettotals'][-300:]
+
+        if state['mode'] == 'net':
+            net.draw_window(state, window)
 
     elif 'getrawmempool' in s:
         state['rawmempool'] = s['getrawmempool']

@@ -47,7 +47,8 @@ def loop(interface_queue, rpc_queue):
         'networkhashps': {},
         'console': { 'cbuffer': [], 'rbuffer': [], 'offset': 0 },
         'x': -1,
-        'y': -1
+        'y': -1,
+        'history': { 'getnettotals': [] }
     }
 
     splash.draw_window(state, window)
