@@ -100,7 +100,7 @@ def draw_window(state, old_window):
 
             if 'chainwork' in blockdata:
                 log2_chainwork = math.log(int(blockdata['chainwork'], 16), 2)
-                window.addstr(13, 1, "Total chain work: 2**" + "%0.2f" % log2_chainwork + " hashes")
+                window.addstr(13, 1, "Total chain work: 2**" + "%0.4f" % log2_chainwork + " hashes")
 
     if 'difficulty' in state:
         diff = int(state['difficulty'])
