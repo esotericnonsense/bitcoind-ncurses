@@ -30,8 +30,6 @@ def draw_window(state, old_window):
     if sent_deltas:
         chart_height = window_height - 2
         plot_height = chart_height / 2
-        if chart_height % 2:
-            chart_height -= 1
         chart_width = window_width - 11
 
         if len(sent_deltas) > chart_width:
@@ -45,9 +43,6 @@ def draw_window(state, old_window):
         max_total = max(max_sent, max_recv)
 
         if max_total > 0:
-            h_sent = int((1.0 * chart_height * max_sent) / max_total)
-            h_recv = int((1.0 * chart_height * max_recv) / max_total)
-
             if max_sent > 0:
                 height = int(math.ceil((1.0 * plot_height * max_sent) / max_total))
                 window.addstr(plot_height-height, 1, ("%0.1f" % (max_sent*1.0/1024)).rjust(6) + "K", curses.A_BOLD) 
