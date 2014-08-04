@@ -48,6 +48,9 @@ def queue(state, window, interface_queue):
             state['testnet'] = 0
         state['peers'] = s['getinfo']['connections']
 
+        if 'errors' in s['getinfo']:
+            state['errors'] = s['getinfo']['errors']
+
         if state['mode'] == "splash":
             splash.draw_window(state, window)
     

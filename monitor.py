@@ -8,7 +8,7 @@ def draw_window(state, old_window):
     # TODO: only draw parts that actually changed
     old_window.clear()
     old_window.refresh()
-    window = curses.newwin(16, 76, 0, 0)
+    window = curses.newwin(19, 76, 0, 0)
 
     if 'version' in state:
         if state['testnet'] == 1:
@@ -136,6 +136,14 @@ def draw_window(state, old_window):
     if 'rawmempool' in state:
         tx_in_mempool = len(state['rawmempool'])
         window.addstr(15, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
+
+    if 'errors' in state:
+        if state['y'] < 20:
+            y = state['y'] - 3
+        else:
+            y = 17
+        window.addstr(y, 1, state['errors'][:72], curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
+        window.addstr(y+1, 1, state['errors'][72:142].rjust(72), curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
 
     window.refresh()
     footer.draw_window(state)
