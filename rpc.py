@@ -233,4 +233,11 @@ def loop(interface_queue, rpc_queue, cfg):
                         interface_queue.put({'getnetworkhashps': {'blocks': 2016, 'value': nethash2016}})
                     except: pass
 
+                    try:
+                        estimatefee1 = rpchandle.estimatefee(1)
+                        estimatefee5 = rpchandle.estimatefee(5)
+                        estimatefee = [{'blocks': 1, 'value': estimatefee1}, {'blocks': 5, 'value': estimatefee5}]
+                        interface_queue.put({'estimatefee': estimatefee})
+                    except: pass
+
             last_update = time.time()

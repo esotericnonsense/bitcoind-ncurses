@@ -137,6 +137,12 @@ def draw_window(state, old_window):
         tx_in_mempool = len(state['rawmempool'])
         window.addstr(15, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
 
+    if 'estimatefee' in state:
+        string = "estimatefee:"
+        for item in state['estimatefee']:
+            string += " (" + str(item['blocks']) + ")" + "%0.2f" % (item['value']*1000) + "mBTC"
+        window.addstr(15, 37, string)
+
     if 'errors' in state:
         if state['y'] < 20:
             y = state['y'] - 3

@@ -237,4 +237,7 @@ def queue(state, window, interface_queue):
         if state['mode'] == "console":
             console.draw_window(state, window)
 
+    elif 'estimatefee' in s:
+        state['estimatefee'] = s['estimatefee']
+
     return False
