@@ -124,7 +124,7 @@ def draw_window(state, old_window):
             rate /= 10**6
             suffix = " MH/s"
         rate_string = "{:,d}".format(rate) + suffix
-        window.addstr(index, 37, "Hashrate (" + str(block_avg).rjust(4) + "): " + rate_string)
+        window.addstr(index, 37, "Hashrate (" + str(block_avg).rjust(4) + "): " + rate_string.rjust(13))
         index += 1
 
     if 'totalbytesrecv' in state:
