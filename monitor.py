@@ -146,12 +146,13 @@ def draw_window(state, old_window):
             window.addstr(15, 37, string)
 
     if 'errors' in state:
-        if state['y'] < 20:
-            y = state['y'] - 3
-        else:
-            y = 17
-        window.addstr(y, 1, state['errors'][:72], curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
-        window.addstr(y+1, 1, state['errors'][72:142].rjust(72), curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
+        if len(state['errors']):
+            if state['y'] < 20:
+                y = state['y'] - 3
+            else:
+                y = 17
+            window.addstr(y, 1, state['errors'][:72], curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
+            window.addstr(y+1, 1, state['errors'][72:142].rjust(72), curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
 
     window.refresh()
     footer.draw_window(state)
