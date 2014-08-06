@@ -18,6 +18,7 @@ dependencies
 
 * tested with python 2.7.3, bitcoind 0.9.2.1
 * jgarzik's bitcoinrpc library (https://github.com/jgarzik/python-bitcoinrpc)
+* (Windows only) python ncurses library (http://www.lfd.uci.edu/~gohlke/pythonlibs/#curses)
 
 features
 --------
