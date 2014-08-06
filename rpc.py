@@ -154,10 +154,10 @@ def loop(interface_queue, rpc_queue, cfg):
                         except:
                             pass
 
-                interface_queue.put(tx)
             except: 
-                stop(interface_queue, "getrawtransaction failed. consider running with -txindex")
-                return True
+                tx = {'txid': s['txid'], 'size': -1}
+
+            interface_queue.put(tx)
 
         elif 'getpeerinfo' in s:
             rpcrequest(rpchandle, 'getpeerinfo', interface_queue)

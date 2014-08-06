@@ -180,6 +180,13 @@ def queue(state, window, interface_queue):
         state['lastblocktime'] = s['lastblocktime']
 
     elif 'txid' in s:
+        if s['size'] < 0:
+            if 'tx' in state:
+                state.pop('tx')
+            if state['mode'] == "transaction":
+                tx.draw_window(state, window)
+            return False
+
         state['tx'] = {
             'txid': s['txid'],
             'vin': [],
