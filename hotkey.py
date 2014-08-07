@@ -330,6 +330,23 @@ keymap = {
     ord('K'): block_seek_forward_one
 }
 
+modemap = {
+    ord('m'): 'monitor',
+    ord('M'): 'monitor',
+
+    ord('b'): 'block',
+    ord('B'): 'block',
+
+    ord('t'): 'transaction',
+    ord('T'): 'transaction',
+
+    ord('c'): 'console',
+    ord('C'): 'console',
+
+    ord('n'): 'net',
+    ord('N'): 'net'
+}
+
 def check(state, window, rpc_queue):
     key = window.getch()
 
@@ -339,23 +356,10 @@ def check(state, window, rpc_queue):
     elif key in keymap:
         keymap[key](state, window, rpc_queue)
 
+    elif key in modemap:
+        change_mode(state, window, modemap[key])
+
     elif key == ord('q') or key == ord('Q'): # quit
         return True
 
-    elif key == ord('m') or key == ord('M'):
-        change_mode(state, window, 'monitor')
-
-    elif key == ord('b') or key == ord('B'):
-        change_mode(state, window, 'block')
-
-    elif key == ord('t') or key == ord('T'):
-        change_mode(state, window, 'transaction')
-
-    elif key == ord('c') or key == ord('C'):
-        change_mode(state, window, 'console')
-
-    elif key == ord('n') or key == ord('N'):
-        change_mode(state, window, 'net')
-
     return False
-
