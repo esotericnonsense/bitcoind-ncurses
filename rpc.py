@@ -10,6 +10,7 @@ def init(interface_queue, cfg):
         rpcuser = cfg.get('rpcuser')
         rpcpassword = cfg.get('rpcpassword')
         rpcip = cfg.get('rpcip', '127.0.0.1')
+
         if cfg.get('rpcport'):
             rpcport = cfg.get('rpcport')
         elif cfg.get('testnet') == "1":
@@ -17,7 +18,12 @@ def init(interface_queue, cfg):
         else:
             rpcport = '8332'
 
-        rpcurl = "http://" + rpcuser + ":" + rpcpassword + "@" + rpcip + ":" + rpcport
+        if cfg.get('rpcssl') == "1":
+            protocol = "https"
+        else:
+            protocol = "http"
+
+        rpcurl = protocol + "://" + rpcuser + ":" + rpcpassword + "@" + rpcip + ":" + rpcport
     except:
         stop(interface_queue, "invalid configuration file or missing values")
         return False
