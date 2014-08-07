@@ -134,7 +134,14 @@ def draw_outputs(state):
             if condition:
                 win_outputs.addstr(index+1-offset, 1, "... ")
             else:
-                win_outputs.addstr(index+1-offset, 1, state['tx']['vout_string'][index])
+                string = state['tx']['vout_string'][index]
+                if '[UNSPENT]' in string:
+                    color = curses.color_pair(1)
+                elif '[SPENT]' in string or '[UNCONFIRMED SPEND]' in string:
+                    color = curses.color_pair(3)
+                else:
+                    color = 0
+                win_outputs.addstr(index+1-offset, 1, string, color)
     win_outputs.refresh()
 
 def draw_input_window(state, window, rpc_queue):
