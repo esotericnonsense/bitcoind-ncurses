@@ -100,20 +100,31 @@ def draw_window(state, old_window):
 
             if 'chainwork' in blockdata:
                 log2_chainwork = math.log(int(blockdata['chainwork'], 16), 2)
-                window.addstr(13, 1, "Total chain work: 2**" + "%0.4f" % log2_chainwork + " hashes")
+                window.addstr(14, 1, "Chain work: 2**" + "%0.6f" % log2_chainwork)
 
     if 'difficulty' in state:
         diff = int(state['difficulty'])
-        window.addstr(10, 1, "Diff:  " + "{:,d}".format(diff))
+        window.addstr(10, 1, "Diff:        " + "{:,d}".format(diff))
 
-    index = 10
     for block_avg in state['networkhashps']:
+        index = 10
+
+        if block_avg == 'diff':
+            pass
+        elif block_avg == 2016:
+            index += 1
+        elif block_avg == 144:
+            index += 2
+        else:
+            break
+
         rate = state['networkhashps'][block_avg]
-        if block_avg == 2016:
+        if block_avg != 'diff':
             nextdiff = (rate*600)/(2**32)
             if state['testnet'] == 1:
                 nextdiff *= 2 # testnet has 1200 est. block interval, not 600
-            window.addstr(11, 1, "Next: ~" + "{:,d}".format(nextdiff))
+            window.addstr(index, 1, "Est (" + str(block_avg).rjust(4) + "): ~" + "{:,d}".format(nextdiff))
+
         if rate > 10**18:
             rate /= 10**18
             suffix = " EH/s"
@@ -135,7 +146,7 @@ def draw_window(state, old_window):
 
     if 'rawmempool' in state:
         tx_in_mempool = len(state['rawmempool'])
-        window.addstr(15, 1, "Mempool transactions: " + "% 5d" % tx_in_mempool)
+        window.addstr(14, 37, "Mempool transactions: " + "% 5d" % tx_in_mempool)
 
     if 'estimatefee' in state:
         string = "estimatefee:"

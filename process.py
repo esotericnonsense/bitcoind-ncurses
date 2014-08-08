@@ -79,6 +79,7 @@ def coinbase(s, state, window):
 
 def getdifficulty(s, state, window):
     state['difficulty'] = s['getdifficulty']
+    state['networkhashps']['diff'] = (int(state['difficulty'])*2**32)/600
 
 def getnetworkhashps(s, state, window):
     blocks = s['getnetworkhashps']['blocks']
