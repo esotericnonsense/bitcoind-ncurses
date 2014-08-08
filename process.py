@@ -237,31 +237,30 @@ def estimatefee(s, state, window):
     state['estimatefee'] = s['estimatefee']
 
 def queue(state, window, interface_queue):
-    try:
-        s = interface_queue.get(False)
-    except Queue.Empty:
-        return False
+    while True:
+        try:
+            s = interface_queue.get(False)
+        except Queue.Empty:
+            return False
 
-    if 'resize' in s: resize(s, state, window)
-    elif 'getinfo' in s: getinfo(s, state, window)
-    elif 'getconnectioncount' in s: getconnectioncount(s, state, window)
-    elif 'getblockcount' in s: getblockcount(s, state, window)
-    elif 'getbalance' in s: getbalance(s, state, window)
-    elif 'getunconfirmedbalance' in s: getunconfirmedbalance(s, state, window)
-    elif 'getblock' in s: getblock(s, state, window)
-    elif 'coinbase' in s: coinbase(s, state, window)
-    elif 'getdifficulty' in s: getdifficulty(s, state, window)
-    elif 'getnetworkhashps' in s: getnetworkhashps(s, state, window)
-    elif 'getnettotals' in s: getnettotals(s, state, window)
-    elif 'getrawmempool' in s: getrawmempool(s, state, window)
-    elif 'getpeerinfo' in s: getpeerinfo(s, state, window)
-    elif 'listsinceblock' in s: listsinceblock(s, state, window)
-    elif 'lastblocktime' in s: lastblocktime(s, state, window)
-    elif 'txid' in s: txid(s, state, window)
-    elif 'consolecommand' in s: consolecommand(s, state, window)
-    elif 'estimatefee' in s: estimatefee(s, state, window)
+        if 'resize' in s: resize(s, state, window)
+        elif 'getinfo' in s: getinfo(s, state, window)
+        elif 'getconnectioncount' in s: getconnectioncount(s, state, window)
+        elif 'getblockcount' in s: getblockcount(s, state, window)
+        elif 'getbalance' in s: getbalance(s, state, window)
+        elif 'getunconfirmedbalance' in s: getunconfirmedbalance(s, state, window)
+        elif 'getblock' in s: getblock(s, state, window)
+        elif 'coinbase' in s: coinbase(s, state, window)
+        elif 'getdifficulty' in s: getdifficulty(s, state, window)
+        elif 'getnetworkhashps' in s: getnetworkhashps(s, state, window)
+        elif 'getnettotals' in s: getnettotals(s, state, window)
+        elif 'getrawmempool' in s: getrawmempool(s, state, window)
+        elif 'getpeerinfo' in s: getpeerinfo(s, state, window)
+        elif 'listsinceblock' in s: listsinceblock(s, state, window)
+        elif 'lastblocktime' in s: lastblocktime(s, state, window)
+        elif 'txid' in s: txid(s, state, window)
+        elif 'consolecommand' in s: consolecommand(s, state, window)
+        elif 'estimatefee' in s: estimatefee(s, state, window)
 
-    elif 'stop' in s:
-        return s['stop']
-
-    return False
+        elif 'stop' in s:
+            return s['stop']
