@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import curses
+import curses, time
 
 import global_mod as g
 import footer
@@ -11,8 +11,8 @@ def draw_window(state, window):
     win_header = curses.newwin(3, 75, 0, 0)
 
     if 'peerinfo' in state:
-        win_header.addstr(0, 1, "connected peers: " + str(len(state['peerinfo'])).ljust(10) + "            (UP/DOWN: scroll, P: refresh)", curses.A_BOLD)
-        win_header.addstr(2, 1, "  Node IP                      Version                Recv      Sent", curses.A_BOLD + curses.color_pair(5))
+        win_header.addstr(0, 1, "connected peers: " + str(len(state['peerinfo'])).ljust(10) + "                 (UP/DOWN: scroll, P: refresh)", curses.A_BOLD)
+        win_header.addstr(2, 1, "  Node IP              Version        Recv      Sent         Time  Height", curses.A_BOLD + curses.color_pair(5))
         draw_peers(state)
 
     else:
@@ -48,13 +48,32 @@ def draw_peers(state):
                         # syncnodes are outgoing only
                         win_peers.addstr(index-offset, 1, 'S')
 
-                win_peers.addstr(index-offset, 3, peer['addr'])
-                win_peers.addstr(index-offset, 32, peer['subver'].strip("/"))
+                win_peers.addstr(index-offset, 3, peer['addr'].replace(".onion","").replace(":8333","").replace(":18333","")[:21])
+                win_peers.addstr(index-offset, 24, peer['subver'].strip("/").replace("Satoshi:","Sat")[:10])
 
                 mbrecv = "% 7.1f" % ( float(peer['bytesrecv']) / 1048576 )
                 mbsent = "% 7.1f" % ( float(peer['bytessent']) / 1048576 )
 
-                win_peers.addstr(index-offset, 50, mbrecv + 'MB')
-                win_peers.addstr(index-offset, 60, mbsent + 'MB')
+                win_peers.addstr(index-offset, 34, mbrecv + 'MB')
+                win_peers.addstr(index-offset, 44, mbsent + 'MB')
+
+                timedelta = int(time.time() - peer['conntime'])
+                m, s = divmod(timedelta, 60)
+                h, m = divmod(m, 60)
+                d, h = divmod(h, 24)
+
+                time_string = ""
+                if d:
+                    time_string += ("%d" % d + "d").rjust(3) + " "
+                    time_string += "%02d" % h + ":"
+                elif h:
+                    time_string += "%02d" % h + ":"
+                time_string += "%02d" % m + ":"
+                time_string += "%02d" % s
+
+                win_peers.addstr(index-offset, 54, time_string.rjust(12))
+
+                if 'syncheight' in peer:
+                    win_peers.addstr(index-offset, 68, str(peer['syncheight']).rjust(6))
 
     win_peers.refresh()
