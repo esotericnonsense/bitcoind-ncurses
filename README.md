@@ -1,4 +1,4 @@
-bitcoind-ncurses v0.0.19
+bitcoind-ncurses v0.0.20
 ========================
 
 ncurses front-end for bitcoind
@@ -58,8 +58,6 @@ todo
 
 * ensure terminal always returns to sane state on program exit
 * mean block size/tx count over last X blocks
-* fee estimation / fee data
-* bandwidth chart
 * transaction creation support (if I feel suicidal)
 * more testing for edge cases (paramount for above)
 
