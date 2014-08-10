@@ -145,7 +145,7 @@ def draw_window(state, old_window):
         window.addstr(0, 43, recvsent_string.rjust(30), curses.A_BOLD)
 
     if 'rawmempool' in state:
-        tx_in_mempool = len(state['rawmempool'])
+        tx_in_mempool = state['rawmempool']
         window.addstr(14, 37, "Mempool transactions: " + "% 5d" % tx_in_mempool)
 
     if 'estimatefee' in state:

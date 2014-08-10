@@ -103,7 +103,7 @@ def getnettotals(s, state, window):
         net.draw_window(state, window)
 
 def getrawmempool(s, state, window):
-    state['rawmempool'] = s['getrawmempool']
+    state['rawmempool'] = len(s['getrawmempool'])
 
 def getpeerinfo(s, state, window):
     state['peerinfo'] = s['getpeerinfo']
