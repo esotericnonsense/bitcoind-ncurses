@@ -8,7 +8,7 @@
 # and of course the bitcoin dev team for that bitcoin gizmo, pretty neat stuff
 ###############################################################################
 
-import multiprocessing, ConfigParser, argparse, signal
+import multiprocessing, argparse, signal
 
 import rpc
 import interface
