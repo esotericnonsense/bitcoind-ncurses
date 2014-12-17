@@ -171,6 +171,9 @@ def loop(interface_queue, rpc_queue, cfg):
         elif 'listsinceblock' in s:
             rpcrequest(rpchandle, 'listsinceblock', interface_queue)
 
+        elif 'getchaintips' in s:
+            rpcrequest(rpchandle, 'getchaintips', interface_queue)
+
         elif 'findblockbytimestamp' in s:
             request = s['findblockbytimestamp']
 

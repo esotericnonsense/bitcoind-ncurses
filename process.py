@@ -9,9 +9,10 @@ import wallet
 import splash
 import console
 import net
+import forks
 
 def resize(s, state, window):
-    if state['mode'] == 'transaction':
+    if state['mode'] == 'tx':
         tx.draw_window(state, window)
     elif state['mode'] == 'block':
         block.draw_window(state, window)
@@ -110,6 +111,12 @@ def getpeerinfo(s, state, window):
     state['peerinfo_offset'] = 0
     if state['mode'] == "peers":
         peers.draw_window(state, window)
+
+def getchaintips(s, state, window):
+    state['chaintips'] = s['getchaintips']
+    state['chaintips_offset'] = 0
+    if state['mode'] == 'forks':
+        forks.draw_window(state, window)
 
 def listsinceblock(s, state, window):
     state['wallet'] = s['listsinceblock']
@@ -257,6 +264,7 @@ def queue(state, window, interface_queue):
         elif 'getnettotals' in s: getnettotals(s, state, window)
         elif 'getrawmempool' in s: getrawmempool(s, state, window)
         elif 'getpeerinfo' in s: getpeerinfo(s, state, window)
+        elif 'getchaintips' in s: getchaintips(s, state, window)
         elif 'listsinceblock' in s: listsinceblock(s, state, window)
         elif 'lastblocktime' in s: lastblocktime(s, state, window)
         elif 'txid' in s: txid(s, state, window)

@@ -9,6 +9,7 @@ import peers
 import wallet
 import console
 import net
+import forks
 
 def change_mode(state, window, mode):
     try:
@@ -20,7 +21,7 @@ def change_mode(state, window, mode):
 
     if mode == 'monitor':
         monitor.draw_window(state, window)
-    elif mode == 'transaction':
+    elif mode == 'tx':
         tx.draw_window(state, window)
     elif mode == 'peers':
         peers.draw_window(state, window)
@@ -32,6 +33,8 @@ def change_mode(state, window, mode):
         console.draw_window(state, window)
     elif mode == 'net':
         net.draw_window(state, window)
+    elif mode == 'forks':
+        forks.draw_window(state, window)
 
 def key_left(state, window, rpc_queue):
     try:
@@ -58,6 +61,10 @@ def key_w(state, window, rpc_queue):
 def key_p(state, window, rpc_queue):
     rpc_queue.put('getpeerinfo')
     change_mode(state, window, 'peers')
+
+def key_f(state, window, rpc_queue):
+    rpc_queue.put('getchaintips')
+    change_mode(state, window, 'forks')
 
 def key_g(state, window, rpc_queue):
     if state['mode'] == "transaction":
@@ -113,6 +120,13 @@ def scroll_down(state, window, rpc_queue):
                 state['peerinfo_offset'] += 1
                 peers.draw_peers(state)
 
+    elif state['mode'] == "forks":
+        if 'chaintips' in state and 'chaintips_offset' in state:
+            window_height = state['y'] - 4
+            if state['chaintips_offset'] < (len(state['chaintips']) - window_height):
+                state['chaintips_offset'] += 1
+                forks.draw_tips(state)
+
     elif state['mode'] == "wallet":
         if 'wallet' in state:
             if state['wallet']['cursor'] < (len(state['wallet']['transactions']) - 1):
@@ -153,6 +167,12 @@ def scroll_up(state, window, rpc_queue):
             if state['peerinfo_offset'] > 0:
                 state['peerinfo_offset'] -= 1
                 peers.draw_peers(state)
+
+    elif state['mode'] == "forks":
+        if 'chaintips' in state and 'chaintips_offset' in state:
+            if state['chaintips_offset'] > 0:
+                state['chaintips_offset'] -= 1
+                forks.draw_tips(state)
 
     elif state['mode'] == "wallet":
         if 'wallet' in state:
@@ -314,6 +334,9 @@ keymap = {
     ord('g'): key_g,
     ord('G'): key_g,
 
+    ord('f'): key_f,
+    ord('F'): key_f,
+
     ord('l'): go_to_latest_block,
     ord('L'): go_to_latest_block,
 
@@ -337,8 +360,8 @@ modemap = {
     ord('b'): 'block',
     ord('B'): 'block',
 
-    ord('t'): 'transaction',
-    ord('T'): 'transaction',
+    ord('t'): 'tx',
+    ord('T'): 'tx',
 
     ord('c'): 'console',
     ord('C'): 'console',
