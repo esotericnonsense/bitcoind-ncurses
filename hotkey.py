@@ -39,20 +39,20 @@ def change_mode(state, window, mode):
 def key_left(state, window, rpc_queue):
     try:
         index = g.modes.index(state['mode']) - 1
+        if index < 0:
+            index = len(g.modes) - 2
+        change_mode(state, window, g.modes[index])
     except:
         pass
-    if index < 0:
-        index = len(g.modes) - 2
-    change_mode(state, window, g.modes[index])
 
 def key_right(state, window, rpc_queue):
     try:
         index = g.modes.index(state['mode']) + 1
+        if index > len(g.modes) - 2: # last index item is 'quit'
+            index = 0
+        change_mode(state, window, g.modes[index])
     except:
         pass
-    if index > len(g.modes) - 2: # last index item is 'quit'
-        index = 0
-    change_mode(state, window, g.modes[index])
 
 def key_w(state, window, rpc_queue):
     rpc_queue.put('listsinceblock')
