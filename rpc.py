@@ -6,10 +6,13 @@ def log(logfile, loglevel, string):
     if loglevel > 0: # hardcoded loglevel here
         return False
     from datetime import datetime
-    string_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+    now = datetime.utcnow()
+    string_time = now.strftime('%Y-%m-%d %H:%M:%S.')
+    millisecond = now.microsecond / 1000
+    string_time += "%03d" % millisecond
 
     with open(logfile, 'a') as f:
-        f.write(string_time + ' ' + str(loglevel) + ' ' + string + '\n')
+        f.write(string_time + ' LL' + str(loglevel) + ' ' + string + '\n')
     
 def stop(interface_queue, error_message):
     interface_queue.put({'stop': error_message})
@@ -107,10 +110,11 @@ def loop(interface_queue, rpc_queue, cfg):
             s = {}
 
         if len(s):
-            log('debug.log', 1, 'request: ' + str(s))
+            log('debug.log', 1, 'interface request: ' + str(s))
             request_time = time.time()
 
         if 'stop' in s:
+            log('debug.log', 1, 'halting RPC thread on request by user')
             break
 
         elif 'consolecommand' in s:
@@ -247,9 +251,7 @@ def loop(interface_queue, rpc_queue, cfg):
                         lastblocktime = {'lastblocktime': time.time()}
                     interface_queue.put(lastblocktime)
 
-                    log('debug.log', 1, '===')
-                    log('debug.log', 1, 'NEW BLOCK ' + str(blockcount))
-                    log('debug.log', 1, '===')
+                    log('debug.log', 1, '=== NEW BLOCK ' + str(blockcount) + ' ===')
 
                     block = getblock(rpchandle, interface_queue, blockcount, False, True)
                     if block:
@@ -291,4 +293,4 @@ def loop(interface_queue, rpc_queue, cfg):
 
         if len(s):
             request_time_delta = time.time() - request_time
-            log('debug.log', 1, 'done in ' + "%.3f" % request_time_delta + 's')
+            log('debug.log', 1, 'interface request: done in ' + "%.3f" % request_time_delta + 's')
