@@ -162,7 +162,7 @@ def draw_input_window(state, window, rpc_queue):
 
         window.addstr(5, 1, "waiting for transaction (will stall here if not found)", color + curses.A_BOLD)
         window.refresh()
-        state['mode'] = "transaction"
+        state['mode'] = 'tx'
 
     else:
         window.addstr(5, 1, "not a valid txid", color + curses.A_BOLD)

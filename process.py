@@ -180,7 +180,7 @@ def txid(s, state, window):
     if s['size'] < 0:
         if 'tx' in state:
             state.pop('tx')
-        if state['mode'] == "transaction":
+        if state['mode'] == 'tx':
             tx.draw_window(state, window)
         return False
 
@@ -231,7 +231,7 @@ def txid(s, state, window):
     if 'confirmations' in s:
         state['tx']['confirmations'] = s['confirmations']
 
-    if state['mode'] == "transaction":
+    if state['mode'] == 'tx':
         tx.draw_window(state, window)
 
 def consolecommand(s, state, window):

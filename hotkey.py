@@ -67,7 +67,7 @@ def key_f(state, window, rpc_queue):
     change_mode(state, window, 'forks')
 
 def key_g(state, window, rpc_queue):
-    if state['mode'] == "transaction":
+    if state['mode'] == 'tx':
         state['mode'] = "transaction-input"
         tx.draw_input_window(state, window, rpc_queue)
     elif state['mode'] == "block":
@@ -87,7 +87,7 @@ def go_to_latest_block(state, window, rpc_queue):
                 block.draw_window(state, window)
 
 def scroll_down(state, window, rpc_queue):
-    if state['mode'] == "transaction":
+    if state['mode'] == 'tx':
         if 'tx' in state:
             window_height = (state['y'] - 4) / 2
             if state['tx']['cursor'] < (len(state['tx']['vin']) - 1) and state['tx']['mode'] == 'inputs':
@@ -142,7 +142,7 @@ def scroll_down(state, window, rpc_queue):
             console.draw_buffer(state)
 
 def scroll_up(state, window, rpc_queue):
-    if state['mode'] == "transaction":
+    if state['mode'] == 'tx':
         if 'tx' in state:
             if state['tx']['cursor'] > 0 and state['tx']['mode'] == 'inputs':
                 if (state['tx']['cursor'] - state['tx']['offset']) == 0:
@@ -202,7 +202,7 @@ def scroll_down_page(state, window, rpc_queue):
         console.draw_buffer(state)
 
 def toggle_inputs_outputs(state, window, rpc_queue):
-    if state['mode'] == "transaction":
+    if state['mode'] == 'tx':
         if 'tx' in state:
             if 'mode' in state['tx']:
                 if state['tx']['mode'] == 'inputs':
@@ -213,7 +213,7 @@ def toggle_inputs_outputs(state, window, rpc_queue):
 
 def load_transaction(state, window, rpc_queue):
     # TODO: some sort of indicator that a transaction is loading
-    if state['mode'] == "transaction":
+    if state['mode'] == 'tx':
         if 'tx' in state:
             if 'txid' in state['tx']['vin'][ state['tx']['cursor'] ]:
                 if state['tx']['loaded']:
@@ -229,17 +229,17 @@ def load_transaction(state, window, rpc_queue):
                     blockdata = state['blocks'][height]
                     s = {'txid': blockdata['tx'][ state['blocks']['cursor'] ]}
                     rpc_queue.put(s)
-                    state['mode'] = "transaction"
+                    state['mode'] = 'tx'
 
     elif state['mode'] == "wallet":
         if 'wallet' in state:
             if 'transactions' in state['wallet']:
                 s = {'txid': state['wallet']['transactions'][ state['wallet']['cursor'] ]['txid']}
                 rpc_queue.put(s)
-                state['mode'] = "transaction"
+                state['mode'] = 'tx'
 
 def toggle_verbose_mode(state, window, rpc_queue):
-    if state['mode'] == "transaction":
+    if state['mode'] == 'tx':
         if 'tx' in state:
             if 'txid' in state['tx']:
                 if state['tx']['loaded']:
