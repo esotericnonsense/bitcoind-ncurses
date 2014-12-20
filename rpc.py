@@ -2,6 +2,15 @@
 from bitcoinrpc.authproxy import AuthServiceProxy
 import curses, time, Queue, decimal
 
+def log(logfile, loglevel, string):
+    if loglevel > 0: # hardcoded loglevel here
+        return False
+    from datetime import datetime
+    string_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+
+    with open(logfile, 'a') as f:
+        f.write(string_time + ' ' + str(loglevel) + ' ' + string + '\n')
+    
 def stop(interface_queue, error_message):
     interface_queue.put({'stop': error_message})
 
@@ -36,10 +45,18 @@ def init(interface_queue, cfg):
 
 def rpcrequest(rpchandle, request, interface_queue):
     try:
+        log('debug.log', 2, 'rpcrequest: ' + request)
+        request_time = time.time()
+
         response = getattr(rpchandle, request)()
         interface_queue.put({request: response})
+
+        request_time_delta = time.time() - request_time
+        log('debug.log', 3, request + ' done in ' + "%.3f" % request_time_delta + 's')
+
         return response
     except:
+        log('debug.log', 2, request + ' failed')
         return False
 
 def getblock(rpchandle, interface_queue, block_to_get, queried = False, new = False):
@@ -78,12 +95,18 @@ def loop(interface_queue, rpc_queue, cfg):
         stop(interface_queue, "failed to connect to bitcoind (getinfo failed)")
         return True
 
+    log('debug.log', 1, 'CONNECTED')
+
     prev_blockcount = 0
     while True:
         try:
             s = rpc_queue.get(True, 0.1)
         except Queue.Empty:
             s = {}
+
+        if len(s):
+            log('debug.log', 1, 'request: ' + str(s))
+            request_time = time.time()
 
         if 'stop' in s:
             break
@@ -201,6 +224,9 @@ def loop(interface_queue, rpc_queue, cfg):
                 iterations += 1
 
         elif (time.time() - last_update) > 2:
+            update_time = time.time()
+            log('debug.log', 1, 'updating (' + "%.3f" % (time.time() - last_update) + 's since last)')
+
             rpcrequest(rpchandle, 'getnettotals', interface_queue)
             rpcrequest(rpchandle, 'getconnectioncount', interface_queue)
             rpcrequest(rpchandle, 'getrawmempool', interface_queue)
@@ -250,3 +276,10 @@ def loop(interface_queue, rpc_queue, cfg):
                     except: pass
 
             last_update = time.time()
+
+            update_time_delta = last_update - update_time
+            log('debug.log', 1, 'update done in ' + "%.3f" % update_time_delta + 's')
+
+        if len(s):
+            request_time_delta = time.time() - request_time
+            log('debug.log', 1, 'done in ' + "%.3f" % request_time_delta + 's')

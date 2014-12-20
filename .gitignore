@@ -3,5 +3,7 @@
 *.conf
 # ignore profiling
 *.lprof
+# ignore log files
+*.log
 # ignore dependencies
 bitcoinrpc/*
