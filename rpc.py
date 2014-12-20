@@ -93,7 +93,9 @@ def loop(interface_queue, rpc_queue, cfg):
         stop(interface_queue, "failed to connect to bitcoind (handle not obtained)")
         return True
 
-    last_update = time.time() - 2
+    update_interval = 2 # seconds
+
+    last_update = time.time() - update_interval
     
     info = rpcrequest(rpchandle, 'getinfo', interface_queue)
     if not info:
@@ -232,7 +234,7 @@ def loop(interface_queue, rpc_queue, cfg):
 
                 iterations += 1
 
-        elif (time.time() - last_update) > 2:
+        elif (time.time() - last_update) > update_interval:
             update_time = time.time()
             log('debug.log', 1, 'updating (' + "%.3f" % (time.time() - last_update) + 's since last)')
 
