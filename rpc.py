@@ -43,16 +43,18 @@ def init(interface_queue, cfg):
     except:
         return False
 
-def rpcrequest(rpchandle, request, interface_queue):
+def rpcrequest(rpchandle, request, interface_queue, *args):
     try:
         log('debug.log', 2, 'rpcrequest: ' + request)
+
         request_time = time.time()
-
-        response = getattr(rpchandle, request)()
-        interface_queue.put({request: response})
-
+        response = getattr(rpchandle, request)(*args)
         request_time_delta = time.time() - request_time
+
         log('debug.log', 3, request + ' done in ' + "%.3f" % request_time_delta + 's')
+
+        if interface_queue:
+            interface_queue.put({request: response})
 
         return response
     except:
@@ -62,11 +64,11 @@ def rpcrequest(rpchandle, request, interface_queue):
 def getblock(rpchandle, interface_queue, block_to_get, queried = False, new = False):
     try:
         if (len(str(block_to_get)) < 7) and str(block_to_get).isdigit(): 
-            blockhash = rpchandle.getblockhash(block_to_get)
+            blockhash = rpcrequest(rpchandle, 'getblockhash', False, block_to_get)
         elif len(block_to_get) == 64:
             blockhash = block_to_get
 
-        block = rpchandle.getblock(blockhash)
+        block = rpcrequest(rpchandle, 'getblock', False, blockhash)
 
         if queried:
             block['queried'] = 1
@@ -133,7 +135,7 @@ def loop(interface_queue, rpc_queue, cfg):
                 index += 1
 
             try:
-                response = getattr(rpchandle, command)(*arguments)
+                response = rpcrequest(rpchandle, command, False, *arguments)
                 interface_queue.put({'consolecommand': s['consolecommand'], 'consoleresponse': response})
             except:
                 interface_queue.put({'consolecommand': s['consolecommand'], 'consoleresponse': "ERROR"})
@@ -146,7 +148,7 @@ def loop(interface_queue, rpc_queue, cfg):
 
         elif 'txid' in s:
             try:
-                tx = rpchandle.getrawtransaction(s['txid'], 1)
+                tx = rpcrequest(rpchandle, 'getrawtransaction', False, s['txid'], 1)
                 tx['size'] = len(tx['hex'])/2
 
                 if 'coinbase' in tx['vin'][0]: # should always be at least 1 vin
@@ -160,7 +162,8 @@ def loop(interface_queue, rpc_queue, cfg):
                             try:
                                 txid = vin['txid']
                                 if txid not in prev_tx:
-                                    prev_tx[txid] = rpchandle.getrawtransaction(txid, 1)
+                                    prev_tx[txid] = rpcrequest(rpchandle, 'getrawtransaction', False,
+                                                               txid, 1)
 
                                 vin['prev_tx'] = prev_tx[txid]['vout'][vin['vout']]
                                 if 'value' in vin['prev_tx']:
@@ -171,11 +174,13 @@ def loop(interface_queue, rpc_queue, cfg):
                             tx['total_inputs'] = 'coinbase'
                     for vout in tx['vout']:
                         try:
-                            utxo = rpchandle.gettxout(s['txid'], vout['n'], False)
+                            utxo = rpcrequest(rpchandle, 'gettxout', False,
+                                                s['txid'], vout['n'], False)
                             if utxo == None:
                                 vout['spent'] = 'confirmed'
                             else:
-                                utxo = rpchandle.gettxout(s['txid'], vout['n'], True)
+                                utxo = rpcrequest(rpchandle, 'gettxout', False,
+                                                    s['txid'], vout['n'], True)
                                 if utxo == None:
                                     vout['spent'] = 'unconfirmed'
                                 else:
@@ -242,13 +247,17 @@ def loop(interface_queue, rpc_queue, cfg):
                         lastblocktime = {'lastblocktime': time.time()}
                     interface_queue.put(lastblocktime)
 
+                    log('debug.log', 1, '===')
+                    log('debug.log', 1, 'NEW BLOCK ' + str(blockcount))
+                    log('debug.log', 1, '===')
+
                     block = getblock(rpchandle, interface_queue, blockcount, False, True)
                     if block:
                         prev_blockcount = blockcount
 
                         try:
-                            raw_tx = rpchandle.getrawtransaction(block['tx'][0])
-                            decoded_tx = rpchandle.decoderawtransaction(raw_tx)
+                            decoded_tx = rpcrequest(rpchandle, 'getrawtransaction', False,
+                                                    block['tx'][0], 1)
 
                             coinbase_amount = 0
                             for output in decoded_tx['vout']:
@@ -262,15 +271,15 @@ def loop(interface_queue, rpc_queue, cfg):
                     rpcrequest(rpchandle, 'getdifficulty', interface_queue)
 
                     try:
-                        nethash144 = rpchandle.getnetworkhashps(144)
-                        nethash2016 = rpchandle.getnetworkhashps(2016)
+                        nethash144 = rpcrequest(rpchandle, 'getnetworkhashps', False, 144)
+                        nethash2016 = rpcrequest(rpchandle, 'getnetworkhashps', False, 2016)
                         interface_queue.put({'getnetworkhashps': {'blocks': 144, 'value': nethash144}})
                         interface_queue.put({'getnetworkhashps': {'blocks': 2016, 'value': nethash2016}})
                     except: pass
 
                     try:
-                        estimatefee1 = rpchandle.estimatefee(1)
-                        estimatefee5 = rpchandle.estimatefee(5)
+                        estimatefee1 = rpcrequest(rpchandle, 'estimatefee', False, 1)
+                        estimatefee5 = rpcrequest(rpchandle, 'estimatefee', False, 5)
                         estimatefee = [{'blocks': 1, 'value': estimatefee1}, {'blocks': 5, 'value': estimatefee5}]
                         interface_queue.put({'estimatefee': estimatefee})
                     except: pass
