@@ -144,9 +144,9 @@ def draw_window(state, old_window):
         recvsent_string = "D/U: " + recvmb + " / " + sentmb + " MB"
         window.addstr(0, 43, recvsent_string.rjust(30), curses.A_BOLD)
 
-    if 'rawmempool' in state:
-        tx_in_mempool = state['rawmempool']
-        window.addstr(14, 37, "Mempool transactions: " + "% 5d" % tx_in_mempool)
+    if 'mininginfo' in state:
+        pooledtx = state['mininginfo']['pooledtx']
+        window.addstr(14, 37, "Mempool transactions: " + "% 5d" % pooledtx)
 
     if 'estimatefee' in state:
         string = "estimatefee:"

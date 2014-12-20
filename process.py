@@ -103,8 +103,8 @@ def getnettotals(s, state, window):
     if state['mode'] == 'net':
         net.draw_window(state, window)
 
-def getrawmempool(s, state, window):
-    state['rawmempool'] = len(s['getrawmempool'])
+def getmininginfo(s, state, window):
+    state['mininginfo'] = s['getmininginfo']
 
 def getpeerinfo(s, state, window):
     state['peerinfo'] = s['getpeerinfo']
@@ -262,7 +262,7 @@ def queue(state, window, interface_queue):
         elif 'getdifficulty' in s: getdifficulty(s, state, window)
         elif 'getnetworkhashps' in s: getnetworkhashps(s, state, window)
         elif 'getnettotals' in s: getnettotals(s, state, window)
-        elif 'getrawmempool' in s: getrawmempool(s, state, window)
+        elif 'getmininginfo' in s: getmininginfo(s, state, window)
         elif 'getpeerinfo' in s: getpeerinfo(s, state, window)
         elif 'getchaintips' in s: getchaintips(s, state, window)
         elif 'listsinceblock' in s: listsinceblock(s, state, window)
