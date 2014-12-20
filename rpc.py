@@ -238,12 +238,12 @@ def loop(interface_queue, rpc_queue, cfg):
 
             rpcrequest(rpchandle, 'getnettotals', interface_queue)
             rpcrequest(rpchandle, 'getconnectioncount', interface_queue)
-            rpcrequest(rpchandle, 'getmininginfo', interface_queue)
+            mininginfo = rpcrequest(rpchandle, 'getmininginfo', interface_queue)
             #TODO: update errors line on the fly
             rpcrequest(rpchandle, 'getbalance', interface_queue)
             rpcrequest(rpchandle, 'getunconfirmedbalance', interface_queue)
 
-            blockcount = rpcrequest(rpchandle, 'getblockcount', interface_queue)
+            blockcount = mininginfo['blocks']
             if blockcount:
                 if (prev_blockcount != blockcount): # minimise RPC calls
                     if prev_blockcount == 0:

@@ -43,11 +43,6 @@ def getinfo(s, state, window):
 def getconnectioncount(s, state, window):
     state['peers'] = s['getconnectioncount']
 
-def getblockcount(s, state, window):
-    state['blockcount'] = s['getblockcount']
-    if 'browse_height' not in state['blocks']:
-        state['blocks']['browse_height'] = state['blockcount']
-
 def getbalance(s, state, window):
     state['balance'] = s['getbalance']
 
@@ -104,6 +99,10 @@ def getmininginfo(s, state, window):
 
     if 'errors' in s['getmininginfo']:
         state['errors'] = s['getmininginfo']['errors']
+
+    state['blockcount'] = s['getmininginfo']['blocks']
+    if 'browse_height' not in state['blocks']:
+        state['blocks']['browse_height'] = state['blockcount']
 
 def getpeerinfo(s, state, window):
     state['peerinfo'] = s['getpeerinfo']
@@ -253,7 +252,6 @@ def queue(state, window, interface_queue):
         if 'resize' in s: resize(s, state, window)
         elif 'getinfo' in s: getinfo(s, state, window)
         elif 'getconnectioncount' in s: getconnectioncount(s, state, window)
-        elif 'getblockcount' in s: getblockcount(s, state, window)
         elif 'getbalance' in s: getbalance(s, state, window)
         elif 'getunconfirmedbalance' in s: getunconfirmedbalance(s, state, window)
         elif 'getblock' in s: getblock(s, state, window)
