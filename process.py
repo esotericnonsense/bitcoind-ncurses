@@ -36,10 +36,6 @@ def getinfo(s, state, window):
         state['testnet'] = 1
     else:
         state['testnet'] = 0
-    state['peers'] = s['getinfo']['connections']
-
-    if 'errors' in s['getinfo']:
-        state['errors'] = s['getinfo']['errors']
 
     if state['mode'] == "splash":
         splash.draw_window(state, window)
@@ -105,6 +101,9 @@ def getnettotals(s, state, window):
 
 def getmininginfo(s, state, window):
     state['mininginfo'] = s['getmininginfo']
+
+    if 'errors' in s['getmininginfo']:
+        state['errors'] = s['getmininginfo']['errors']
 
 def getpeerinfo(s, state, window):
     state['peerinfo'] = s['getpeerinfo']
