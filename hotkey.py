@@ -78,12 +78,12 @@ def key_g(state, window, rpc_queue):
 
 def go_to_latest_block(state, window, rpc_queue):
     if state['mode'] == "block":
-        if 'blockcount' in state:
-            if state['blockcount'] not in state['blocks']:
-                s = {'getblockhash': state['blockcount']}
+        if 'mininginfo' in state:
+            if state['mininginfo']['blocks'] not in state['blocks']:
+                s = {'getblockhash': state['mininginfo']['blocks']}
                 rpc_queue.put(s)
             else:
-                state['blocks']['browse_height'] = state['blockcount']
+                state['blocks']['browse_height'] = state['mininginfo']['blocks']
                 block.draw_window(state, window)
 
 def scroll_down(state, window, rpc_queue):
@@ -270,7 +270,7 @@ def block_seek_back_one(state, window, rpc_queue):
 def block_seek_forward_one(state, window, rpc_queue):
     if state['mode'] == "block":
         if 'blocks' in state:
-            if (state['blocks']['browse_height']) < state['blockcount']:
+            if state['blocks']['browse_height'] < state['mininginfo']['blocks']:
                 if state['blocks']['loaded'] == 1:
                     state['blocks']['loaded'] = 0
                     state['blocks']['browse_height'] += 1
@@ -300,7 +300,7 @@ def block_seek_back_thousand(state, window, rpc_queue):
 def block_seek_forward_thousand(state, window, rpc_queue):
     if state['mode'] == "block":
         if 'blocks' in state:
-            if (state['blocks']['browse_height']) < state['blockcount'] - 999:
+            if (state['blocks']['browse_height']) < state['mininginfo']['blocks'] - 999:
                 if state['blocks']['loaded'] == 1:
                     state['blocks']['loaded'] = 0
                     state['blocks']['browse_height'] += 1000

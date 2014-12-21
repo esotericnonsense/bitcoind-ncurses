@@ -35,8 +35,8 @@ def draw_window(state, old_window):
                 balance_string += " (+" + "%0.8f" % state['unconfirmedbalance'] + " unconf)"
         window.addstr(1, 32, balance_string, curses.A_BOLD)
 
-    if 'blockcount' in state:
-        height = str(state['blockcount'])
+    if 'mininginfo' in state:
+        height = str(state['mininginfo']['blocks'])
         if height in state['blocks']:
             blockdata = state['blocks'][str(height)]
 
@@ -51,9 +51,9 @@ def draw_window(state, old_window):
             window.addstr(5, 1, "Transactions: " + str(tx_count) + " (" + str(bytes_per_tx) + " bytes/tx)")
 
             if 'coinbase_amount' in blockdata:
-                if state['blockcount'] < 210000:
+                if state['mininginfo']['blocks'] < 210000:
                     block_subsidy = 50
-                elif state['blockcount'] < 420000:
+                elif state['mininginfo']['blocks'] < 420000:
                     block_subsidy = 25
 
                 if block_subsidy: # this will fail after block 420,000. TODO: stop being lazy and do it properly
@@ -102,7 +102,6 @@ def draw_window(state, old_window):
                 log2_chainwork = math.log(int(blockdata['chainwork'], 16), 2)
                 window.addstr(14, 1, "Chain work: 2**" + "%0.6f" % log2_chainwork)
 
-    if 'mininginfo' in state:
         diff = int(state['mininginfo']['difficulty'])
         window.addstr(10, 1, "Diff:        " + "{:,d}".format(diff))
 

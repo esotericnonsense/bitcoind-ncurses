@@ -109,7 +109,7 @@ def draw_input_window(state, window, rpc_queue):
         window.refresh()
         state['mode'] = "block"
 
-    elif (len(entered_block) < 7) and entered_block.isdigit() and (int(entered_block) <= state['blockcount']):
+    elif (len(entered_block) < 7) and entered_block.isdigit() and (int(entered_block) <= state['mininginfo']['blocks']):
         if entered_block in state['blocks']:
             state['blocks']['browse_height'] = int(entered_block)
             state['mode'] = "block"

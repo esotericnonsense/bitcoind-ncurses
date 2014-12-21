@@ -93,9 +93,8 @@ def getnettotals(s, state, window):
 def getmininginfo(s, state, window):
     state['mininginfo'] = s['getmininginfo']
 
-    state['blockcount'] = s['getmininginfo']['blocks']
     if 'browse_height' not in state['blocks']:
-        state['blocks']['browse_height'] = state['blockcount']
+        state['blocks']['browse_height'] = s['getmininginfo']['blocks']
 
     state['networkhashps']['diff'] = (int(s['getmininginfo']['difficulty'])*2**32)/600
 
