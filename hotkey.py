@@ -373,7 +373,7 @@ modemap = {
 def check(state, window, rpc_queue):
     key = window.getch()
 
-    if key < 0:
+    if key < 0 or state['mode'] == 'splash':
         pass
 
     elif key in keymap:
