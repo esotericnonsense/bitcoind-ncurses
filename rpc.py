@@ -241,7 +241,6 @@ def loop(interface_queue, rpc_queue, cfg):
             rpcrequest(rpchandle, 'getnettotals', interface_queue)
             rpcrequest(rpchandle, 'getconnectioncount', interface_queue)
             mininginfo = rpcrequest(rpchandle, 'getmininginfo', interface_queue)
-            #TODO: update errors line on the fly
             rpcrequest(rpchandle, 'getbalance', interface_queue)
             rpcrequest(rpchandle, 'getunconfirmedbalance', interface_queue)
 

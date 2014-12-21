@@ -93,9 +93,6 @@ def getnettotals(s, state, window):
 def getmininginfo(s, state, window):
     state['mininginfo'] = s['getmininginfo']
 
-    if 'errors' in s['getmininginfo']:
-        state['errors'] = s['getmininginfo']['errors']
-
     state['blockcount'] = s['getmininginfo']['blocks']
     if 'browse_height' not in state['blocks']:
         state['blocks']['browse_height'] = state['blockcount']
