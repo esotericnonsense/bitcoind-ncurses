@@ -62,7 +62,7 @@ def loop(interface_queue, rpc_queue):
 
         if state['mode'] == "monitor":
             if not iterations % 20:
-              monitor.draw_window(state, window)
+                monitor.draw_window(state, window)
 
         if hotkey.check(state, window, rpc_queue): # poll for user input
             break # returns 1 when quit key is pressed
