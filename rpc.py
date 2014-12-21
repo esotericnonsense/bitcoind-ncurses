@@ -273,8 +273,6 @@ def loop(interface_queue, rpc_queue, cfg):
                             
                         except: pass 
 
-                    rpcrequest(rpchandle, 'getdifficulty', interface_queue)
-
                     try:
                         nethash144 = rpcrequest(rpchandle, 'getnetworkhashps', False, 144)
                         nethash2016 = rpcrequest(rpchandle, 'getnetworkhashps', False, 2016)

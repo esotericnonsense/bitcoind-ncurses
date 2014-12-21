@@ -102,8 +102,8 @@ def draw_window(state, old_window):
                 log2_chainwork = math.log(int(blockdata['chainwork'], 16), 2)
                 window.addstr(14, 1, "Chain work: 2**" + "%0.6f" % log2_chainwork)
 
-    if 'difficulty' in state:
-        diff = int(state['difficulty'])
+    if 'mininginfo' in state:
+        diff = int(state['mininginfo']['difficulty'])
         window.addstr(10, 1, "Diff:        " + "{:,d}".format(diff))
 
     for block_avg in state['networkhashps']:

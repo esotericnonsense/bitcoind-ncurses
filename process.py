@@ -69,10 +69,6 @@ def coinbase(s, state, window):
     if height in state['blocks']:
         state['blocks'][height]['coinbase_amount'] = s['coinbase']
 
-def getdifficulty(s, state, window):
-    state['difficulty'] = s['getdifficulty']
-    state['networkhashps']['diff'] = (int(state['difficulty'])*2**32)/600
-
 def getnetworkhashps(s, state, window):
     blocks = s['getnetworkhashps']['blocks']
     state['networkhashps'][blocks] = s['getnetworkhashps']['value']
@@ -103,6 +99,8 @@ def getmininginfo(s, state, window):
     state['blockcount'] = s['getmininginfo']['blocks']
     if 'browse_height' not in state['blocks']:
         state['blocks']['browse_height'] = state['blockcount']
+
+    state['networkhashps']['diff'] = (int(s['getmininginfo']['difficulty'])*2**32)/600
 
 def getpeerinfo(s, state, window):
     state['peerinfo'] = s['getpeerinfo']
@@ -256,7 +254,6 @@ def queue(state, window, interface_queue):
         elif 'getunconfirmedbalance' in s: getunconfirmedbalance(s, state, window)
         elif 'getblock' in s: getblock(s, state, window)
         elif 'coinbase' in s: coinbase(s, state, window)
-        elif 'getdifficulty' in s: getdifficulty(s, state, window)
         elif 'getnetworkhashps' in s: getnetworkhashps(s, state, window)
         elif 'getnettotals' in s: getnettotals(s, state, window)
         elif 'getmininginfo' in s: getmininginfo(s, state, window)
