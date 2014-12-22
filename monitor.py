@@ -137,24 +137,14 @@ def draw_window(state, old_window):
         window.addstr(index, 37, "Hashrate (" + str(block_avg).rjust(4) + "): " + rate_string.rjust(13))
         index += 1
 
+        pooledtx = state['mininginfo']['pooledtx']
+        window.addstr(14, 37, "Mempool transactions: " + "% 5d" % pooledtx)
+
     if 'totalbytesrecv' in state:
         recvmb = "%.2f" % (state['totalbytesrecv']*1.0/1048576)
         sentmb = "%.2f" % (state['totalbytessent']*1.0/1048576)
         recvsent_string = "D/U: " + recvmb + " / " + sentmb + " MB"
         window.addstr(0, 43, recvsent_string.rjust(30), curses.A_BOLD)
-
-    if 'mininginfo' in state:
-        pooledtx = state['mininginfo']['pooledtx']
-        window.addstr(14, 37, "Mempool transactions: " + "% 5d" % pooledtx)
-
-        errors = state['mininginfo']['errors']
-        if len(errors):
-            if state['y'] < 20:
-                y = state['y'] - 3
-            else:
-                y = 17
-            window.addstr(y, 1, errors[:72], curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
-            window.addstr(y+1, 1, errors[72:142].rjust(72), curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
 
     if 'estimatefee' in state:
         string = "estimatefee:"
@@ -163,6 +153,16 @@ def draw_window(state, old_window):
                 string += " (" + str(item['blocks']) + ")" + "%4.2f" % (item['value']*1000) + "m" + unit
         if len(string) > 12:
             window.addstr(15, 37, string)
+
+    if 'mininginfo' in state:
+        errors = state['mininginfo']['errors']
+        if len(errors):
+            if state['y'] < 20:
+                y = state['y'] - 3
+            else:
+                y = 17
+            window.addstr(y, 1, errors[:72], curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
+            window.addstr(y+1, 1, errors[72:142].rjust(72), curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
 
     window.refresh()
     footer.draw_window(state)
