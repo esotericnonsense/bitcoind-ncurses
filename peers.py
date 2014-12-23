@@ -48,7 +48,12 @@ def draw_peers(state):
                         # syncnodes are outgoing only
                         win_peers.addstr(index-offset, 1, 'S')
 
-                win_peers.addstr(index-offset, 3, peer['addr'].replace(".onion","").replace(":8333","").replace(":18333","")[:21])
+                addr_str = peer['addr'].replace(".onion","").replace(":8333","").replace(":18333","").strip("[").strip("]")
+
+                # truncate long ip addresses (ipv6)
+                addr_str = (addr_str[:17] + '...') if len(addr_str) > 20 else addr_str
+
+                win_peers.addstr(index-offset, 3, addr_str)
                 win_peers.addstr(index-offset, 24, peer['subver'].strip("/").replace("Satoshi:","Sat")[:10])
 
                 mbrecv = "% 7.1f" % ( float(peer['bytesrecv']) / 1048576 )
