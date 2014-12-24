@@ -38,9 +38,7 @@ def init_curses():
 
     return window
 
-def loop(interface_queue, rpc_queue):
-    window = init_curses()
-
+def init_state():
     state = {
         'mode': "splash",
         'blocks': { 'cursor': 0, 'offset': 0 },
@@ -51,14 +49,15 @@ def loop(interface_queue, rpc_queue):
         'history': { 'getnettotals': [] }
     }
 
-    splash.draw_window(state, window)
+    return state
 
+def loop(state, window, interface_queue, rpc_queue):
     iterations = 0
     while 1:
         check_window_size(interface_queue, state, window, 12, 75) # min_y, min_x
         error_message = process.queue(state, window, interface_queue)
         if error_message:
-            break # ends if stop command sent by rpc
+            return error_message # ends if stop command sent by rpc
 
         if state['mode'] == "monitor":
             if not iterations % 20:
@@ -69,10 +68,20 @@ def loop(interface_queue, rpc_queue):
 
         iterations += 1
 
-    curses.nocbreak()
-    curses.endwin()
-    rpc_queue.put({ 'stop': True })
+    return False
+
+def main(interface_queue, rpc_queue):
+    window = init_curses()
+    error_message = False
+    try:
+        state = init_state()
+        splash.draw_window(state, window)
+        error_message = loop(state, window, interface_queue, rpc_queue)
+    finally: # restore sane terminal state, end RPC thread
+        curses.nocbreak()
+        curses.endwin()
+        rpc_queue.put({ 'stop': True })
     
-    if error_message:
-        sys.stderr.write("bitcoind-ncurses encountered an error\n")
-        sys.stderr.write("Message: " + error_message + "\n")
+        if error_message:
+            sys.stderr.write("bitcoind-ncurses encountered an error\n")
+            sys.stderr.write("Message: " + error_message + "\n")

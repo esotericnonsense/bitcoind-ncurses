@@ -56,7 +56,7 @@ if __name__ == '__main__':
     #debug(rpc_queue)
 
     # main loop
-    interface.loop(interface_queue, rpc_queue)
+    interface.main(interface_queue, rpc_queue)
 
     # ensure RPC thread exits cleanly
     rpc_process.join()
