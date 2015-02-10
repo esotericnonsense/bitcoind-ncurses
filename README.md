@@ -1,72 +1,53 @@
-bitcoind-ncurses v0.0.23
-========================
+# bitcoind-ncurses v0.0.23
 
-ncurses front-end for bitcoind
+Python ncurses front-end for bitcoind. Uses the JSON-RPC API.
 
-![ScreenShot](/screenshots/bitcoind-ncurses-splash.png)
-![ScreenShot](/screenshots/bitcoind-ncurses-monitor.png)
-![ScreenShot](/screenshots/bitcoind-ncurses-block.png)
-![ScreenShot](/screenshots/bitcoind-ncurses-tx.png)
-![ScreenShot](/screenshots/bitcoind-ncurses-peers.png)
-![ScreenShot](/screenshots/bitcoind-ncurses-wallet.png)
-![ScreenShot](/screenshots/bitcoind-ncurses-net.png)
-![ScreenShot](/screenshots/bitcoind-ncurses-forks.png)
-![ScreenShot](/screenshots/bitcoind-ncurses-console.png)
+![ScreenShot](/screenshots/bitcoind-ncurses.gif)
 
-produced by Amphibian (azeteki, Atelopus_zeteki)
+- azeteki (Atelopus Zeteki)
 
-dependencies
-------------
+## Dependencies
 
-* tested with python 2.7.3, bitcoind 0.9.2.1
-* jgarzik's bitcoinrpc library (https://github.com/jgarzik/python-bitcoinrpc)
-* (Windows only) python ncurses library (http://www.lfd.uci.edu/~gohlke/pythonlibs/#curses)
+* Developed with python 2.7, Bitcoin Core 0.9.4
+* jgarzik's python-bitcoinrpc library (https://github.com/jgarzik/python-bitcoinrpc)
+* (Windows only) Python ncurses library (http://www.lfd.uci.edu/~gohlke/pythonlibs/#curses)
 
-features
---------
+## Features
 
-* updating ticker showing bitcoind's status (via RPC)
-* view arbitrary block contents quickly
-* facility to view transactions in current block and trace back through their inputs (with -txindex)
-* view transactions from your wallet - txid, amounts, cumulative balance
-* view connected peers
-* basic debug console functionality (only for testnet use at present)
+* Updating ticker showing bitcoind's status
+* Basic block explorer with fast seeking and no external database required
+* View transactions in blocks, trace back through their inputs and display scripts (best with -txindex)
+* View wallet transactions (txid, transaction value, cumulative balance)
+* View connected peers and chain tips
+* Network bandwidth monitor
+* Basic debug console functionality (WARNING: do not use for transactions)
 
-usage
------
+## Installation
 
-copy your bitcoin.conf to bitcoind-ncurses's folder
-
-alternatively, create a file with the following details:
 ```
-rpcuser=xxx
-rpcpassword=yyy
-testnet=0
+git clone https://github.com/azeteki/bitcoind-ncurses
+git clone https://github.com/jgarzik/python-bitcoinrpc
+mv python-bitcoinrpc/bitcoinrpc bitcoind-ncurses/
 ```
 
-this is an early development release. expect (safe) breakage
+Copy ~/.bitcoin/bitcoin.conf to bitcoind-ncurses's folder, or alternatively run with the switch --config=/path/to/bitcoin.conf
 
-launch
-------
+This is an early development release. Expect the unexpected.
 
-replace 'python' with 'python2' if you also have python3 installed.
+## Launch
+
+Note that bitcoind-ncurses requires Python 2 due to the bitcoinrpc dependency.
+
 ```
 $ python main.py
-$ python main.py -c some_other_config_file.conf
+$ python2 main.py
 ```
 
-todo
-----
-
-* ensure terminal always returns to sane state on program exit
-* mean block size/tx count over last X blocks
-* transaction creation support (if I feel suicidal)
-* more testing for edge cases (paramount for above)
-
-frog food
+Frog Food
 ---------
 
-found bitcoind-ncurses useful? donations are your way of showing that!
+If you have found bitcoind-ncurses useful, please consider donating.
+The funds will be used for creating future Bitcoin development projects.
 
 ![ScreenShot](/screenshots/donation-qr.png)
 
