@@ -8,3 +8,4 @@
 *.log.swp
 # ignore dependencies
 bitcoinrpc/*
+.idea/
