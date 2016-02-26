@@ -122,7 +122,7 @@ def draw_window(state, old_window):
             nextdiff = (rate*600)/(2**32)
             if state['testnet'] == 1:
                 nextdiff *= 2 # testnet has 1200 est. block interval, not 600
-            window.addstr(index, 1, "Est (" + str(block_avg).rjust(4) + "): ~" + "{:,d}".format(nextdiff))
+            window.addstr(index, 1, "Est (" + str(block_avg).rjust(4) + "): ~" + "{:,}".format(nextdiff))
 
         if rate > 10**18:
             rate /= 10**18
@@ -133,7 +133,7 @@ def draw_window(state, old_window):
         else:
             rate /= 10**6
             suffix = " MH/s"
-        rate_string = "{:,d}".format(rate) + suffix
+        rate_string = "{:,}".format(rate) + suffix
         window.addstr(index, 37, "Hashrate (" + str(block_avg).rjust(4) + "): " + rate_string.rjust(13))
         index += 1
 
