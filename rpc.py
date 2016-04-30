@@ -102,6 +102,11 @@ def loop(interface_queue, rpc_queue, cfg):
         stop(interface_queue, "failed to connect to bitcoind (getinfo failed)")
         return True
 
+    ninfo = rpcrequest(rpchandle, 'getnetworkinfo', interface_queue)
+    if not ninfo:
+        stop(interface_queue, "failed to connect to bitcoind (getnetworkinfo failed)")
+        return True
+
     log('debug.log', 1, 'CONNECTED')
 
     prev_blockcount = 0
