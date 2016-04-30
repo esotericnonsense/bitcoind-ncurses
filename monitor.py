@@ -3,6 +3,7 @@ import curses, time, math
 
 import global_mod as g
 import footer
+from decimal import Decimal
 
 def draw_window(state, old_window):
     # TODO: only draw parts that actually changed
@@ -51,12 +52,10 @@ def draw_window(state, old_window):
             window.addstr(5, 1, "Transactions: " + str(tx_count) + " (" + str(bytes_per_tx) + " bytes/tx)")
 
             if 'coinbase_amount' in blockdata:
-                if state['mininginfo']['blocks'] < 210000:
-                    block_subsidy = 50
-                elif state['mininginfo']['blocks'] < 420000:
-                    block_subsidy = 25
+                halvings = state['mininginfo']['blocks'] / 210000
+                block_subsidy = Decimal(50 * (0.5 ** halvings))
 
-                if block_subsidy: # this will fail after block 420,000. TODO: stop being lazy and do it properly
+                if block_subsidy:
                     coinbase_amount = blockdata['coinbase_amount']
                     total_fees = coinbase_amount - block_subsidy # assumption, mostly correct
 
