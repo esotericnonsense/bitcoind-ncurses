@@ -27,17 +27,11 @@ def resize(s, state, window):
     elif state['mode'] == 'net':
         net.draw_window(state, window)
 
-def getinfo(s, state, window):
-    """
-    state['version'] = str(s['getinfo']['version'] / 1000000)
-    state['version'] += '.' + str((s['getinfo']['version'] % 1000000) / 10000)
-    state['version'] += '.' + str((s['getinfo']['version'] % 10000) / 100)
-    state['version'] += '.' + str((s['getinfo']['version'] % 100))
-    """
-    if s['getinfo']['testnet'] == True:
-        state['testnet'] = 1
-    else:
-        state['testnet'] = 0
+def getblockchaininfo(s, state, window):
+	if s['getblockchaininfo']['chain'] == "test":
+		state['testnet'] = 1
+	else:
+		state['testnet'] = 0
 
 def getnetworkinfo(s, state, window):
     state['version'] = s['getnetworkinfo']['subversion']
@@ -249,7 +243,7 @@ def queue(state, window, interface_queue):
             return False
 
         if 'resize' in s: resize(s, state, window)
-        elif 'getinfo' in s: getinfo(s, state, window)
+        elif 'getblockchaininfo' in s: getblockchaininfo(s, state, window)
         elif 'getnetworkinfo' in s: getnetworkinfo(s, state, window)
         elif 'getconnectioncount' in s: getconnectioncount(s, state, window)
         elif 'getbalance' in s: getbalance(s, state, window)

@@ -97,9 +97,9 @@ def loop(interface_queue, rpc_queue, cfg):
 
     last_update = time.time() - update_interval
     
-    info = rpcrequest(rpchandle, 'getinfo', interface_queue)
+    info = rpcrequest(rpchandle, 'getblockchaininfo', interface_queue)
     if not info:
-        stop(interface_queue, "failed to connect to bitcoind (getinfo failed)")
+        stop(interface_queue, "failed to connect to bitcoind (getblockchaininfo failed)")
         return True
 
     ninfo = rpcrequest(rpchandle, 'getnetworkinfo', interface_queue)
