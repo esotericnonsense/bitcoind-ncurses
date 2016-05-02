@@ -1,10 +1,12 @@
-# bitcoind-ncurses v0.0.23
+# bitcoind-ncurses (master/development branch)
+
+## NOTE: release versions are tagged. v0.0.23 is the latest.
 
 Python ncurses front-end for bitcoind. Uses the JSON-RPC API.
 
 ![ScreenShot](/screenshots/bitcoind-ncurses.gif)
 
-- azeteki (Atelopus Zeteki)
+- esotericnonsense (the artist formerly known as azeteki)
 
 ## Dependencies
 
