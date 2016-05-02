@@ -23,13 +23,6 @@ def interrupt_signal(signal, frame):
     s = {'stop': "Interrupt signal caught"}
     interface_queue.put(s)
 
-def debug(rpc_queue):
-    # coinbase testnet transaction for debugging
-    #s = {'txid': "cfb8bc436ca1d8b8b2d324a9cb2ef097281d2d8b54ba4239ce447b31b8757df2"}
-    # tx with 1001 inputs, 1002 outputs 
-    s = {'txid': 'e1dc93e7d1ee2a6a13a9d54183f91a5ae944297724bee53db00a0661badc3005'}
-    rpc_queue.put(s)
-
 if __name__ == '__main__':
     # initialise queues
     interface_queue = gevent.queue.Queue()
@@ -55,8 +48,6 @@ if __name__ == '__main__':
 
     # start RPC thread
     rpc_process = gevent.spawn(rpc.loop, interface_queue, rpc_queue, cfg)
-
-    #debug(rpc_queue)
 
     # main loop
     interface.main(interface_queue, rpc_queue)
