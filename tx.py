@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-import curses, time, binascii
+import curses
+import binascii
+import gevent
 
 import global_mod as g
 import getstr
@@ -168,7 +170,7 @@ def draw_input_window(state, window, rpc_queue):
         window.addstr(5, 1, "not a valid txid", color + curses.A_BOLD)
         window.refresh()
 
-        time.sleep(0.5)
+        gevent.sleep(0.5)
 
         window.clear()
         window.refresh()

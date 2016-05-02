@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-import curses, time, calendar
+import curses
+import calendar
+import gevent
+import time
 
 import global_mod as g
 import getstr
@@ -127,7 +130,7 @@ def draw_input_window(state, window, rpc_queue):
         window.addstr(5, 1, "not a valid hash, height, or timestamp format", color + curses.A_BOLD)
         window.refresh()
 
-        time.sleep(0.5)
+        gevent.sleep(0.5)
 
         window.clear()
         window.refresh()

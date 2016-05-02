@@ -8,7 +8,12 @@
 # and of course the bitcoin dev team for that bitcoin gizmo, pretty neat stuff
 ###############################################################################
 
-import multiprocessing, argparse, signal
+from gevent import monkey
+monkey.patch_all()
+import gevent
+import gevent.queue
+
+import argparse, signal
 
 import rpc
 import interface
@@ -27,8 +32,8 @@ def debug(rpc_queue):
 
 if __name__ == '__main__':
     # initialise queues
-    interface_queue = multiprocessing.Queue()
-    rpc_queue = multiprocessing.Queue()
+    interface_queue = gevent.queue.Queue()
+    rpc_queue = gevent.queue.Queue()
 
     # parse commandline arguments
     parser = argparse.ArgumentParser()
@@ -49,9 +54,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, interrupt_signal)
 
     # start RPC thread
-    rpc_process = multiprocessing.Process(target=rpc.loop, args = (interface_queue, rpc_queue, cfg))
-    rpc_process.daemon = True
-    rpc_process.start()
+    rpc_process = gevent.spawn(rpc.loop, interface_queue, rpc_queue, cfg)
 
     #debug(rpc_queue)
 

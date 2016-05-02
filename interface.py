@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-import curses, sys, time
+import curses
+import sys
+import gevent
 
 import monitor
 import process
@@ -23,7 +25,6 @@ def check_window_size(interface_queue, state, window, min_y, min_x):
 def init_curses():
     window = curses.initscr()
     curses.noecho() # prevents user input from being echoed
-    curses.cbreak() # is this actually necessary or useful?
     curses.curs_set(0) # make cursor invisible
 
     curses.start_color()
@@ -58,6 +59,8 @@ def loop(state, window, interface_queue, rpc_queue):
         error_message = process.queue(state, window, interface_queue)
         if error_message:
             return error_message # ends if stop command sent by rpc
+
+        gevent.sleep(0.0001) # TODO: Can we kill this?
 
         if state['mode'] == "monitor":
             if not iterations % 20:
