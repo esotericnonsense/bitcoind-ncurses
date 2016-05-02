@@ -5,7 +5,8 @@
 *.lprof
 # ignore log files
 *.log
-*.log.swp
+# ignore vim temporary files
+*.swp
 # ignore dependencies
 bitcoinrpc/*
 .idea/
