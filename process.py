@@ -235,31 +235,47 @@ def consolecommand(s, state, window):
 def estimatefee(s, state, window):
     state['estimatefee'] = s['estimatefee']
 
-def queue(state, window, interface_queue):
+def queue(state, window, response_queue):
+    from rpc2 import RPCResponse
     while True:
         try:
-            s = interface_queue.get(False)
+            s = response_queue.get(False)
         except Queue.Empty:
             return False
 
-        if 'resize' in s: resize(s, state, window)
-        elif 'getblockchaininfo' in s: getblockchaininfo(s, state, window)
-        elif 'getnetworkinfo' in s: getnetworkinfo(s, state, window)
-        elif 'getconnectioncount' in s: getconnectioncount(s, state, window)
-        elif 'getbalance' in s: getbalance(s, state, window)
-        elif 'getunconfirmedbalance' in s: getunconfirmedbalance(s, state, window)
-        elif 'getblock' in s: getblock(s, state, window)
-        elif 'coinbase' in s: coinbase(s, state, window)
-        elif 'getnetworkhashps' in s: getnetworkhashps(s, state, window)
-        elif 'getnettotals' in s: getnettotals(s, state, window)
-        elif 'getmininginfo' in s: getmininginfo(s, state, window)
-        elif 'getpeerinfo' in s: getpeerinfo(s, state, window)
-        elif 'getchaintips' in s: getchaintips(s, state, window)
-        elif 'listsinceblock' in s: listsinceblock(s, state, window)
-        elif 'lastblocktime' in s: lastblocktime(s, state, window)
-        elif 'txid' in s: txid(s, state, window)
-        elif 'consolecommand' in s: consolecommand(s, state, window)
-        elif 'estimatefee' in s: estimatefee(s, state, window)
+        if isinstance(s, dict):
+            if 'resize' in s: resize(s, state, window)
+            elif 'lastblocktime' in s: lastblocktime(s, state, window)
+            elif 'txid' in s: txid(s, state, window)
+            elif 'consolecommand' in s: consolecommand(s, state, window)
+            elif 'coinbase' in s: coinbase(s, state, window)
+            elif 'stop' in s: return s['stop']
+            continue
 
-        elif 'stop' in s:
-            return s['stop']
+        if not isinstance(s, RPCResponse):
+            print "Ignoring"
+            continue
+
+        methods = {
+            "getblockchaininfo": getblockchaininfo,
+            "getnetworkinfo": getnetworkinfo,
+            "getconnectioncount": getconnectioncount,
+            "getbalance": getbalance,
+            "getunconfirmedbalance": getunconfirmedbalance,
+            "getblock": getblock,
+            "getnetworkhashps": getnetworkhashps,
+            "getnettotals": getnettotals,
+            "getmininginfo": getmininginfo,
+            "getpeerinfo": getpeerinfo,
+            "getchaintips": getchaintips,
+            "listsinceblock": listsinceblock,
+            "estimatefee": estimatefee,
+        }
+
+        try:
+            method = methods[s.method]
+        except KeyError:
+            print "Unknown {}".format(s.method)
+            return
+
+        method({s.method: s.result}, state, window)

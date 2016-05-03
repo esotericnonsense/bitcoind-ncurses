@@ -1,69 +1,10 @@
 #!/usr/bin/env python
-from bitcoinrpc.authproxy import AuthServiceProxy
 import curses, time, Queue, decimal
 
-def log(logfile, loglevel, string):
-    if loglevel > 0: # hardcoded loglevel here
-        return False
-    from datetime import datetime
-    now = datetime.utcnow()
-    string_time = now.strftime('%Y-%m-%d %H:%M:%S.')
-    millisecond = now.microsecond / 1000
-    string_time += "%03d" % millisecond
+# False = not into interface queue
+# True = into interface queue
 
-    with open(logfile, 'a') as f:
-        f.write(string_time + ' LL' + str(loglevel) + ' ' + string + '\n')
-    
-def stop(interface_queue, error_message):
-    interface_queue.put({'stop': error_message})
-
-def init(interface_queue, cfg):
-    try:
-        rpcuser = cfg.get('rpcuser')
-        rpcpassword = cfg.get('rpcpassword')
-        rpcip = cfg.get('rpcip', '127.0.0.1')
-
-        if cfg.get('rpcport'):
-            rpcport = cfg.get('rpcport')
-        elif cfg.get('testnet') == "1":
-            rpcport = '18332'
-        else:
-            rpcport = '8332'
-
-        if cfg.get('rpcssl') == "1":
-            protocol = "https"
-        else:
-            protocol = "http"
-
-        rpcurl = protocol + "://" + rpcuser + ":" + rpcpassword + "@" + rpcip + ":" + rpcport
-    except:
-        stop(interface_queue, "invalid configuration file or missing values")
-        return False
-
-    try:
-        rpchandle = AuthServiceProxy(rpcurl, None, 500)
-        return rpchandle
-    except:
-        return False
-
-def rpcrequest(rpchandle, request, interface_queue, *args):
-    try:
-        log('debug.log', 2, 'rpcrequest: ' + request)
-
-        request_time = time.time()
-        response = getattr(rpchandle, request)(*args)
-        request_time_delta = time.time() - request_time
-
-        log('debug.log', 3, request + ' done in ' + "%.3f" % request_time_delta + 's')
-
-        if interface_queue:
-            interface_queue.put({request: response})
-
-        return response
-    except:
-        log('debug.log', 2, request + ' failed')
-        return False
-
+"""
 def getblock(rpchandle, interface_queue, block_to_get, queried = False, new = False):
     try:
         if (len(str(block_to_get)) < 7) and str(block_to_get).isdigit(): 
@@ -85,41 +26,7 @@ def getblock(rpchandle, interface_queue, block_to_get, queried = False, new = Fa
 
     except:
         return 0
-
-def loop(interface_queue, rpc_queue, cfg):
-    # TODO: add error checking for broken config, improve exceptions
-    rpchandle = init(interface_queue, cfg)
-    if not rpchandle: # TODO: this doesn't appear to trigger, investigate
-        stop(interface_queue, "failed to connect to bitcoind (handle not obtained)")
-        return True
-
-    update_interval = 2 # seconds
-
-    last_update = time.time() - update_interval
-    
-    info = rpcrequest(rpchandle, 'getblockchaininfo', interface_queue)
-    if not info:
-        stop(interface_queue, "failed to connect to bitcoind (getblockchaininfo failed)")
-        return True
-
-    ninfo = rpcrequest(rpchandle, 'getnetworkinfo', interface_queue)
-    if not ninfo:
-        stop(interface_queue, "failed to connect to bitcoind (getnetworkinfo failed)")
-        return True
-
-    log('debug.log', 1, 'CONNECTED')
-
-    prev_blockcount = 0
-    while True:
-        try:
-            s = rpc_queue.get(True, 0.1)
-        except Queue.Empty:
-            s = {}
-
-        try:
-            last_update, prev_blockcount = actupon(rpchandle, interface_queue, last_update, prev_blockcount, update_interval, s)
-        except StopIteration:
-            break
+"""
 
 def actupon(rpchandle, interface_queue, last_update, prev_blockcount, update_interval, s):
     if len(s):
@@ -209,15 +116,6 @@ def actupon(rpchandle, interface_queue, last_update, prev_blockcount, update_int
             tx = {'txid': s['txid'], 'size': -1}
 
         interface_queue.put(tx)
-
-    elif 'getpeerinfo' in s:
-        rpcrequest(rpchandle, 'getpeerinfo', interface_queue)
-
-    elif 'listsinceblock' in s:
-        rpcrequest(rpchandle, 'listsinceblock', interface_queue)
-
-    elif 'getchaintips' in s:
-        rpcrequest(rpchandle, 'getchaintips', interface_queue)
 
     elif 'findblockbytimestamp' in s:
         request = s['findblockbytimestamp']

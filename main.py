@@ -15,17 +15,17 @@ import gevent.queue
 
 import argparse, signal
 
-import rpc
+import rpc2
 import interface
 import config
 
 def interrupt_signal(signal, frame):
     s = {'stop': "Interrupt signal caught"}
-    interface_queue.put(s)
+    response_queue.put(s)
 
 if __name__ == '__main__':
     # initialise queues
-    interface_queue = gevent.queue.Queue()
+    response_queue = gevent.queue.Queue()
     rpc_queue = gevent.queue.Queue()
 
     # parse commandline arguments
@@ -41,16 +41,33 @@ if __name__ == '__main__':
     except IOError:
         cfg = {}
         s = {'stop': "configuration file [" + args.config + "] does not exist or could not be read"}
-        interface_queue.put(s)
+        response_queue.put(s)
 
     # initialise interrupt signal handler (^C)
     signal.signal(signal.SIGINT, interrupt_signal)
 
     # start RPC thread
-    rpc_process = gevent.spawn(rpc.loop, interface_queue, rpc_queue, cfg)
+    rpcc = rpc2.BitcoinRPCClient(
+        response_queue=response_queue, # TODO: refactor this
+        rpcuser=cfg["rpcuser"],
+        rpcpassword=cfg["rpcpassword"],
+        rpcip=(cfg["rpcip"] if "rpcip" in cfg else "localhost"),
+        rpcport=(cfg["rpcport"] if "rpcport" in cfg else 8332),
+        protocol=(cfg["protocol"] if "protocol" in cfg else "http"),
+    )
+    connected = rpcc.connect()
+    if not connected:
+        print "RPCC failed to connect"
+        sys.exit(1)
+
+    rpc2_process = gevent.spawn(rpcc.run)
+
+    poller = rpc2.Poller(rpcc)
+    poller_process = gevent.spawn(poller.run)
 
     # main loop
-    interface.main(interface_queue, rpc_queue)
-
-    # ensure RPC thread exits cleanly
-    rpc_process.join()
+    try:
+        interface.main(response_queue, rpcc)
+    finally:
+        rpcc.stop()
+        rpc2_process.join()

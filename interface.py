@@ -52,7 +52,7 @@ def init_state():
 
     return state
 
-def loop(state, window, interface_queue, rpc_queue):
+def loop(state, window, interface_queue, rpcc):
     iterations = 0
     while 1:
         check_window_size(interface_queue, state, window, 12, 75) # min_y, min_x
@@ -66,24 +66,25 @@ def loop(state, window, interface_queue, rpc_queue):
             if not iterations % 20:
                 monitor.draw_window(state, window)
 
-        if hotkey.check(state, window, rpc_queue): # poll for user input
+        if hotkey.check(state, window, rpcc): # poll for user input
             break # returns 1 when quit key is pressed
 
         iterations += 1
 
     return False
 
-def main(interface_queue, rpc_queue):
+def main(interface_queue, rpcc):
     window = init_curses()
     error_message = False
+    rpcc.request("getnetworkinfo")
+    rpcc.request("getblockchaininfo")
     try:
         state = init_state()
         splash.draw_window(state, window)
-        error_message = loop(state, window, interface_queue, rpc_queue)
+        error_message = loop(state, window, interface_queue, rpcc)
     finally: # restore sane terminal state, end RPC thread
         curses.nocbreak()
         curses.endwin()
-        rpc_queue.put({ 'stop': True })
     
         if error_message:
             sys.stderr.write("bitcoind-ncurses encountered an error\n")

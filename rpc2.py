@@ -4,43 +4,92 @@ import gevent.queue
 import os
 import base64
 
+import rpc
+
 from collections import namedtuple
-RPCRequest = namedtuple("RPCRequest", ["method", "params", "uuid", "timestamp"])
-RPCResponse = namedtuple("RPCResponse", ["method", "result", "error", "uuid", "timestamp"])
+class RPCRequest(object):
+    def __init__(self, method, *params):
+        self.method = method
+        self.params = params
+        self.uuid = new_uuid()
+        self.timestamp = datetime.datetime.utcnow()
+
+class RPCResponse(object):
+    def __init__(self, req, result, error=False):
+        self.method = req.method
+        self.result = result
+        self.error = error
+        self.uuid = req.uuid
+        self.timestamp = datetime.datetime.utcnow()
 
 def new_uuid():
     return base64.b64encode(os.urandom(16))
 
 class BitcoinRPCClient(object):
-    def __init__(self, rpcuser, rpcpassword, rpcip="localhost", rpcport=8332, protocol="http", testnet=False):
+    def __init__(self, response_queue, rpcuser, rpcpassword, rpcip="localhost", rpcport=8332, protocol="http", testnet=False):
         rpcurl = "{}://{}:{}@{}:{}".format(
             protocol, rpcuser, rpcpassword, rpcip, rpcport)
         self._handle = bitcoinrpc.authproxy.AuthServiceProxy(rpcurl, None, 500)
         self._request_queue = gevent.queue.Queue()
+        self.connected = False
+
+        self._response_queue = response_queue # TODO: refactor this
+
+    def _call(self, req):
+        assert isinstance(req, RPCRequest)
+
+        # TODO: Does AuthServiceProxy have a time-out? 
+        result = getattr(self._handle, req.method)(*req.params)
+
+        return RPCResponse(req, result)
+
+    def connect(self):
+        if self.connected:
+            return True # Assume it wasn't closed.
+
+        if not self._call(RPCRequest("getinfo")): 
+            return False
+
+        self.connected = True
+        return True 
 
     def run(self):
-        while True:
-            req = self._request_queue.get()
-            result = getattr(self._handle, req.method)(*req.params)
-            resp = RPCResponse(
-                method=req.method,
-                result=result,
-                error=False, # TODO: Handle errors correctly
-                uuid=req.uuid,
-                timestamp=datetime.datetime.utcnow(),
-            )
-            print "{} RESP {} {}".format(resp.timestamp, resp.uuid, resp.method)
-            # print resp
+        assert self.connected
+
+        import time
+        update_interval = 2
+        last_update = time.time() - update_interval
+        prev_blockcount = 0
+
+        for req in self._request_queue:
+            resp = self._call(req)
+
+            # TODO: debug
+            # print "{} RESP {} {}".format(resp.timestamp, resp.uuid, resp.method)
+
+            # TODO: enhackle
+            if req.method == "getnetworkhashps":
+                resp.result = {
+                    "blocks": req.params[0],
+                    "value": resp.result,
+                }
+
+            # interface_queue.put({'getnetworkhashps': {'blocks': 144, 'value': nethash144}})
+
+            self._response_queue.put(resp)
 
     def request(self, method, *params):
-        req = RPCRequest(
-            method=method,
-            params=params,
-            uuid=new_uuid(),
-            timestamp=datetime.datetime.utcnow(),
-        )
-        print "{} REQ {} {}".format(req.timestamp, req.uuid, req.method)
+        """ Asynchronous RPC request. """
+        req = RPCRequest(method, *params)
         self._request_queue.put(req)
+
+    def sync_request(self, method, *params):
+        """ Synchronous RPC request. """
+        req = RPCRequest(method, *params)
+        return self._call(req)
+
+    def stop(self):
+        self._request_queue.put(StopIteration)
 
 def testfn():
     import config
@@ -59,6 +108,22 @@ def testfn():
         print
         gevent.sleep(2)
         print
+
+class Poller(object):
+    def __init__(self, rpcc):
+        self._rpcc = rpcc
+
+    def run(self):
+        while True:
+            self._rpcc.request("getnettotals")
+            self._rpcc.request("getconnectioncount")
+            self._rpcc.request("getmininginfo")
+            self._rpcc.request("getbalance")
+            self._rpcc.request("getunconfirmedbalance")
+            self._rpcc.request("getnetworkhashps", 144)
+            self._rpcc.request("getnetworkhashps", 2016)
+
+            gevent.sleep(1)
 
 if __name__ == "__main__":
     testfn()
