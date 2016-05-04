@@ -161,7 +161,7 @@ def draw_window(state, old_window):
                 y = state['y'] - 3
             else:
                 y = 17
-            window.addstr(y, 1, errors[:72], curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
+            window.addstr(y, 1, errors[:72].ljust(72), curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
             window.addstr(y+1, 1, errors[72:142].rjust(72), curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
 
     window.refresh()
