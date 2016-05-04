@@ -2,6 +2,7 @@ import bitcoinrpc.authproxy
 import datetime
 import gevent.queue
 import os
+import time
 import base64
 
 import rpc
@@ -56,10 +57,7 @@ class BitcoinRPCClient(object):
     def run(self):
         assert self.connected
 
-        import time
-        update_interval = 2
-        last_update = time.time() - update_interval
-        prev_blockcount = 0
+        bestblockhash = None
 
         for req in self._request_queue:
             resp = self._call(req)
@@ -74,9 +72,21 @@ class BitcoinRPCClient(object):
                     "value": resp.result,
                 }
 
-            # interface_queue.put({'getnetworkhashps': {'blocks': 144, 'value': nethash144}})
-
             self._response_queue.put(resp)
+
+            if req.method == "getblockchaininfo":
+                new_bestblockhash = resp.result["bestblockhash"]
+                if new_bestblockhash != bestblockhash:
+                    if not bestblockhash:
+                        resp2 = {"lastblocktime" : 0}
+                    else:
+                        resp2 = {"lastblocktime" : time.time()}
+                    bestblockhash = new_bestblockhash
+
+                    # Request the new best block
+                    self._request_queue.put(RPCRequest("getblock", bestblockhash))
+
+                    self._response_queue.put(resp2)
 
     def request(self, method, *params):
         """ Asynchronous RPC request. """
@@ -118,6 +128,7 @@ class Poller(object):
             self._rpcc.request("getnettotals")
             self._rpcc.request("getconnectioncount")
             self._rpcc.request("getmininginfo")
+            self._rpcc.request("getblockchaininfo")
             self._rpcc.request("getbalance")
             self._rpcc.request("getunconfirmedbalance")
             self._rpcc.request("getnetworkhashps", 144)
