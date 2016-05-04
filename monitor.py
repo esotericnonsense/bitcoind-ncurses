@@ -20,6 +20,10 @@ def draw_window(state, old_window):
             color = curses.color_pair(1)
             window.addstr(1, 1, state['version'], color + curses.A_BOLD)
             unit = 'BTC'
+
+        if "dev" in g.version:
+            color = curses.color_pair(5) + curses.A_REVERSE
+
         window.addstr(0, 1, "bitcoind-ncurses " + g.version, color + curses.A_BOLD)
 
     if 'peers' in state:
