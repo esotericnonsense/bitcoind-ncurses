@@ -147,9 +147,10 @@ def draw_window(state, old_window):
 
     if 'estimatefee' in state:
         string = "estimatefee:"
-        for item in state['estimatefee']:
-            if item['value'] > 0:
-                string += " (" + str(item['blocks']) + ")" + "%4.2f" % (item['value']*1000) + "m" + unit
+        for blocks in state['estimatefee']:
+            est = state['estimatefee'][blocks]
+            if est > 0:
+                string += " (" + str(blocks) + ")" + "%4.2f" % (est*1000) + "m" + unit
         if len(string) > 12:
             window.addstr(15, 37, string)
 

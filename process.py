@@ -233,7 +233,8 @@ def consolecommand(s, state, window):
         console.draw_window(state, window)
 
 def estimatefee(s, state, window):
-    state['estimatefee'] = s['estimatefee']
+    blocks = s['estimatefee']['blocks']
+    state['estimatefee'][blocks] = s['estimatefee']['value']
 
 def queue(state, window, response_queue):
     from rpc2 import RPCResponse

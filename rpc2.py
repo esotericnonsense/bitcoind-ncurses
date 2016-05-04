@@ -66,7 +66,7 @@ class BitcoinRPCClient(object):
             # print "{} RESP {} {}".format(resp.timestamp, resp.uuid, resp.method)
 
             # TODO: enhackle
-            if req.method == "getnetworkhashps":
+            if req.method == "getnetworkhashps" or req.method == "estimatefee":
                 resp.result = {
                     "blocks": req.params[0],
                     "value": resp.result,
@@ -84,7 +84,12 @@ class BitcoinRPCClient(object):
                     bestblockhash = new_bestblockhash
 
                     # Request the new best block
-                    self._request_queue.put(RPCRequest("getblock", bestblockhash))
+                    self.request("getblock", bestblockhash)
+                    # Request some other information
+                    self.request("getnetworkhashps", 144)
+                    self.request("getnetworkhashps", 2016)
+                    self.request("estimatefee", 2)
+                    self.request("estimatefee", 5)
 
                     self._response_queue.put(resp2)
 
@@ -131,8 +136,6 @@ class Poller(object):
             self._rpcc.request("getblockchaininfo")
             self._rpcc.request("getbalance")
             self._rpcc.request("getunconfirmedbalance")
-            self._rpcc.request("getnetworkhashps", 144)
-            self._rpcc.request("getnetworkhashps", 2016)
 
             gevent.sleep(1)
 

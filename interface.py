@@ -44,6 +44,7 @@ def init_state():
         'mode': "splash",
         'blocks': { 'cursor': 0, 'offset': 0 },
         'networkhashps': {},
+        'estimatefee': {},
         'console': { 'cbuffer': [], 'rbuffer': [], 'offset': 0 },
         'x': -1,
         'y': -1,
