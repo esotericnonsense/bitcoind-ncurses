@@ -11,7 +11,7 @@ import console
 import net
 import forks
 
-def change_mode(state, window, mode):
+def change_mode(state, window, mode, poller):
     try:
         g.modes.index(mode)
     except ValueError:
@@ -36,37 +36,27 @@ def change_mode(state, window, mode):
     elif mode == 'forks':
         forks.draw_window(state, window)
 
-def key_left(state, window, rpcc):
+    poller.set_mode(mode)
+
+def key_left(state, window, rpcc, poller):
     try:
         index = g.modes.index(state['mode']) - 1
         if index < 0:
             index = len(g.modes) - 2
-        change_mode(state, window, g.modes[index])
+        change_mode(state, window, g.modes[index], poller)
     except:
         pass
 
-def key_right(state, window, rpcc):
+def key_right(state, window, rpcc, poller):
     try:
         index = g.modes.index(state['mode']) + 1
         if index > len(g.modes) - 2: # last index item is 'quit'
             index = 0
-        change_mode(state, window, g.modes[index])
+        change_mode(state, window, g.modes[index], poller)
     except:
         pass
 
-def key_w(state, window, rpcc):
-    rpcc.request('listsinceblock')
-    change_mode(state, window, 'wallet')
-
-def key_p(state, window, rpcc):
-    rpcc.request('getpeerinfo')
-    change_mode(state, window, 'peers')
-
-def key_f(state, window, rpcc):
-    rpcc.request('getchaintips')
-    change_mode(state, window, 'forks')
-
-def key_g(state, window, rpcc):
+def key_g(state, window, rpcc, poller):
     if state['mode'] == 'tx':
         state['mode'] = "transaction-input"
         tx.draw_input_window(state, window, rpcc)
@@ -76,7 +66,7 @@ def key_g(state, window, rpcc):
     elif state['mode'] == "console":
         console.draw_input_box(state, rpcc)
 
-def go_to_latest_block(state, window, rpcc):
+def go_to_latest_block(state, window, rpcc, poller):
     if state['mode'] == "block":
         if 'mininginfo' in state:
             if state['mininginfo']['blocks'] not in state['blocks']:
@@ -86,7 +76,7 @@ def go_to_latest_block(state, window, rpcc):
                 state['blocks']['browse_height'] = state['mininginfo']['blocks']
                 block.draw_window(state, window)
 
-def scroll_down(state, window, rpcc):
+def scroll_down(state, window, rpcc, poller):
     if state['mode'] == 'tx':
         if 'tx' in state:
             window_height = (state['y'] - 4) / 2
@@ -141,7 +131,7 @@ def scroll_down(state, window, rpcc):
             state['console']['offset'] -= 1
             console.draw_buffer(state)
 
-def scroll_up(state, window, rpcc):
+def scroll_up(state, window, rpcc, poller):
     if state['mode'] == 'tx':
         if 'tx' in state:
             if state['tx']['cursor'] > 0 and state['tx']['mode'] == 'inputs':
@@ -186,13 +176,13 @@ def scroll_up(state, window, rpcc):
         state['console']['offset'] += 1
         console.draw_buffer(state)
 
-def scroll_up_page(state, window, rpcc):
+def scroll_up_page(state, window, rpcc, poller):
     if state['mode'] == "console":
         window_height = state['y'] - 3 - 2
         state['console']['offset'] += window_height
         console.draw_buffer(state)
 
-def scroll_down_page(state, window, rpcc):
+def scroll_down_page(state, window, rpcc, poller):
     if state['mode'] == "console":
         window_height = state['y'] - 3 - 2
         if state['console']['offset'] > window_height:
@@ -201,7 +191,7 @@ def scroll_down_page(state, window, rpcc):
             state['console']['offset'] = 0
         console.draw_buffer(state)
 
-def toggle_inputs_outputs(state, window, rpcc):
+def toggle_inputs_outputs(state, window, rpcc, poller):
     if state['mode'] == 'tx':
         if 'tx' in state:
             if 'mode' in state['tx']:
@@ -211,7 +201,7 @@ def toggle_inputs_outputs(state, window, rpcc):
                     state['tx']['mode'] = 'inputs'
                 tx.draw_window(state, window)
 
-def load_transaction(state, window, rpcc):
+def load_transaction(state, window, rpcc, poller):
     # TODO: some sort of indicator that a transaction is loading
     if state['mode'] == 'tx':
         if 'tx' in state:
@@ -238,7 +228,7 @@ def load_transaction(state, window, rpcc):
                 rpcc.request(s)
                 state['mode'] = 'tx'
 
-def toggle_verbose_mode(state, window, rpcc):
+def toggle_verbose_mode(state, window, rpcc, poller):
     if state['mode'] == 'tx':
         if 'tx' in state:
             if 'txid' in state['tx']:
@@ -252,7 +242,7 @@ def toggle_verbose_mode(state, window, rpcc):
 
                     rpcc.request(s)
 
-def block_seek_back_one(state, window, rpcc):
+def block_seek_back_one(state, window, rpcc, poller):
     if state['mode'] == "block":
         if 'blocks' in state:
             if (state['blocks']['browse_height']) > 0:
@@ -267,7 +257,7 @@ def block_seek_back_one(state, window, rpcc):
                         s = {'getblockhash': state['blocks']['browse_height']}
                         rpcc.request(s)
 
-def block_seek_forward_one(state, window, rpcc):
+def block_seek_forward_one(state, window, rpcc, poller):
     if state['mode'] == "block":
         if 'blocks' in state:
             if state['blocks']['browse_height'] < state['mininginfo']['blocks']:
@@ -282,7 +272,7 @@ def block_seek_forward_one(state, window, rpcc):
                         s = {'getblockhash': state['blocks']['browse_height']}
                         rpcc.request(s)
 
-def block_seek_back_thousand(state, window, rpcc):
+def block_seek_back_thousand(state, window, rpcc, poller):
     if state['mode'] == "block":
         if 'blocks' in state:
             if (state['blocks']['browse_height']) > 999:
@@ -297,7 +287,7 @@ def block_seek_back_thousand(state, window, rpcc):
                         s = {'getblockhash': state['blocks']['browse_height']}
                         rpcc.request(s)
 
-def block_seek_forward_thousand(state, window, rpcc):
+def block_seek_forward_thousand(state, window, rpcc, poller):
     if state['mode'] == "block":
         if 'blocks' in state:
             if (state['blocks']['browse_height']) < state['mininginfo']['blocks'] - 999:
@@ -325,17 +315,8 @@ keymap = {
     curses.KEY_ENTER: load_transaction,
     ord('\n'): load_transaction,
 
-    ord('w'): key_w,
-    ord('W'): key_w,
-
-    ord('p'): key_p,
-    ord('P'): key_p,
-
     ord('g'): key_g,
     ord('G'): key_g,
-
-    ord('f'): key_f,
-    ord('F'): key_f,
 
     ord('l'): go_to_latest_block,
     ord('L'): go_to_latest_block,
@@ -367,20 +348,34 @@ modemap = {
     ord('C'): 'console',
 
     ord('n'): 'net',
-    ord('N'): 'net'
+    ord('N'): 'net',
+
+    ord('p'): 'peers',
+    ord('P'): 'peers',
+
+    ord('w'): 'wallet',
+    ord('W'): 'wallet',
+
+    ord('f'): 'forks',
+    ord('F'): 'forks',
 }
 
-def check(state, window, rpcc):
+def check(state, window, rpcc, poller):
     key = window.getch()
 
     if key < 0 or state['mode'] == 'splash':
         pass
 
     elif key in keymap:
-        keymap[key](state, window, rpcc)
+        keymap[key](state, window, rpcc, poller)
 
     elif key in modemap:
-        change_mode(state, window, modemap[key])
+        mode = modemap[key]
+
+        if mode == "forks":
+            rpcc.request('getchaintips')
+
+        change_mode(state, window, mode, poller)
 
     elif key == ord('q') or key == ord('Q'): # quit
         return True

@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     # main loop
     try:
-        interface.main(response_queue, rpcc)
+        interface.main(response_queue, rpcc, poller)
     finally:
         rpcc.stop()
         rpc2_process.join()

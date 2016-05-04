@@ -127,17 +127,36 @@ def testfn():
 class Poller(object):
     def __init__(self, rpcc):
         self._rpcc = rpcc
+        self._mode = "monitor"
 
     def run(self):
         while True:
-            self._rpcc.request("getnettotals")
+            self.poll_once()
+            gevent.sleep(1)
+
+    def poll_once(self):
+        if self._mode == "monitor":
             self._rpcc.request("getconnectioncount")
             self._rpcc.request("getmininginfo")
             self._rpcc.request("getblockchaininfo")
             self._rpcc.request("getbalance")
             self._rpcc.request("getunconfirmedbalance")
 
-            gevent.sleep(1)
+        if self._mode == "peers":
+            self._rpcc.request("getconnectioncount")
+            self._rpcc.request("getpeerinfo")
+
+        if self._mode == "wallet":
+            self._rpcc.request("listsinceblock")
+            self._rpcc.request("getbalance")
+            self._rpcc.request("getunconfirmedbalance")
+
+        # Net graph needs to run all the time.
+        self._rpcc.request("getnettotals")
+
+    def set_mode(self, mode):
+        # TODO: Add a lock here?
+        self._mode = mode
 
 if __name__ == "__main__":
     testfn()

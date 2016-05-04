@@ -53,7 +53,7 @@ def init_state():
 
     return state
 
-def loop(state, window, interface_queue, rpcc):
+def loop(state, window, interface_queue, rpcc, poller):
     iterations = 0
     while 1:
         check_window_size(interface_queue, state, window, 12, 75) # min_y, min_x
@@ -67,14 +67,14 @@ def loop(state, window, interface_queue, rpcc):
             if not iterations % 20:
                 monitor.draw_window(state, window)
 
-        if hotkey.check(state, window, rpcc): # poll for user input
+        if hotkey.check(state, window, rpcc, poller): # poll for user input
             break # returns 1 when quit key is pressed
 
         iterations += 1
 
     return False
 
-def main(interface_queue, rpcc):
+def main(interface_queue, rpcc, poller):
     window = init_curses()
     error_message = False
     rpcc.request("getnetworkinfo")
@@ -82,7 +82,7 @@ def main(interface_queue, rpcc):
     try:
         state = init_state()
         splash.draw_window(state, window)
-        error_message = loop(state, window, interface_queue, rpcc)
+        error_message = loop(state, window, interface_queue, rpcc, poller)
     finally: # restore sane terminal state, end RPC thread
         curses.nocbreak()
         curses.endwin()

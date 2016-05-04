@@ -27,7 +27,6 @@ def draw_window(state, window):
 
     else:
         win_header.addstr(0, 1, "no wallet information loaded. -disablewallet, perhaps?", curses.A_BOLD + curses.color_pair(3))
-        win_header.addstr(1, 1, "press 'W' to refresh", curses.A_BOLD)
 
     win_header.refresh()
     footer.draw_window(state)
