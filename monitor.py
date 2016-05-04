@@ -155,7 +155,9 @@ def draw_window(state, old_window):
             window.addstr(15, 37, string)
 
     if 'mininginfo' in state:
-        errors = state['mininginfo']['errors']
+        # errors = state['mininginfo']['errors']
+        # TODO: Remove this for production.
+        errors = "This is a development version of bitcoind-ncurses. Expect breakage."
         if len(errors):
             if state['y'] < 20:
                 y = state['y'] - 3
