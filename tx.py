@@ -146,7 +146,7 @@ def draw_outputs(state):
                 win_outputs.addstr(index+1-offset, 1, string, color)
     win_outputs.refresh()
 
-def draw_input_window(state, window, rpc_queue):
+def draw_input_window(state, window, rpcc):
     color = curses.color_pair(1)
     if 'testnet' in state:
         if state['testnet']: color = curses.color_pair(2)
@@ -160,7 +160,7 @@ def draw_input_window(state, window, rpc_queue):
 
     if len(entered_txid) == 64: # TODO: better checking for valid txid here
         s = {'txid': entered_txid}
-        rpc_queue.put(s)
+        rpcc.request("getrawtransaction", entered_txid, 1)
 
         window.addstr(5, 1, "waiting for transaction (will stall here if not found)", color + curses.A_BOLD)
         window.refresh()
