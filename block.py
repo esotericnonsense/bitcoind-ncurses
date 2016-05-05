@@ -72,7 +72,7 @@ def draw_transactions(state):
 
     win_transactions.refresh()
 
-def draw_input_window(state, window, rpc_queue):
+def draw_input_window(state, window, rpcc):
     color = curses.color_pair(1)
     if 'testnet' in state:
         if state['testnet']: color = curses.color_pair(2)
@@ -80,10 +80,11 @@ def draw_input_window(state, window, rpc_queue):
     window.clear()
     window.addstr(0, 1, "bitcoind-ncurses " + g.version + " [block input mode]", color + curses.A_BOLD)
     window.addstr(1, 1, "please enter block height or hash", curses.A_BOLD)
-    window.addstr(2, 1, "or timestamp (accepted formats: YYYY-MM-DD hh:mm:ss, YYYY-MM-DD)", curses.A_BOLD)
+    # window.addstr(2, 1, "or timestamp (accepted formats: YYYY-MM-DD hh:mm:ss, YYYY-MM-DD)", curses.A_BOLD)
     window.refresh()
 
     entered_block = getstr.getstr(67, 4, 1) # w, y, x
+    """
     entered_block_timestamp = 0
 
     try:
@@ -105,8 +106,9 @@ def draw_input_window(state, window, rpc_queue):
         state['mode'] = "block"
 
     elif len(entered_block) == 64:
-        s = {'getblock': entered_block}
-        rpc_queue.put(s)
+    """
+    if len(entered_block) == 64:
+        rpcc.request("getblock", entered_block)
 
         window.addstr(5, 1, "waiting for block (will stall here if not found)", color + curses.A_BOLD)
         window.refresh()
@@ -118,8 +120,7 @@ def draw_input_window(state, window, rpc_queue):
             state['mode'] = "block"
             draw_window(state, window)
         else:
-            s = {'getblockhash': int(entered_block)}
-            rpc_queue.put(s)
+            rpcc.request("getblockhash", int(entered_block))
 
             window.addstr(5, 1, "waiting for block (will stall here if not found)", color + curses.A_BOLD)
             window.refresh()
