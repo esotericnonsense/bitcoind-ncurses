@@ -70,6 +70,67 @@ class BitcoinRPCClient(object):
                     "value": resp.result,
                 }
 
+            elif req.method == "getrawtransaction" and req.params[0] == bestcoinbase:
+                coinbase_amount = 0
+                for output in resp.result['vout']:
+                    if 'value' in output:
+                        coinbase_amount += output['value']
+                resp2 = {"coinbase": coinbase_amount, "height": bestheight}
+                self._response_queue.put(resp2)
+
+            # Enhackerino
+            elif req.method == "getrawtransaction":
+                try:
+                    tx = resp.result
+                    tx['size'] = len(tx['hex'])/2
+
+                    if 'coinbase' in tx['vin'][0]: # should always be at least 1 vin
+                        tx['total_inputs'] = 'coinbase'
+
+                    # TODO: Implement verbose mode
+                    """
+                    if 'verbose' in s:
+                        tx['total_inputs'] = 0
+                        prev_tx = {}
+                        for vin in tx['vin']:
+                            if 'txid' in vin:
+                                try:
+                                    txid = vin['txid']
+                                    if txid not in prev_tx:
+                                        prev_tx[txid] = rpcrequest(rpchandle, 'getrawtransaction', False,
+                                                                   txid, 1)
+
+                                    vin['prev_tx'] = prev_tx[txid]['vout'][vin['vout']]
+                                    if 'value' in vin['prev_tx']:
+                                        tx['total_inputs'] += vin['prev_tx']['value']
+                                except:
+                                    pass
+                            elif 'coinbase' in vin:
+                                tx['total_inputs'] = 'coinbase'
+                        for vout in tx['vout']:
+                            try:
+                                utxo = rpcrequest(rpchandle, 'gettxout', False,
+                                                    s['txid'], vout['n'], False)
+                                if utxo == None:
+                                    vout['spent'] = 'confirmed'
+                                else:
+                                    utxo = rpcrequest(rpchandle, 'gettxout', False,
+                                                        s['txid'], vout['n'], True)
+                                    if utxo == None:
+                                        vout['spent'] = 'unconfirmed'
+                                    else:
+                                        vout['spent'] = False
+                            except:
+                                pass
+                        """
+
+                except:
+                    # TODO: Just use error in resp here
+                    tx = {'txid': req.params[0], 'size': -1}
+
+                self._response_queue.put(tx)
+                continue
+
             self._response_queue.put(resp)
 
             if req.method == "getblockchaininfo":
@@ -96,14 +157,6 @@ class BitcoinRPCClient(object):
                 # Request the coinbase
                 bestcoinbase = resp.result["tx"][0]
                 self.request("getrawtransaction", bestcoinbase, 1)
-
-            elif req.method == "getrawtransaction" and req.params[0] == bestcoinbase:
-                coinbase_amount = 0
-                for output in resp.result['vout']:
-                    if 'value' in output:
-                        coinbase_amount += output['value']
-                resp2 = {"coinbase": coinbase_amount, "height": bestheight}
-                self._response_queue.put(resp2)
 
             # TODO: Remove for production
             with open("test.log", "a") as f:

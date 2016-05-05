@@ -208,8 +208,7 @@ def load_transaction(state, window, rpcc, poller):
             if 'txid' in state['tx']['vin'][ state['tx']['cursor'] ]:
                 if state['tx']['loaded']:
                     state['tx']['loaded'] = 0
-                    s = {'txid': state['tx']['vin'][ state['tx']['cursor'] ]['txid']}
-                    rpcc.request(s)
+                    rpcc.request("getrawtransaction", state["tx"]["vin"][state["tx"]["cursor"]]["txid"], 1)
 
     elif state['mode'] == "block":
         if 'blocks' in state:
@@ -217,16 +216,14 @@ def load_transaction(state, window, rpcc, poller):
                 height = str(state['blocks']['browse_height'])
                 if height in state['blocks']:
                     blockdata = state['blocks'][height]
-                    s = {'txid': blockdata['tx'][ state['blocks']['cursor'] ]}
-                    rpcc.request(s)
-                    state['mode'] = 'tx'
+                    rpcc.request("getrawtransaction", blockdata["tx"][state["blocks"]["cursor"]], 1)
+                    change_mode(state, window, "tx", poller)
 
     elif state['mode'] == "wallet":
         if 'wallet' in state:
             if 'transactions' in state['wallet']:
-                s = {'txid': state['wallet']['transactions'][ state['wallet']['cursor'] ]['txid']}
-                rpcc.request(s)
-                state['mode'] = 'tx'
+                rpcc.request("getrawtransaction", state['wallet']['transactions'][ state['wallet']['cursor'] ]['txid'], 1)
+                change_mode(state, window, "tx", poller)
 
 def toggle_verbose_mode(state, window, rpcc, poller):
     if state['mode'] == 'tx':
