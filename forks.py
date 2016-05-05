@@ -18,7 +18,7 @@ def draw_window(state, window):
 
     else:
         win_header.addstr(0, 1, "no chain tip information loaded", curses.A_BOLD + curses.color_pair(3))
-        win_header.addstr(1, 1, "loading...", curses.A_BOLD)
+        win_header.addstr(1, 1, "loading... (press F to try again)", curses.A_BOLD)
 
     win_header.refresh()
     footer.draw_window(state)
