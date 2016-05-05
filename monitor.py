@@ -106,7 +106,7 @@ def draw_window(state, old_window):
                 window.addstr(14, 1, "Chain work: 2**" + "%0.6f" % log2_chainwork)
 
         diff = int(state['mininginfo']['difficulty'])
-        window.addstr(10, 1, "Diff:        " + "{:,d}".format(diff))
+        window.addstr(10, 1, "Diff:        " + "{:,}".format(diff))
 
     for block_avg in state['networkhashps']:
         index = 10
@@ -122,7 +122,7 @@ def draw_window(state, old_window):
 
         rate = state['networkhashps'][block_avg]
         if block_avg != 'diff':
-            nextdiff = (rate*600)/(2**32)
+            nextdiff = int((rate*600)/(2**32))
             if state['testnet'] == 1:
                 nextdiff *= 2 # testnet has 1200 est. block interval, not 600
             window.addstr(index, 1, "Est (" + str(block_avg).rjust(4) + "): ~" + "{:,}".format(nextdiff))
