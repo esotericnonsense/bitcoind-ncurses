@@ -69,9 +69,8 @@ def key_g(state, window, rpcc, poller):
 def go_to_latest_block(state, window, rpcc, poller):
     if state['mode'] == "block":
         if 'mininginfo' in state:
-            if state['mininginfo']['blocks'] not in state['blocks']:
-                s = {'getblockhash': state['mininginfo']['blocks']}
-                rpcc.request(s)
+            if str(state['mininginfo']['blocks']) not in state['blocks']:
+                rpcc.request("getblockhash", state["mininginfo"]["blocks"])
             else:
                 state['blocks']['browse_height'] = state['mininginfo']['blocks']
                 block.draw_window(state, window)
@@ -251,8 +250,7 @@ def block_seek_back_one(state, window, rpcc, poller):
                     if str(state['blocks']['browse_height']) in state['blocks']:
                         block.draw_window(state, window)
                     else:
-                        s = {'getblockhash': state['blocks']['browse_height']}
-                        rpcc.request(s)
+                        rpcc.request("getblockhash", state["blocks"]["browse_height"])
 
 def block_seek_forward_one(state, window, rpcc, poller):
     if state['mode'] == "block":
@@ -266,8 +264,7 @@ def block_seek_forward_one(state, window, rpcc, poller):
                     if str(state['blocks']['browse_height']) in state['blocks']:
                         block.draw_window(state, window)
                     else:
-                        s = {'getblockhash': state['blocks']['browse_height']}
-                        rpcc.request(s)
+                        rpcc.request("getblockhash", state["blocks"]["browse_height"])
 
 def block_seek_back_thousand(state, window, rpcc, poller):
     if state['mode'] == "block":
@@ -281,8 +278,7 @@ def block_seek_back_thousand(state, window, rpcc, poller):
                     if str(state['blocks']['browse_height']) in state['blocks']:
                         block.draw_window(state, window)
                     else:
-                        s = {'getblockhash': state['blocks']['browse_height']}
-                        rpcc.request(s)
+                        rpcc.request("getblockhash", state["blocks"]["browse_height"])
 
 def block_seek_forward_thousand(state, window, rpcc, poller):
     if state['mode'] == "block":
@@ -296,8 +292,7 @@ def block_seek_forward_thousand(state, window, rpcc, poller):
                     if str(state['blocks']['browse_height']) in state['blocks']:
                         block.draw_window(state, window)
                     else:
-                        s = {'getblockhash': state['blocks']['browse_height']}
-                        rpcc.request(s)
+                        rpcc.request("getblockhash", state["blocks"]["browse_height"])
 
 keymap = {
     curses.KEY_LEFT: key_left,

@@ -56,12 +56,19 @@ def getblock(s, state, window):
     if state['mode'] == "monitor":
         monitor.draw_window(state, window)
     if state['mode'] == "block":
-        if 'queried' in s['getblock']:
-            state['blocks'][str(height)].pop('queried')
+        # TODO: This query check stops the block view from updating whenever
+        #       a new block comes in. It shouldn't fire any more because
+        #       we don't poll outside of monitor mode.
+        # if 'queried' in s['getblock']:
+        if True:
+            # state['blocks'][str(height)].pop('queried')
             state['blocks']['browse_height'] = height
             state['blocks']['offset'] = 0
             state['blocks']['cursor'] = 0
             block.draw_window(state, window)
+
+def getblockhash(s, state, window):
+    pass
 
 def coinbase(s, state, window):
     height = str(s['height'])
@@ -267,6 +274,7 @@ def queue(state, window, response_queue):
             "getbalance": getbalance,
             "getunconfirmedbalance": getunconfirmedbalance,
             "getblock": getblock,
+            "getblockhash": getblockhash,
             "getnetworkhashps": getnetworkhashps,
             "getnettotals": getnettotals,
             "getmininginfo": getmininginfo,

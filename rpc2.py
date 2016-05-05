@@ -158,6 +158,9 @@ class BitcoinRPCClient(object):
                 bestcoinbase = resp.result["tx"][0]
                 self.request("getrawtransaction", bestcoinbase, 1)
 
+            elif req.method == "getblockhash":
+                self.request("getblock", resp.result)
+
             # TODO: Remove for production
             with open("test.log", "a") as f:
                 f.write("{} RESP {}{}\n".format(resp.timestamp, req.method, req.params))
