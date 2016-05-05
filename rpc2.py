@@ -17,10 +17,9 @@ class RPCRequest(object):
 
 class RPCResponse(object):
     def __init__(self, req, result, error=False):
-        self.method = req.method
+        self.req = req
         self.result = result
         self.error = error
-        self.uuid = req.uuid
         self.timestamp = datetime.datetime.utcnow()
 
 def new_uuid():
@@ -62,9 +61,6 @@ class BitcoinRPCClient(object):
         for req in self._request_queue:
             resp = self._call(req)
 
-            # TODO: debug
-            # print "{} RESP {} {}".format(resp.timestamp, resp.uuid, resp.method)
-
             # TODO: enhackle
             if req.method == "getnetworkhashps" or req.method == "estimatefee":
                 resp.result = {
@@ -92,6 +88,10 @@ class BitcoinRPCClient(object):
                     self.request("estimatefee", 5)
 
                     self._response_queue.put(resp2)
+
+            # TODO: Remove for production
+            with open("test.log", "a") as f:
+                f.write("{} RESP {}{}\n".format(resp.timestamp, req.method, req.params))
 
     def request(self, method, *params):
         """ Asynchronous RPC request. """

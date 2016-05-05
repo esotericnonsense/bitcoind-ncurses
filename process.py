@@ -274,9 +274,9 @@ def queue(state, window, response_queue):
         }
 
         try:
-            method = methods[s.method]
+            method = methods[s.req.method]
         except KeyError:
-            print "Unknown {}".format(s.method)
+            print "Unknown {}".format(s.req.method)
             return
 
-        method({s.method: s.result}, state, window)
+        method({s.req.method: s.result}, state, window)
