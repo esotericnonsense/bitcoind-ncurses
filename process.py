@@ -68,6 +68,9 @@ def coinbase(s, state, window):
     if height in state['blocks']:
         state['blocks'][height]['coinbase_amount'] = s['coinbase']
 
+def getrawtransaction(s, state, window):
+    pass
+
 def getnetworkhashps(s, state, window):
     blocks = s['getnetworkhashps']['blocks']
     state['networkhashps'][blocks] = s['getnetworkhashps']['value']
@@ -269,6 +272,7 @@ def queue(state, window, response_queue):
             "getmininginfo": getmininginfo,
             "getpeerinfo": getpeerinfo,
             "getchaintips": getchaintips,
+            "getrawtransaction": getrawtransaction,
             "listsinceblock": listsinceblock,
             "estimatefee": estimatefee,
         }

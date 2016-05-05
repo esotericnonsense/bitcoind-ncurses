@@ -56,6 +56,7 @@ class BitcoinRPCClient(object):
     def run(self):
         assert self.connected
 
+        bestheight = None
         bestblockhash = None
         bestcoinbase = None
 
@@ -78,6 +79,7 @@ class BitcoinRPCClient(object):
                         resp2 = {"lastblocktime" : 0}
                     else:
                         resp2 = {"lastblocktime" : time.time()}
+                    bestheight = resp.result["blocks"]
                     bestblockhash = new_bestblockhash
 
                     # Request the new best block
@@ -90,10 +92,18 @@ class BitcoinRPCClient(object):
 
                     self._response_queue.put(resp2)
 
-            if req.method == "getblock" and req.params[0] == bestblockhash:
+            elif req.method == "getblock" and req.params[0] == bestblockhash:
                 # Request the coinbase
                 bestcoinbase = resp.result["tx"][0]
                 self.request("getrawtransaction", bestcoinbase, 1)
+
+            elif req.method == "getrawtransaction" and req.params[0] == bestcoinbase:
+                coinbase_amount = 0
+                for output in resp.result['vout']:
+                    if 'value' in output:
+                        coinbase_amount += output['value']
+                resp2 = {"coinbase": coinbase_amount, "height": bestheight}
+                self._response_queue.put(resp2)
 
             # TODO: Remove for production
             with open("test.log", "a") as f:
