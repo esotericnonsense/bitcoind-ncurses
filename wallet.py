@@ -21,7 +21,6 @@ def draw_window(state, window):
                 if state['unconfirmedbalance'] != 0:
                     balance_string += " (+" + "%0.8f" % state['unconfirmedbalance'] + " unconf)"
             window.addstr(0, 1, balance_string, curses.A_BOLD)
-            window.addstr(0, 63, "(W: refresh)", curses.A_BOLD)
 
         draw_transactions(state)
 

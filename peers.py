@@ -11,7 +11,7 @@ def draw_window(state, window):
     win_header = curses.newwin(3, 75, 0, 0)
 
     if 'peerinfo' in state:
-        win_header.addstr(0, 1, "connected peers: " + str(len(state['peerinfo'])).ljust(10) + "                 (UP/DOWN: scroll, P: refresh)", curses.A_BOLD)
+        win_header.addstr(0, 1, "connected peers: " + str(len(state['peerinfo'])).ljust(10) + "                             (UP/DOWN: scroll)", curses.A_BOLD)
         win_header.addstr(2, 1, "  Node IP              Version        Recv      Sent         Time  Height", curses.A_BOLD + curses.color_pair(5))
         draw_peers(state)
 
