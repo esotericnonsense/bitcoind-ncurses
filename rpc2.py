@@ -57,6 +57,7 @@ class BitcoinRPCClient(object):
         assert self.connected
 
         bestblockhash = None
+        bestcoinbase = None
 
         for req in self._request_queue:
             resp = self._call(req)
@@ -88,6 +89,11 @@ class BitcoinRPCClient(object):
                     self.request("estimatefee", 5)
 
                     self._response_queue.put(resp2)
+
+            if req.method == "getblock" and req.params[0] == bestblockhash:
+                # Request the coinbase
+                bestcoinbase = resp.result["tx"][0]
+                self.request("getrawtransaction", bestcoinbase, 1)
 
             # TODO: Remove for production
             with open("test.log", "a") as f:
