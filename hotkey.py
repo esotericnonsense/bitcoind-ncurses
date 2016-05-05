@@ -225,6 +225,9 @@ def load_transaction(state, window, rpcc, poller):
                 change_mode(state, window, "tx", poller)
 
 def toggle_verbose_mode(state, window, rpcc, poller):
+    # TODO: Re-implement verbose mode
+    return
+
     if state['mode'] == 'tx':
         if 'tx' in state:
             if 'txid' in state['tx']:
