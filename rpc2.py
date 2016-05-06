@@ -161,6 +161,9 @@ class BitcoinRPCClient(object):
             elif req.method == "getblockhash":
                 self.request("getblock", resp.result)
 
+            # TODO: findblockbytimestamp
+            # TODO: consolecommand
+
             # TODO: Remove for production
             with open("test.log", "a") as f:
                 f.write("{} RESP {}{}\n".format(resp.timestamp, req.method, req.params))
