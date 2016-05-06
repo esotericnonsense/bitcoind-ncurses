@@ -94,7 +94,7 @@ def draw_input_box(state, window, rpcc):
         except:
             state['console']['rbuffer'].append("ERROR")
 
-        state['console']['cbuffer'].append("{}{}".format(method, params))
+        state['console']['cbuffer'].append("{}{}".format(method, tuple(params)))
         state['console']['offset'] = 0
 
         draw_window(state, window)
