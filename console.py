@@ -4,6 +4,7 @@ import curses, pprint
 import global_mod as g
 import getstr
 import footer
+import json
 
 def draw_window(state, window):
     window.clear()
@@ -63,11 +64,37 @@ def draw_buffer(state):
  
     win_buffer.refresh()
 
-def draw_input_box(state, rpc_queue):
+def draw_input_box(state, window, rpcc):
     entered_command = getstr.getstr(state['x'], state['y']-2, 1) # w, y, x
 
     if entered_command == "":
         pass
     else:
-        s = {'consolecommand': entered_command}
-        rpc_queue.put(s)
+        raw_params = entered_command.split()
+        method = raw_params[0]
+
+        # TODO: figure out how to encode properly for submission; this is hacky.
+        params = []
+        for raw_param in raw_params[1:]:
+            if raw_param.isdigit():
+                params.append(int(raw_param))
+            elif raw_param == "false" or raw_param == "False":
+                params.append(False)
+            elif raw_param == "true" or raw_param == "True":
+                params.append(True)
+            else:
+                try:
+                    params.append(decimal.Decimal(raw_param))
+                except:
+                    params.append(raw_param)
+
+        try:
+            resp = rpcc.sync_request(method, *params)
+            state['console']['rbuffer'].append(resp.result)
+        except:
+            state['console']['rbuffer'].append("ERROR")
+
+        state['console']['cbuffer'].append("{}{}".format(method, params))
+        state['console']['offset'] = 0
+
+        draw_window(state, window)

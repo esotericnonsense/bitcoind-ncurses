@@ -64,7 +64,7 @@ def key_g(state, window, rpcc, poller):
         state['mode'] = "block-input"
         block.draw_input_window(state, window, rpcc)
     elif state['mode'] == "console":
-        console.draw_input_box(state, rpcc)
+        console.draw_input_box(state, window, rpcc)
 
 def go_to_latest_block(state, window, rpcc, poller):
     if state['mode'] == "block":
