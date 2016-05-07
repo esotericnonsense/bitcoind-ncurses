@@ -33,11 +33,11 @@ def getblockchaininfo(s, state, window):
 	else:
 		state['testnet'] = 0
 
+	if state['mode'] == "splash":
+		splash.draw_window(state, window)
+
 def getnetworkinfo(s, state, window):
     state['version'] = s['getnetworkinfo']['subversion']
-
-    if state['mode'] == "splash":
-        splash.draw_window(state, window)
 
 def getconnectioncount(s, state, window):
     state['peers'] = s['getconnectioncount']
