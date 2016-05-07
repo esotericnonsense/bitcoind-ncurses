@@ -65,9 +65,11 @@ if __name__ == '__main__':
     poller = rpc2.Poller(rpcc)
     poller_process = gevent.spawn(poller.run)
 
+    initial_mode = cfg["mode"] if "mode" in cfg else None
+
     # main loop
     try:
-        interface.main(response_queue, rpcc, poller)
+        interface.main(response_queue, rpcc, poller, initial_mode)
     finally:
         rpcc.stop()
         rpc2_process.join()

@@ -205,26 +205,30 @@ class Poller(object):
         self._mode = "monitor"
 
     def run(self):
+        self.poll_once(force_all=True)
         while True:
-            self.poll_once()
             gevent.sleep(1)
+            self.poll_once()
 
-    def poll_once(self):
-        if self._mode == "monitor":
+    def poll_once(self, force_all=False):
+        if self._mode == "monitor" or force_all:
             self._rpcc.request("getconnectioncount")
             self._rpcc.request("getmininginfo")
             self._rpcc.request("getblockchaininfo")
             self._rpcc.request("getbalance")
             self._rpcc.request("getunconfirmedbalance")
 
-        if self._mode == "peers":
+        if self._mode == "peers" or force_all:
             self._rpcc.request("getconnectioncount")
             self._rpcc.request("getpeerinfo")
 
-        if self._mode == "wallet":
+        if self._mode == "wallet" or force_all:
             self._rpcc.request("listsinceblock")
             self._rpcc.request("getbalance")
             self._rpcc.request("getunconfirmedbalance")
+
+        if force_all:
+            self._rpcc.request("getchaintips")
 
         # Net graph needs to run all the time.
         self._rpcc.request("getnettotals")
