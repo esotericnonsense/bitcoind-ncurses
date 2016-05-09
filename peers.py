@@ -78,7 +78,7 @@ def draw_peers(state):
 
                 win_peers.addstr(index-offset, 54, time_string.rjust(12))
 
-                if 'syncheight' in peer:
-                    win_peers.addstr(index-offset, 68, str(peer['syncheight']).rjust(6))
+                if 'synced_headers' in peer:
+                    win_peers.addstr(index-offset, 68, str(peer['synced_headers']).rjust(6))
 
     win_peers.refresh()
