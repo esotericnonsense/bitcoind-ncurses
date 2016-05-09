@@ -10,7 +10,7 @@ Python ncurses front-end for bitcoind. Uses the JSON-RPC API.
 
 ## Dependencies
 
-* Developed with python 2.7, Bitcoin Core 0.9.4
+* Developed with python 2.7.11, Bitcoin Core 0.12.1
 * jgarzik's python-bitcoinrpc library (https://github.com/jgarzik/python-bitcoinrpc)
 * (Windows only) Python ncurses library (http://www.lfd.uci.edu/~gohlke/pythonlibs/#curses)
 
