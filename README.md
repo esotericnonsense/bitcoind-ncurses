@@ -27,7 +27,7 @@ Python ncurses front-end for bitcoind. Uses the JSON-RPC API.
 ## Installation
 
 ```
-git clone https://github.com/azeteki/bitcoind-ncurses
+git clone https://github.com/esotericnonsense/bitcoind-ncurses
 git clone https://github.com/jgarzik/python-bitcoinrpc
 mv python-bitcoinrpc/bitcoinrpc bitcoind-ncurses/
 ```
