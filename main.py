@@ -52,7 +52,7 @@ if __name__ == '__main__':
         rpcuser=cfg["rpcuser"],
         rpcpassword=cfg["rpcpassword"],
         rpcip=(cfg["rpcip"] if "rpcip" in cfg else "localhost"),
-        rpcport=(cfg["rpcport"] if "rpcport" in cfg else 8332),
+        rpcport=(cfg["rpcport"] if "rpcport" in cfg else 18332 if "testnet" in cfg else 8332),
         protocol=(cfg["protocol"] if "protocol" in cfg else "http"),
     )
     connected = rpcc.connect()
