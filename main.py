@@ -33,6 +33,9 @@ if __name__ == '__main__':
     parser.add_argument("-c", "--config",
                         help="path to config file [bitcoin.conf]",
                         default="bitcoin.conf")
+    parser.add_argument("-m", "--mode",
+                        help="initial mode",
+                        default="monitor")
     args = parser.parse_args()
 
     # parse config file
@@ -65,7 +68,13 @@ if __name__ == '__main__':
     poller = rpc2.Poller(rpcc)
     poller_process = gevent.spawn(poller.run)
 
-    initial_mode = cfg["mode"] if "mode" in cfg else None
+#    initial_mode = cfg["mode"] if "mode" in cfg else None
+    if "mode" in cfg:
+        initial_mode = cfg["mode"]
+    elif args.mode is not None:
+        initial_mode = args.mode
+    else:
+        initial_mode = None
 
     # main loop
     try:
