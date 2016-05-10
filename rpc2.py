@@ -5,8 +5,6 @@ import os
 import time
 import base64
 
-import rpc
-
 from collections import namedtuple
 class RPCRequest(object):
     def __init__(self, method, *params):
