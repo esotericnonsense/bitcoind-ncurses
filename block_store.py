@@ -8,6 +8,10 @@ class Block(object):
         self.chainwork = int(raw_block["chainwork"], 16)
         self.raw_block = raw_block
 
+    def __str__(self):
+        return "Block(height={}, hash={})".format(
+            self.blockheight, self.blockhash)
+
 class BlockStore(object):
     def __init__(self):
         self._on_block = None # callback on any block
@@ -46,4 +50,4 @@ class BlockStore(object):
             self._on_block(block)
 
         with open("block.log", "a") as f:
-            f.write(block.blockhash + "\n")
+            f.write(str(block) + "\n")
