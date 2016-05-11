@@ -24,7 +24,7 @@ def new_uuid():
     return base64.b64encode(os.urandom(16))
 
 class BitcoinRPCClient(object):
-    def __init__(self, response_queue, rpcuser, rpcpassword, rpcip="localhost", rpcport=8332, protocol="http", testnet=False):
+    def __init__(self, response_queue, block_store, rpcuser, rpcpassword, rpcip="localhost", rpcport=8332, protocol="http", testnet=False):
         rpcurl = "{}://{}:{}@{}:{}".format(
             protocol, rpcuser, rpcpassword, rpcip, rpcport)
         self._handle = bitcoinrpc.authproxy.AuthServiceProxy(rpcurl, None, 500)
@@ -32,6 +32,7 @@ class BitcoinRPCClient(object):
         self.connected = False
 
         self._response_queue = response_queue # TODO: refactor this
+        self._block_store = block_store
 
     def _call(self, req):
         assert isinstance(req, RPCRequest)
@@ -158,6 +159,9 @@ class BitcoinRPCClient(object):
 
             elif req.method == "getblockhash":
                 self.request("getblock", resp.result)
+
+            if req.method == "getblock":
+                self._block_store.put_raw_block(resp.result)
 
             # TODO: findblockbytimestamp
             # TODO: consolecommand

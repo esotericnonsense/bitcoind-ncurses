@@ -16,6 +16,7 @@ import gevent.queue
 import argparse, signal
 
 import rpc2
+import block_store
 import interface
 import config
 
@@ -49,9 +50,12 @@ if __name__ == '__main__':
     # initialise interrupt signal handler (^C)
     signal.signal(signal.SIGINT, interrupt_signal)
 
+    block_store = block_store.BlockStore()
+
     # start RPC thread
     rpcc = rpc2.BitcoinRPCClient(
         response_queue=response_queue, # TODO: refactor this
+        block_store=block_store,
         rpcuser=cfg["rpcuser"],
         rpcpassword=cfg["rpcpassword"],
         rpcip=(cfg["rpcip"] if "rpcip" in cfg else "localhost"),
