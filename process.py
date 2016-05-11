@@ -11,6 +11,7 @@ import console
 import net
 import forks
 
+"""
 def resize(s, state, window):
     if state['mode'] == 'tx':
         tx.draw_window(state, window)
@@ -26,6 +27,7 @@ def resize(s, state, window):
         console.draw_window(state, window)
     elif state['mode'] == 'net':
         net.draw_window(state, window)
+"""
 
 def getblockchaininfo(s, state, window):
 	if s['getblockchaininfo']['chain'] == "test":
@@ -255,8 +257,8 @@ def queue(state, window, response_queue):
             return False
 
         if isinstance(s, dict):
-            if 'resize' in s: resize(s, state, window)
-            elif 'lastblocktime' in s: lastblocktime(s, state, window)
+            # if 'resize' in s: resize(s, state, window)
+            if 'lastblocktime' in s: lastblocktime(s, state, window)
             elif 'txid' in s: txid(s, state, window)
             elif 'consolecommand' in s: consolecommand(s, state, window)
             elif 'coinbase' in s: coinbase(s, state, window)
