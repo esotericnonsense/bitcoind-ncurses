@@ -68,11 +68,10 @@ if __name__ == '__main__':
     poller = rpc2.Poller(rpcc)
     poller_process = gevent.spawn(poller.run)
 
-#    initial_mode = cfg["mode"] if "mode" in cfg else None
-    if "mode" in cfg:
-        initial_mode = cfg["mode"]
-    elif args.mode is not None:
+    if args.mode is not None:
         initial_mode = args.mode
+    elif "mode" in cfg:
+        initial_mode = cfg["mode"]
     else:
         initial_mode = None
 
