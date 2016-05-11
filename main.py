@@ -35,7 +35,7 @@ if __name__ == '__main__':
                         default="bitcoin.conf")
     parser.add_argument("-m", "--mode",
                         help="initial mode",
-                        default="monitor")
+                        default=None)
     args = parser.parse_args()
 
     # parse config file
