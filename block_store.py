@@ -6,6 +6,11 @@ class Block(object):
         self.blockhash = raw_block["hash"]
         self.blockheight = raw_block["height"]
         self.chainwork = int(raw_block["chainwork"], 16)
+        self.merkleroot = raw_block["merkleroot"]
+        self.size = raw_block["size"]
+        self.difficulty = raw_block["difficulty"]
+        self.time = raw_block["time"]
+        self.version = raw_block["version"]
         self.raw_block = raw_block
 
     def __str__(self):

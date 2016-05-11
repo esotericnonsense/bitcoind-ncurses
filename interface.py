@@ -74,8 +74,7 @@ def loop(state, window, interface_queue, rpcc, poller):
 
     return False
 
-def main(interface_queue, rpcc, poller, initial_mode=None):
-    window = init_curses()
+def main(window, interface_queue, rpcc, poller, initial_mode=None):
     error_message = False
     rpcc.request("getnetworkinfo")
     rpcc.request("getblockchaininfo")

@@ -17,6 +17,7 @@ import argparse, signal
 
 import rpc2
 import block_store
+import block_viewer
 import interface
 import config
 
@@ -50,7 +51,10 @@ if __name__ == '__main__':
     # initialise interrupt signal handler (^C)
     signal.signal(signal.SIGINT, interrupt_signal)
 
+    window = interface.init_curses()
+
     block_store = block_store.BlockStore()
+    block_viewer = block_viewer.BlockViewer(block_store, window)
 
     # start RPC thread
     rpcc = rpc2.BitcoinRPCClient(
@@ -81,7 +85,7 @@ if __name__ == '__main__':
 
     # main loop
     try:
-        interface.main(response_queue, rpcc, poller, initial_mode)
+        interface.main(window, response_queue, rpcc, poller, initial_mode)
     finally:
         rpcc.stop()
         rpc2_process.join()
