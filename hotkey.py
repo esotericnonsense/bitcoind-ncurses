@@ -3,21 +3,22 @@ import curses
 
 import global_mod as g
 import tx
-import block
 import monitor
 import peers
 import wallet
 import console
 import net
 import forks
+import footer
 
-def change_mode(state, window, mode, poller):
+def change_mode(block_viewer, state, window, mode, poller):
     try:
         g.modes.index(mode)
     except ValueError:
         return False
 
     state['mode'] = mode
+    block_viewer._mode = mode
 
     if mode == 'monitor':
         monitor.draw_window(state, window)
@@ -28,7 +29,7 @@ def change_mode(state, window, mode, poller):
     elif mode == 'wallet':
         wallet.draw_window(state, window)
     elif mode == 'block':
-        block.draw_window(state, window)
+        block_viewer.draw()
     elif mode == 'console':
         console.draw_window(state, window)
     elif mode == 'net':
@@ -36,6 +37,7 @@ def change_mode(state, window, mode, poller):
     elif mode == 'forks':
         forks.draw_window(state, window)
 
+    footer.draw_window(state)
     poller.set_mode(mode)
 
 def key_left(state, window, rpcc, poller):
@@ -355,7 +357,7 @@ modemap = {
     ord('F'): 'forks',
 }
 
-def check(state, window, rpcc, poller):
+def check(block_viewer, state, window, rpcc, poller):
     key = window.getch()
 
     if key < 0 or state['mode'] == 'splash':
@@ -370,7 +372,7 @@ def check(state, window, rpcc, poller):
         if mode == "forks":
             rpcc.request('getchaintips')
 
-        change_mode(state, window, mode, poller)
+        change_mode(block_viewer, state, window, mode, poller)
 
     elif key == ord('q') or key == ord('Q'): # quit
         return True

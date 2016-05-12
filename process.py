@@ -2,7 +2,6 @@
 import Queue, textwrap, time
 
 import tx
-import block
 import monitor
 import peers
 import wallet
@@ -57,6 +56,8 @@ def getblock(s, state, window):
 
     if state['mode'] == "monitor":
         monitor.draw_window(state, window)
+
+    """
     if state['mode'] == "block":
         # TODO: This query check stops the block view from updating whenever
         #       a new block comes in. It shouldn't fire any more because
@@ -68,6 +69,7 @@ def getblock(s, state, window):
             state['blocks']['offset'] = 0
             state['blocks']['cursor'] = 0
             block.draw_window(state, window)
+    """
 
 def getblockhash(s, state, window):
     pass

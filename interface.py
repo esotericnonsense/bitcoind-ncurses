@@ -53,7 +53,7 @@ def init_state():
 
     return state
 
-def loop(state, window, interface_queue, rpcc, poller):
+def loop(block_viewer, state, window, interface_queue, rpcc, poller):
     iterations = 0
     while 1:
         check_window_size(interface_queue, state, window, 12, 75) # min_y, min_x
@@ -67,14 +67,14 @@ def loop(state, window, interface_queue, rpcc, poller):
             if not iterations % 20:
                 monitor.draw_window(state, window)
 
-        if hotkey.check(state, window, rpcc, poller): # poll for user input
+        if hotkey.check(block_viewer, state, window, rpcc, poller): # poll for user input
             break # returns 1 when quit key is pressed
 
         iterations += 1
 
     return False
 
-def main(window, interface_queue, rpcc, poller, initial_mode=None):
+def main(block_viewer, window, interface_queue, rpcc, poller, initial_mode=None):
     error_message = False
     rpcc.request("getnetworkinfo")
     rpcc.request("getblockchaininfo")
@@ -84,7 +84,7 @@ def main(window, interface_queue, rpcc, poller, initial_mode=None):
         check_window_size(interface_queue, state, window, 12, 75) # min_y, min_x
         if initial_mode:
             hotkey.change_mode(state, window, initial_mode, poller)
-        error_message = loop(state, window, interface_queue, rpcc, poller)
+        error_message = loop(block_viewer, state, window, interface_queue, rpcc, poller)
     finally: # restore sane terminal state, end RPC thread
         curses.nocbreak()
         curses.endwin()

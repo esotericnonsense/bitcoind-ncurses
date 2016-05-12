@@ -56,6 +56,8 @@ if __name__ == '__main__':
     block_store = block_store.BlockStore()
     block_viewer = block_viewer.BlockViewer(block_store, window)
 
+    block_store._on_block = block_viewer.on_block
+
     # start RPC thread
     rpcc = rpc2.BitcoinRPCClient(
         response_queue=response_queue, # TODO: refactor this
@@ -85,7 +87,7 @@ if __name__ == '__main__':
 
     # main loop
     try:
-        interface.main(window, response_queue, rpcc, poller, initial_mode)
+        interface.main(block_viewer, window, response_queue, rpcc, poller, initial_mode)
     finally:
         rpcc.stop()
         rpc2_process.join()

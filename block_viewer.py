@@ -13,16 +13,25 @@ class BlockViewer(object):
         self._block_store = block_store
         self._window = window
 
+        self._mode = None # TODO debug
+
         self._browse_height = None
 
+    def on_block(self, block):
+        if not self._browse_height:
+            self._browse_height = block.blockheight
+
+        if self._mode and self._mode == "block":
+            self.draw()
+
     def draw(self):
-        window.clear()
-        window.refresh()
+        self._window.clear()
+        self._window.refresh()
         win_header = curses.newwin(5, 75, 0, 0)
 
         if self._browse_height is not None:
             # TODO: try/except on KeyError here?
-            blockhash = self._block_store.get_hash(browse_height)
+            blockhash = self._block_store.get_hash(self._browse_height)
             block = self._block_store.get_block(blockhash)
 
             win_header.addstr(0, 1, "height: " + str(block.blockheight).zfill(6) + "    (J/K: browse, HOME/END: quicker, L: latest, G: seek)", curses.A_BOLD)
@@ -41,4 +50,3 @@ class BlockViewer(object):
             win_header.addstr(1, 1, "press 'G' to enter a block hash, height, or timestamp", curses.A_BOLD)
 
         win_header.refresh()
-        footer.draw_window(state)
