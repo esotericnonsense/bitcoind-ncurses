@@ -24,15 +24,8 @@ class BlockViewer(object):
             self.draw()
 
     def draw(self):
-        self._window.clear()
-        self._window.refresh()
-        win_header = curses.newwin(5, 75, 0, 0)
-
-        if self._browse_height is not None:
-            # TODO: try/except on KeyError here?
-            blockhash = self._block_store.get_hash(self._browse_height)
-            block = self._block_store.get_block(blockhash)
-
+        def draw_block(block):
+            win_header = curses.newwin(5, 75, 0, 0)
             win_header.addstr(0, 1, "height: " + str(block.blockheight).zfill(6) + "    (J/K: browse, HOME/END: quicker, L: latest, G: seek)", curses.A_BOLD)
             win_header.addstr(1, 1, "hash: " + block.blockhash, curses.A_BOLD)
             win_header.addstr(2, 1, "root: " + block.merkleroot, curses.A_BOLD)
@@ -40,12 +33,30 @@ class BlockViewer(object):
             win_header.addstr(3, 26, "diff: {:,d}".format(int(block.difficulty)), curses.A_BOLD)
             win_header.addstr(3, 52, time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(block.time)), curses.A_BOLD)
             win_header.addstr(4, 51, ("v" + str(block.version)).rjust(20), curses.A_BOLD)
+            win_header.refresh()
+
+        def draw_no_block():
+            win_header = curses.newwin(5, 75, 0, 0)
+            win_header.addstr(0, 1, "no block information loaded", curses.A_BOLD + curses.color_pair(3))
+            win_header.addstr(1, 1, "press 'G' to enter a block hash, height, or timestamp", curses.A_BOLD)
+            win_header.refresh()
+
+        self._window.clear()
+        self._window.refresh()
+
+        if self._browse_height is not None:
+            # TODO: try/except on KeyError here?
+            try:
+                blockhash = self._block_store.get_hash(self._browse_height)
+                block = self._block_store.get_block(blockhash)
+            except KeyError:
+                draw_no_block()
+                return
+
+            draw_block(block)
 
             # TODO: draw transactions (transaction store?)
             # draw_transactions(state)
 
         else:
-            win_header.addstr(0, 1, "no block information loaded", curses.A_BOLD + curses.color_pair(3))
-            win_header.addstr(1, 1, "press 'G' to enter a block hash, height, or timestamp", curses.A_BOLD)
-
-        win_header.refresh()
+            draw_no_block()
