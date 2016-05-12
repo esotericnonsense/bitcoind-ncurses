@@ -7,6 +7,7 @@ import monitor
 import process
 import hotkey
 import splash
+import footer
 
 def check_window_size(interface_queue, state, window, min_y, min_x):
     # TODO: use SIGWINCH interrupt
@@ -66,6 +67,7 @@ def loop(block_viewer, state, window, interface_queue, rpcc, poller):
         if state['mode'] == "monitor":
             if not iterations % 20:
                 monitor.draw_window(state, window)
+                footer.draw_window(state)
 
         if hotkey.check(block_viewer, state, window, rpcc, poller): # poll for user input
             break # returns 1 when quit key is pressed
