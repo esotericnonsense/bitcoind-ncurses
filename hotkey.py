@@ -40,21 +40,21 @@ def change_mode(block_viewer, state, window, mode, poller):
     footer.draw_window(state)
     poller.set_mode(mode)
 
-def key_left(state, window, rpcc, poller):
+def key_left(block_viewer, state, window, rpcc, poller):
     try:
         index = g.modes.index(state['mode']) - 1
         if index < 0:
             index = len(g.modes) - 2
-        change_mode(state, window, g.modes[index], poller)
+        change_mode(block_viewer, state, window, g.modes[index], poller)
     except:
         pass
 
-def key_right(state, window, rpcc, poller):
+def key_right(block_viewer, state, window, rpcc, poller):
     try:
         index = g.modes.index(state['mode']) + 1
         if index > len(g.modes) - 2: # last index item is 'quit'
             index = 0
-        change_mode(state, window, g.modes[index], poller)
+        change_mode(block_viewer, state, window, g.modes[index], poller)
     except:
         pass
 
@@ -364,7 +364,10 @@ def check(block_viewer, state, window, rpcc, poller):
         pass
 
     elif key in keymap:
-        keymap[key](state, window, rpcc, poller)
+        if key in (curses.KEY_LEFT, curses.KEY_RIGHT):
+            keymap[key](block_viewer, state, window, rpcc, poller)
+        else:
+            keymap[key](state, window, rpcc, poller)
 
     elif key in modemap:
         mode = modemap[key]
