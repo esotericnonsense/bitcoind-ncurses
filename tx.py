@@ -5,7 +5,6 @@ import gevent
 
 import global_mod as g
 import getstr
-import footer
 
 def draw_window(state, window):
     # TODO: add transaction locktime, add sequence to inputs
@@ -50,7 +49,6 @@ def draw_window(state, window):
         win_header.addstr(2, 1, "press 'G' to enter a txid", curses.A_BOLD)
 
     win_header.refresh()
-    footer.draw_window(state)
 
 def draw_inputs(state):
     window_height = (state['y'] - 4) / 2

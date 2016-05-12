@@ -9,6 +9,7 @@ import splash
 import console
 import net
 import forks
+import footer
 
 """
 def resize(s, state, window):
@@ -56,6 +57,7 @@ def getblock(s, state, window):
 
     if state['mode'] == "monitor":
         monitor.draw_window(state, window)
+        footer.draw_window(state)
 
     """
     if state['mode'] == "block":
@@ -89,6 +91,7 @@ def getnetworkhashps(s, state, window):
     if state['mode'] == "splash" and blocks == 2016: # initialization complete
         state['mode'] = "monitor"
         monitor.draw_window(state, window)
+        footer.draw_window(state)
 
 def getnettotals(s, state, window):
     state['totalbytesrecv'] = s['getnettotals']['totalbytesrecv']
@@ -102,6 +105,7 @@ def getnettotals(s, state, window):
 
     if state['mode'] == 'net':
         net.draw_window(state, window)
+        footer.draw_window(state)
 
 def getmininginfo(s, state, window):
     state['mininginfo'] = s['getmininginfo']
@@ -116,12 +120,14 @@ def getpeerinfo(s, state, window):
     state['peerinfo_offset'] = 0
     if state['mode'] == "peers":
         peers.draw_window(state, window)
+        footer.draw_window(state)
 
 def getchaintips(s, state, window):
     state['chaintips'] = s['getchaintips']
     state['chaintips_offset'] = 0
     if state['mode'] == 'forks':
         forks.draw_window(state, window)
+        footer.draw_window(state)
 
 def listsinceblock(s, state, window):
     state['wallet'] = s['listsinceblock']
@@ -177,6 +183,7 @@ def listsinceblock(s, state, window):
 
     if state['mode'] == "wallet":
         wallet.draw_window(state, window)
+        footer.draw_window(state)
 
 def lastblocktime(s, state, window):
     state['lastblocktime'] = s['lastblocktime']
@@ -187,6 +194,7 @@ def txid(s, state, window):
             state.pop('tx')
         if state['mode'] == 'tx':
             tx.draw_window(state, window)
+            footer.draw_window(state)
         return False
 
     state['tx'] = {
@@ -238,6 +246,7 @@ def txid(s, state, window):
 
     if state['mode'] == 'tx':
         tx.draw_window(state, window)
+        footer.draw_window(state)
 
 def consolecommand(s, state, window):
     state['console']['cbuffer'].append(s['consolecommand'])
@@ -245,6 +254,7 @@ def consolecommand(s, state, window):
     state['console']['offset'] = 0
     if state['mode'] == "console":
         console.draw_window(state, window)
+        footer.draw_window(state)
 
 def estimatefee(s, state, window):
     blocks = s['estimatefee']['blocks']

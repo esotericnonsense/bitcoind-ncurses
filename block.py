@@ -6,7 +6,6 @@ import time
 
 import global_mod as g
 import getstr
-import footer
 
 def draw_window(state, window):
     window.clear()
@@ -38,7 +37,6 @@ def draw_window(state, window):
         win_header.addstr(1, 1, "press 'G' to enter a block hash, height, or timestamp", curses.A_BOLD)
 
     win_header.refresh()
-    footer.draw_window(state)
 
 def draw_transactions(state):
     window_height = state['y'] - 6

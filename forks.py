@@ -2,7 +2,6 @@
 import curses, time
 
 import global_mod as g
-import footer
 
 def draw_window(state, window):
     window.clear()
@@ -21,7 +20,6 @@ def draw_window(state, window):
         win_header.addstr(1, 1, "loading... (press F to try again)", curses.A_BOLD)
 
     win_header.refresh()
-    footer.draw_window(state)
 
 def draw_tips(state):
     window_height = state['y'] - 4

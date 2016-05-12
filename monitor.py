@@ -2,7 +2,6 @@
 import curses, time, math
 
 import global_mod as g
-import footer
 from decimal import Decimal
 
 def draw_window(state, old_window):
@@ -174,4 +173,3 @@ def draw_window(state, old_window):
             window.addstr(y+1, 1, errors[72:142].rjust(72), curses.color_pair(5) + curses.A_BOLD + curses.A_REVERSE)
 
     window.refresh()
-    footer.draw_window(state)

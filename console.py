@@ -3,7 +3,6 @@ import curses, pprint
 
 import global_mod as g
 import getstr
-import footer
 import json
 
 def draw_window(state, window):
@@ -16,8 +15,6 @@ def draw_window(state, window):
 
     if len(state['console']['rbuffer']):
         draw_buffer(state)
-
-    footer.draw_window(state)
 
 def draw_buffer(state):
     window_height = state['y'] - 3

@@ -6,7 +6,6 @@ import time
 
 import global_mod as g
 import getstr
-import footer
 
 class BlockViewer(object):
     def __init__(self, block_store, window):

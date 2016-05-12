@@ -2,7 +2,6 @@
 import curses, math
 
 import global_mod as g
-import footer
 
 def draw_window(state, old_window):
     old_window.clear()
@@ -70,4 +69,3 @@ def draw_window(state, old_window):
             window.addstr(chart_height+1, window_width-1-58, recv_string, curses.A_BOLD + color_recv)
 
     window.refresh()
-    footer.draw_window(state)
