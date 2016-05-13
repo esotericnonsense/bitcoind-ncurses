@@ -58,3 +58,7 @@ class BlockStore(object):
 
         with open("block.log", "a") as f:
             f.write(str(block) + "\n")
+
+    def get_best_block_hash(self):
+        with self._lock:
+            return self._best_block[0]
