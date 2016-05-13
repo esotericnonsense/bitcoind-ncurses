@@ -23,7 +23,9 @@ class BlockStore(object):
         self._on_best_block = None # callback on block at front of chain
 
         self._lock = gevent.lock.RLock()
-        self._chainwork = 0 # chainwork of best block
+
+        self._best_block = (None, 0) # (hash, chainwork) of best block
+
         self._blockhashes = {} # height -> blockhash
         self._blocks = {} # hash -> block
 
@@ -43,9 +45,9 @@ class BlockStore(object):
             self._blocks[block.blockhash] = block
             self._blockhashes[block.blockheight] = block.blockhash
 
-            best_block = block.chainwork >= self._chainwork
+            best_block = block.chainwork >= self._best_block[1]
             if best_block:
-                block.chainwork = self._chainwork
+                self._best_block = (block.blockhash, block.chainwork)
 
         # Callbacks. TODO: should these be async?
         if best_block and self._on_best_block:
