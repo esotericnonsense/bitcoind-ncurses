@@ -12,6 +12,7 @@ class Block(object):
         self.time = raw_block["time"]
         self.version = raw_block["version"]
         self.raw_block = raw_block
+        self.tx = raw_block["tx"]
 
     def __str__(self):
         return "Block(height={}, hash={})".format(
