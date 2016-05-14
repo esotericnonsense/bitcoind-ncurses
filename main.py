@@ -25,7 +25,7 @@ def interrupt_signal(signal, frame):
     s = {'stop': "Interrupt signal caught"}
     response_queue.put(s)
 
-if __name__ == '__main__':
+def mainfn(window):
     # initialise queues
     response_queue = gevent.queue.Queue()
     rpc_queue = gevent.queue.Queue()
@@ -51,17 +51,15 @@ if __name__ == '__main__':
     # initialise interrupt signal handler (^C)
     signal.signal(signal.SIGINT, interrupt_signal)
 
-    window = interface.init_curses()
+    bstore = block_store.BlockStore()
+    bviewer = block_viewer.BlockViewer(bstore, window)
 
-    block_store = block_store.BlockStore()
-    block_viewer = block_viewer.BlockViewer(block_store, window)
-
-    block_store._on_block = block_viewer.on_block
+    bstore._on_block = bviewer.on_block
 
     # start RPC thread
     rpcc = rpc2.BitcoinRPCClient(
         response_queue=response_queue, # TODO: refactor this
-        block_store=block_store,
+        block_store=bstore,
         rpcuser=cfg["rpcuser"],
         rpcpassword=cfg["rpcpassword"],
         rpcip=(cfg["rpcip"] if "rpcip" in cfg else "localhost"),
@@ -87,7 +85,16 @@ if __name__ == '__main__':
 
     # main loop
     try:
-        interface.main(block_viewer, window, response_queue, rpcc, poller, initial_mode)
+        interface.main(bviewer, window, response_queue, rpcc, poller, initial_mode)
     finally:
         rpcc.stop()
         rpc2_process.join()
+
+if __name__ == '__main__':
+    window = interface.init_curses()
+    try:
+        mainfn(window)
+    finally:
+        import curses
+        curses.nocbreak()
+        curses.endwin()
