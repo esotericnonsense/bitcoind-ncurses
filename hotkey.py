@@ -63,6 +63,7 @@ def key_g(state, window, rpcc, poller):
         state['mode'] = "transaction-input"
         tx.draw_input_window(state, window, rpcc)
     elif state['mode'] == "block":
+        pass
         state['mode'] = "block-input"
         block.draw_input_window(state, window, rpcc)
     elif state['mode'] == "console":
@@ -93,6 +94,7 @@ def scroll_down(state, window, rpcc, poller):
                 tx.draw_outputs(state)
 
     elif state['mode'] == "block":
+        pass
         if 'blocks' in state:
             height = str(state['blocks']['browse_height'])
             if height in state['blocks']:
@@ -146,6 +148,7 @@ def scroll_up(state, window, rpcc, poller):
                 tx.draw_outputs(state)
 
     elif state['mode'] == "block":
+        pass
         if 'blocks' in state:
             if state['blocks']['cursor'] > 0:
                 if (state['blocks']['cursor'] - state['blocks']['offset']) == 0:
@@ -306,8 +309,6 @@ keymap = {
     curses.KEY_UP: scroll_up,
     curses.KEY_PPAGE: scroll_up_page,
     curses.KEY_NPAGE: scroll_down_page,
-    curses.KEY_HOME: block_seek_back_thousand,
-    curses.KEY_END: block_seek_forward_thousand,
 
     curses.KEY_ENTER: load_transaction,
     ord('\n'): load_transaction,
@@ -315,14 +316,20 @@ keymap = {
     ord('g'): key_g,
     ord('G'): key_g,
 
-    ord('l'): go_to_latest_block,
-    ord('L'): go_to_latest_block,
-
     ord('\t'): toggle_inputs_outputs,
     9: toggle_inputs_outputs,
 
     ord("v"): toggle_verbose_mode,
     ord("V"): toggle_verbose_mode,
+}
+
+block_keymap = {
+    curses.KEY_HOME: block_seek_back_thousand,
+    curses.KEY_END: block_seek_forward_thousand,
+
+    ord('l'): go_to_latest_block,
+    ord('L'): go_to_latest_block,
+
 
     ord('j'): block_seek_back_one,
     ord('J'): block_seek_back_one,
@@ -368,6 +375,10 @@ def check(block_viewer, state, window, rpcc, poller):
             keymap[key](block_viewer, state, window, rpcc, poller)
         else:
             keymap[key](state, window, rpcc, poller)
+
+    elif key in block_keymap and state["mode"] == "block":
+        # TODO: Do stuff with block viewer
+        pass
 
     elif key in modemap:
         mode = modemap[key]
