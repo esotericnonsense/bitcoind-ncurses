@@ -63,7 +63,7 @@ def key_g(state, window, rpcc, poller):
         state['mode'] = "transaction-input"
         tx.draw_input_window(state, window, rpcc)
     elif state['mode'] == "block":
-        pass
+        return
         state['mode'] = "block-input"
         block.draw_input_window(state, window, rpcc)
     elif state['mode'] == "console":
@@ -94,7 +94,7 @@ def scroll_down(state, window, rpcc, poller):
                 tx.draw_outputs(state)
 
     elif state['mode'] == "block":
-        pass
+        return
         if 'blocks' in state:
             height = str(state['blocks']['browse_height'])
             if height in state['blocks']:
@@ -148,7 +148,7 @@ def scroll_up(state, window, rpcc, poller):
                 tx.draw_outputs(state)
 
     elif state['mode'] == "block":
-        pass
+        return
         if 'blocks' in state:
             if state['blocks']['cursor'] > 0:
                 if (state['blocks']['cursor'] - state['blocks']['offset']) == 0:
