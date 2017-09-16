@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ###############################################################################
-# bitcoind-ncurses by Amphibian
+# bitcoind-ncurses by esotericnonsense
 # thanks to jgarzik for bitcoinrpc
 # wumpus and kylemanna for configuration file parsing
 # all the users for their suggestions and testing
