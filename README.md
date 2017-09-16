@@ -53,4 +53,4 @@ The funds will be used for creating future Bitcoin development projects.
 
 ![ScreenShot](/screenshots/donation-qr.png)
 
-**1FrogqMmKWtp1AQSyHNbPUm53NnoGBHaBo**
+**bitcoin 3BYFucUnVNhZjUDf6tZweuZ5r9PPjPEcRv**
