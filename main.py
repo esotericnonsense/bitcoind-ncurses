@@ -45,8 +45,7 @@ def mainfn(window):
         cfg = config.read_file(args.config)
     except IOError:
         cfg = {}
-        s = {'stop': "configuration file [" + args.config + "] does not exist or could not be read"}
-        response_queue.put(s)
+        return "configuration file [{}] does not exist or could not be read".format(args.config)
 
     # initialise interrupt signal handler (^C)
     signal.signal(signal.SIGINT, interrupt_signal)
@@ -68,8 +67,7 @@ def mainfn(window):
     )
     connected = rpcc.connect()
     if not connected:
-        print "RPCC failed to connect"
-        sys.exit(1)
+        return "RPCC failed to connect"
 
     rpc2_process = gevent.spawn(rpcc.run)
 
@@ -93,8 +91,10 @@ def mainfn(window):
 if __name__ == '__main__':
     window = interface.init_curses()
     try:
-        mainfn(window)
+        error = mainfn(window)
     finally:
         import curses
         curses.nocbreak()
         curses.endwin()
+        if error:
+            print error
