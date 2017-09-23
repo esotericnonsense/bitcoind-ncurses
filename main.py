@@ -14,6 +14,7 @@ import gevent
 import gevent.queue
 
 import argparse, signal
+import os
 
 import rpc2
 import block_store
@@ -34,7 +35,7 @@ def mainfn(window):
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config",
                         help="path to config file [bitcoin.conf]",
-                        default="bitcoin.conf")
+                        default=os.path.expanduser("~/.bitcoin/bitcoin.conf"))
     parser.add_argument("-m", "--mode",
                         help="initial mode",
                         default=None)
