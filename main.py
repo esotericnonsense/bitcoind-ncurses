@@ -97,5 +97,8 @@ if __name__ == '__main__':
         import curses
         curses.nocbreak()
         curses.endwin()
-        if error:
-            print error
+        try:
+            if error:
+                print error
+        except:
+            pass
