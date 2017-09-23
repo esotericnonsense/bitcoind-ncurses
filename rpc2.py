@@ -46,7 +46,7 @@ class BitcoinRPCClient(object):
         if self.connected:
             return True # Assume it wasn't closed.
 
-        if not self._call(RPCRequest("getinfo")): 
+        if not self._call(RPCRequest("getblockchaininfo")):
             return False
 
         self.connected = True
