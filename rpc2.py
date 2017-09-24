@@ -34,6 +34,8 @@ class BitcoinRPCClient(object):
         self._response_queue = response_queue # TODO: refactor this
         self._block_store = block_store
 
+        self._disablewallet = False
+
     def _call(self, req):
         assert isinstance(req, RPCRequest)
 
@@ -49,6 +51,12 @@ class BitcoinRPCClient(object):
         if not self._call(RPCRequest("getblockchaininfo")):
             return False
 
+        try:
+            self._call(RPCRequest("getbalance"))
+        except bitcoinrpc.authproxy.JSONRPCException:
+            # wallet is probably disabled
+            self._disablewallet = True
+
         self.connected = True
         return True 
 
@@ -60,7 +68,7 @@ class BitcoinRPCClient(object):
         bestcoinbase = None
 
         for req in self._request_queue:
-            resp = self._call(req)
+            resp = self._call(req) # TODO: exception handling
 
             # TODO: enhackle
             if req.method == "getnetworkhashps" or req.method == "estimatefee":
@@ -172,6 +180,10 @@ class BitcoinRPCClient(object):
 
     def request(self, method, *params):
         """ Asynchronous RPC request. """
+        if self._disablewallet and method in ["getbalance", "getunconfirmedbalance", "listsinceblock"]:
+            # Just lazy drop these.
+            return
+
         req = RPCRequest(method, *params)
         self._request_queue.put(req)
 
