@@ -93,19 +93,6 @@ def scroll_down(state, window, rpcc, poller):
                 state['tx']['out_offset'] += 1
                 tx.draw_outputs(state)
 
-    elif state['mode'] == "block":
-        return
-        if 'blocks' in state:
-            height = str(state['blocks']['browse_height'])
-            if height in state['blocks']:
-                blockdata = state['blocks'][height]
-                if state['blocks']['cursor'] < (len(blockdata['tx']) - 1):
-                    state['blocks']['cursor'] += 1
-                    window_height = state['y'] - 6
-                    if (state['blocks']['cursor'] - state['blocks']['offset']) > window_height-2:
-                        state['blocks']['offset'] += 1
-                    block.draw_transactions(state)
-
     elif state['mode'] == "peers":
         if 'peerinfo' in state and 'peerinfo_offset' in state:
             window_height = state['y'] - 4
@@ -146,15 +133,6 @@ def scroll_up(state, window, rpcc, poller):
             if state['tx']['out_offset'] > 0 and state['tx']['mode'] == 'outputs':
                 state['tx']['out_offset'] -= 1
                 tx.draw_outputs(state)
-
-    elif state['mode'] == "block":
-        return
-        if 'blocks' in state:
-            if state['blocks']['cursor'] > 0:
-                if (state['blocks']['cursor'] - state['blocks']['offset']) == 0:
-                    state['blocks']['offset'] -= 1
-                state['blocks']['cursor'] -= 1
-                block.draw_transactions(state)
 
     elif state['mode'] == "peers":
         if 'peerinfo' in state and 'peerinfo_offset' in state:

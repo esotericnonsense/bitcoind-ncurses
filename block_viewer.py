@@ -17,6 +17,9 @@ class BlockViewer(object):
         self._browse_height = None
 
         self._keymap = {
+            curses.KEY_DOWN: (self._scroll_down, ),
+            curses.KEY_UP: (self._scroll_up, ),
+
             curses.KEY_HOME: (self._seek, -1000),
             curses.KEY_END: (self._seek, 1000),
 
@@ -131,9 +134,6 @@ class BlockViewer(object):
         return block.tx[self._cursor]
 
     def _seek(self, delta):
-        if not self._mode or self._mode != "block":
-            return
-
         if self._browse_height is None:
             return
 
@@ -161,7 +161,37 @@ class BlockViewer(object):
     def _seek_forward_thousand(self):
         self._seek(1000)
 
+    def _scroll_down(self):
+        if self._browse_height is None:
+            return
+
+        try:
+            blockhash = self._block_store.get_hash(self._browse_height)
+            block = self._block_store.get_block(blockhash)
+        except KeyError:
+            return
+
+        if self._cursor < (len(block.tx) - 1):
+            self._cursor += 1
+            window_height = 10
+            if (self._cursor - self._offset) > window_height-2:
+                self._offset += 1
+            self.draw()
+
+    def _scroll_up(self):
+        if self._browse_height is None:
+            return
+
+        if self._cursor > 0:
+            if (self._cursor - self._offset) == 0:
+                self._offset -= 1
+            self._cursor -= 1
+            self.draw()
+
     def handle_hotkey(self, key):
+        if not self._mode or self._mode != "block":
+            return
+
         if key in self._keymap:
             fn, *args = self._keymap[key]
             fn(*args)
