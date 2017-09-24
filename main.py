@@ -70,6 +70,9 @@ def mainfn(window):
         rpcport=(cfg["rpcport"] if "rpcport" in cfg else 18332 if "testnet" in cfg else 8332),
         protocol=(cfg["protocol"] if "protocol" in cfg else "http"),
     )
+
+    bstore._rpcc = rpcc
+
     connected = rpcc.connect()
     if not connected:
         return "RPCC failed to connect"

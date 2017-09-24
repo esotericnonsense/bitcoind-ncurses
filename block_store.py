@@ -30,6 +30,8 @@ class BlockStore(object):
         self._blockhashes = {} # height -> blockhash
         self._blocks = {} # hash -> block
 
+        self._rpcc = None # RPCClient
+
     def get_hash(self, blockheight):
         with self._lock:
             return self._blockhashes[blockheight]
@@ -37,6 +39,9 @@ class BlockStore(object):
     def get_block(self, blockhash):
         with self._lock:
             return self._blocks[blockhash]
+
+    def request_blockheight(self, blockheight):
+        self._rpcc.request("getblockhash", blockheight)
 
     def put_raw_block(self, raw_block):
         block = Block(raw_block)

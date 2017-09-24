@@ -16,6 +16,20 @@ class BlockViewer(object):
 
         self._browse_height = None
 
+        self._keymap = {
+            curses.KEY_HOME: (self._seek, -1000),
+            curses.KEY_END: (self._seek, 1000),
+
+            # ord('l'): go_to_latest_block,
+            # ord('L'): go_to_latest_block,
+
+            ord('j'): (self._seek, -1),
+            ord('J'): (self._seek, -1),
+
+            ord('k'): (self._seek, 1),
+            ord('K'): (self._seek, 1),
+        }
+
         self._reset_cursors()
 
     def _reset_cursors(self):
@@ -79,7 +93,7 @@ class BlockViewer(object):
 
         def draw_no_block():
             win_header = curses.newwin(5, 75, 0, 0)
-            win_header.addstr(0, 1, "no block information loaded", curses.A_BOLD + curses.color_pair(3))
+            win_header.addstr(0, 1, "height: " + str(self._browse_height).zfill(6) + " (no block information loaded)", curses.A_BOLD + curses.color_pair(3))
             win_header.addstr(1, 1, "press 'G' to enter a block hash, height, or timestamp", curses.A_BOLD)
             win_header.refresh()
 
@@ -100,3 +114,42 @@ class BlockViewer(object):
 
         else:
             draw_no_block()
+
+    def _seek(self, delta):
+        if not self._mode or self._mode != "block":
+            return
+
+        if self._browse_height is None:
+            return
+
+        new_browse_height = self._browse_height + delta
+        if new_browse_height < 0:
+            return
+
+        self._reset_cursors()
+        self._browse_height = new_browse_height
+        try:
+            blockhash = self._block_store.get_hash(self._browse_height)
+            self.draw()
+        except KeyError:
+            self._block_store.request_blockheight(self._browse_height)
+
+    def _seek_back_one(self):
+        self._seek(-1)
+
+    def _seek_forward_one(self):
+        self._seek(1)
+
+    def _seek_back_thousand(self):
+        self._seek(-1000)
+
+    def _seek_forward_thousand(self):
+        self._seek(1000)
+
+    def handle_hotkey(self, key):
+        if key in self._keymap:
+            fn, *args = self._keymap[key]
+            fn(*args)
+            return True
+
+        return False

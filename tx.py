@@ -18,7 +18,7 @@ def draw_window(state, window):
             unit = 'TNC'
     if 'tx' in state:
         win_header.addstr(0, 1, "txid: " + state['tx']['txid'], curses.A_BOLD)
-        win_header.addstr(1, 1, str(state['tx']['size']) + " bytes (" + str(state['tx']['size']/1024) + " KB)       ", curses.A_BOLD)
+        win_header.addstr(1, 1, str(state['tx']['size']) + " bytes (" + "{:.2f} KB".format(state['tx']['size'] / 1024) + ")       ", curses.A_BOLD)
 
         if 'total_outputs' in state['tx']:
             output_string = "%.8f" % state['tx']['total_outputs'] + " " + unit
@@ -51,7 +51,7 @@ def draw_window(state, window):
     win_header.refresh()
 
 def draw_inputs(state):
-    window_height = (state['y'] - 4) / 2
+    window_height = (state['y'] - 4) // 2
     window_width = state['x']
     win_inputs = curses.newwin(window_height, window_width, 3, 0)
     if state['tx']['mode'] == 'inputs':
@@ -120,7 +120,7 @@ def draw_inputs(state):
     win_inputs.refresh()
 
 def draw_outputs(state):
-    window_height = (state['y'] - 4) / 2
+    window_height = (state['y'] - 4) // 2
     win_outputs = curses.newwin(window_height, 75, 3+window_height, 0)
     if state['tx']['mode'] == 'outputs':
         win_outputs.addstr(0, 1, "outputs:                                             (UP/DOWN: scroll)", curses.A_BOLD + curses.color_pair(3))

@@ -205,7 +205,7 @@ def toggle_inputs_outputs(state, window, rpcc, poller):
                     state['tx']['mode'] = 'inputs'
                 tx.draw_window(state, window)
 
-def load_transaction(state, window, rpcc, poller):
+def load_transaction(block_viewer, state, window, rpcc, poller):
     # TODO: some sort of indicator that a transaction is loading
     if state['mode'] == 'tx':
         if 'tx' in state:
@@ -221,7 +221,7 @@ def load_transaction(state, window, rpcc, poller):
                 if height in state['blocks']:
                     blockdata = state['blocks'][height]
                     rpcc.request("getrawtransaction", blockdata["tx"][state["blocks"]["cursor"]], 1)
-                    change_mode(state, window, "tx", poller)
+                    change_mode(block_viewer, state, window, "tx", poller)
 
     elif state['mode'] == "wallet":
         if 'wallet' in state:
@@ -245,34 +245,6 @@ def toggle_verbose_mode(state, window, rpcc, poller):
                         s = {'txid': state['tx']['txid']}
 
                     rpcc.request(s)
-
-def block_seek_back_one(state, window, rpcc, poller):
-    if state['mode'] == "block":
-        if 'blocks' in state:
-            if (state['blocks']['browse_height']) > 0:
-                if state['blocks']['loaded'] == 1:
-                    state['blocks']['loaded'] = 0
-                    state['blocks']['browse_height'] -= 1
-                    state['blocks']['cursor'] = 0
-                    state['blocks']['offset'] = 0
-                    if str(state['blocks']['browse_height']) in state['blocks']:
-                        block.draw_window(state, window)
-                    else:
-                        rpcc.request("getblockhash", state["blocks"]["browse_height"])
-
-def block_seek_forward_one(state, window, rpcc, poller):
-    if state['mode'] == "block":
-        if 'blocks' in state:
-            if state['blocks']['browse_height'] < state['mininginfo']['blocks']:
-                if state['blocks']['loaded'] == 1:
-                    state['blocks']['loaded'] = 0
-                    state['blocks']['browse_height'] += 1
-                    state['blocks']['cursor'] = 0
-                    state['blocks']['offset'] = 0
-                    if str(state['blocks']['browse_height']) in state['blocks']:
-                        block.draw_window(state, window)
-                    else:
-                        rpcc.request("getblockhash", state["blocks"]["browse_height"])
 
 def block_seek_back_thousand(state, window, rpcc, poller):
     if state['mode'] == "block":
@@ -323,21 +295,6 @@ keymap = {
     ord("V"): toggle_verbose_mode,
 }
 
-block_keymap = {
-    curses.KEY_HOME: block_seek_back_thousand,
-    curses.KEY_END: block_seek_forward_thousand,
-
-    ord('l'): go_to_latest_block,
-    ord('L'): go_to_latest_block,
-
-
-    ord('j'): block_seek_back_one,
-    ord('J'): block_seek_back_one,
-
-    ord('k'): block_seek_forward_one,
-    ord('K'): block_seek_forward_one
-}
-
 modemap = {
     ord('m'): 'monitor',
     ord('M'): 'monitor',
@@ -368,17 +325,17 @@ def check(block_viewer, state, window, rpcc, poller):
     key = window.getch()
 
     if key < 0 or state['mode'] == 'splash':
-        pass
+        return False
 
-    elif key in keymap:
-        if key in (curses.KEY_LEFT, curses.KEY_RIGHT):
+    if state['mode'] == "block":
+        if block_viewer.handle_hotkey(key):
+            return False
+
+    if key in keymap:
+        if key in (curses.KEY_LEFT, curses.KEY_RIGHT, curses.KEY_ENTER, ord('\n')):
             keymap[key](block_viewer, state, window, rpcc, poller)
         else:
             keymap[key](state, window, rpcc, poller)
-
-    elif key in block_keymap and state["mode"] == "block":
-        # TODO: Do stuff with block viewer
-        pass
 
     elif key in modemap:
         mode = modemap[key]
