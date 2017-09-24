@@ -227,7 +227,7 @@ def load_transaction(block_viewer, state, window, rpcc, poller):
         if 'wallet' in state:
             if 'transactions' in state['wallet']:
                 rpcc.request("getrawtransaction", state['wallet']['transactions'][ state['wallet']['cursor'] ]['txid'], 1)
-                change_mode(state, window, "tx", poller)
+                change_mode(block_viewer, state, window, "tx", poller)
 
 def toggle_verbose_mode(state, window, rpcc, poller):
     # TODO: Re-implement verbose mode
