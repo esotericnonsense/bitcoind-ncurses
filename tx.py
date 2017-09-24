@@ -102,10 +102,11 @@ def draw_inputs(state):
 
             elif 'coinbase' in state['tx']['vin'][index]:
                 coinbase = "[coinbase] " + state['tx']['vin'][index]['coinbase']
-                coinbase_string = " [strings] " +  binascii.unhexlify(state['tx']['vin'][index]['coinbase'])
+                coinbase_bytes = binascii.unhexlify(state['tx']['vin'][index]['coinbase'])
 
                 # strip non-ASCII characters
-                coinbase_string = ''.join([x for x in coinbase_string if 31 < ord(x) < 127])
+                coinbase_bytes = bytes(x for x in coinbase_bytes if 31 < x < 127)
+                coinbase_string = " [strings] {}".format(coinbase_bytes.decode("utf-8"))
 
                 if len(coinbase) > window_width-1:
                     win_inputs.addstr(index+1-offset, 1, coinbase[:window_width-5] + " ...")
