@@ -215,13 +215,12 @@ def load_transaction(block_viewer, state, window, rpcc, poller):
                     rpcc.request("getrawtransaction", state["tx"]["vin"][state["tx"]["cursor"]]["txid"], 1)
 
     elif state['mode'] == "block":
-        if 'blocks' in state:
-            if state['blocks']['browse_height'] > 0: # block 0 is not indexed
-                height = str(state['blocks']['browse_height'])
-                if height in state['blocks']:
-                    blockdata = state['blocks'][height]
-                    rpcc.request("getrawtransaction", blockdata["tx"][state["blocks"]["cursor"]], 1)
-                    change_mode(block_viewer, state, window, "tx", poller)
+        txid = block_viewer.get_selected_txid()
+        if not txid:
+            return
+
+        rpcc.request("getrawtransaction", txid, 1)
+        change_mode(block_viewer, state, window, "tx", poller)
 
     elif state['mode'] == "wallet":
         if 'wallet' in state:

@@ -115,6 +115,21 @@ class BlockViewer(object):
         else:
             draw_no_block()
 
+    def get_selected_txid(self):
+        if self._browse_height is None:
+            return None
+
+        try:
+            blockhash = self._block_store.get_hash(self._browse_height)
+            block = self._block_store.get_block(blockhash)
+        except KeyError:
+            return None
+
+        if len(block.tx) <= self._cursor:
+            return None
+
+        return block.tx[self._cursor]
+
     def _seek(self, delta):
         if not self._mode or self._mode != "block":
             return
