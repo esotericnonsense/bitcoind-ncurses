@@ -77,14 +77,6 @@ class BitcoinRPCClient(object):
                     "value": resp.result,
                 }
 
-            elif req.method == "getrawtransaction" and req.params[0] == bestcoinbase:
-                coinbase_amount = 0
-                for output in resp.result['vout']:
-                    if 'value' in output:
-                        coinbase_amount += output['value']
-                resp2 = {"coinbase": coinbase_amount, "height": bestheight}
-                self._response_queue.put(resp2)
-
             # Enhackerino
             elif req.method == "getrawtransaction":
                 try:
@@ -93,6 +85,15 @@ class BitcoinRPCClient(object):
 
                     if 'coinbase' in tx['vin'][0]: # should always be at least 1 vin
                         tx['total_inputs'] = 'coinbase'
+
+                        # This is pretty terrible
+                        if req.params[0] == bestcoinbase:
+                            coinbase_amount = 0
+                            for output in resp.result['vout']:
+                                if 'value' in output:
+                                    coinbase_amount += output['value']
+                            resp2 = {"coinbase": coinbase_amount, "height": bestheight}
+                            self._response_queue.put(resp2)
 
                     # TODO: Implement verbose mode
                     """
