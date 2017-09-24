@@ -207,11 +207,11 @@ def testfn():
     gevent.spawn(rpcc.run)
 
     while True:
-        for i in xrange(10):
+        for i in range(10):
             rpcc.request("getblockchaininfo")
-        print
+        print()
         gevent.sleep(2)
-        print
+        print()
 
 class Poller(object):
     def __init__(self, rpcc):

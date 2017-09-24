@@ -49,13 +49,13 @@ def draw_window(state, old_window):
                 blockdata.pop('new')
 
             window.addstr(3, 1, height.zfill(6) + ": " + str(blockdata['hash']))
-            window.addstr(4, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']/1024) + " KB)       ")
+            window.addstr(4, 1, str(blockdata['size']) + " bytes (" + str(blockdata['size']//1024) + " KB)       ")
             tx_count = len(blockdata['tx'])
-            bytes_per_tx = blockdata['size'] / tx_count
+            bytes_per_tx = blockdata['size'] // tx_count
             window.addstr(5, 1, "Transactions: " + str(tx_count) + " (" + str(bytes_per_tx) + " bytes/tx)")
 
             if 'coinbase_amount' in blockdata:
-                halvings = state['mininginfo']['blocks'] / 210000
+                halvings = state['mininginfo']['blocks'] // 210000
                 block_subsidy = Decimal(50 * (0.5 ** halvings))
 
                 if block_subsidy:
@@ -121,22 +121,22 @@ def draw_window(state, old_window):
 
         rate = state['networkhashps'][block_avg]
         if block_avg != 'diff':
-            nextdiff = int((rate*600)/(2**32))
+            nextdiff = int((rate*600)//(2**32))
             if state['testnet'] == 1:
                 nextdiff *= 2 # testnet has 1200 est. block interval, not 600
             window.addstr(index, 1, "Est (" + str(block_avg).rjust(4) + "): ~" + "{:,}".format(nextdiff))
 
         if rate > 10**19:
-            rate = int(rate)/10**18
+            rate = int(rate)//10**18
             suffix = " EH/s"
         if rate > 10**16:
-            rate = int(rate)/10**15
+            rate = int(rate)//10**15
             suffix = " PH/s"
         elif rate > 10**13:
-            rate = int(rate)/10**12
+            rate = int(rate)//10**12
             suffix = " TH/s"
         else:
-            rate = int(rate)/10**6
+            rate = int(rate)//10**6
             suffix = " MH/s"
         rate_string = "{:,}".format(rate) + suffix
         window.addstr(index, 37, "Hashrate (" + str(block_avg).rjust(4) + "): " + rate_string.rjust(13))

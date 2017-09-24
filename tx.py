@@ -67,7 +67,7 @@ def draw_inputs(state):
 
     offset = state['tx']['offset']
 
-    for index in xrange(offset, offset+window_height-1):
+    for index in range(offset, offset+window_height-1):
         if index < len(state['tx']['vin']):
             if 'txid' in state['tx']['vin'][index]:
 
@@ -129,7 +129,7 @@ def draw_outputs(state):
 
     offset = state['tx']['out_offset']
 
-    for index in xrange(offset, offset+window_height-1):
+    for index in range(offset, offset+window_height-1):
         if index < len(state['tx']['vout_string']):
             condition = (index == offset+window_height-2) and (index+1 < len(state['tx']['vout_string']))
             condition = condition or ( (index == offset) and (index > 0) )

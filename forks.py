@@ -27,7 +27,7 @@ def draw_tips(state):
 
     offset = state['chaintips_offset']
 
-    for index in xrange(offset, offset+window_height):
+    for index in range(offset, offset+window_height):
         if index < len(state['chaintips']):
             tip = state['chaintips'][index]
 

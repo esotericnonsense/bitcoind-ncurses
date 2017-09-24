@@ -37,7 +37,7 @@ class BlockViewer(object):
             win_transactions = curses.newwin(window_height, 75, 5, 0)
 
             tx_count = len(block.tx)
-            bytes_per_tx = block.size / tx_count
+            bytes_per_tx = block.size // tx_count
 
             win_transactions.addstr(0, 1, "Transactions: " + ("% 4d" % tx_count + " (" + str(bytes_per_tx) + " bytes/tx)").ljust(26) + "(UP/DOWN: scroll, ENTER: view)", curses.A_BOLD + curses.color_pair(5))
 
@@ -51,7 +51,7 @@ class BlockViewer(object):
 
             offset = self._offset
 
-            for index in xrange(offset, offset+window_height-1):
+            for index in range(offset, offset+window_height-1):
                 if index < tx_count:
                     if index == self._cursor:
                         win_transactions.addstr(index+1-offset, 1, ">", curses.A_REVERSE + curses.A_BOLD)
@@ -71,7 +71,7 @@ class BlockViewer(object):
             win_header.addstr(0, 1, "height: " + str(block.blockheight).zfill(6) + "    (J/K: browse, HOME/END: quicker, L: latest, G: seek)", curses.A_BOLD)
             win_header.addstr(1, 1, "hash: " + block.blockhash, curses.A_BOLD)
             win_header.addstr(2, 1, "root: " + block.merkleroot, curses.A_BOLD)
-            win_header.addstr(3, 1, "{} bytes ({} KB)".format(block.size, block.size/1024), curses.A_BOLD)
+            win_header.addstr(3, 1, "{} bytes ({} KB)".format(block.size, block.size//1024), curses.A_BOLD)
             win_header.addstr(3, 26, "diff: {:,d}".format(int(block.difficulty)), curses.A_BOLD)
             win_header.addstr(3, 52, time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(block.time)), curses.A_BOLD)
             win_header.addstr(4, 51, ("v" + str(block.version)).rjust(20), curses.A_BOLD)

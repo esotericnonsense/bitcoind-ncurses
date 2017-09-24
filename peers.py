@@ -26,7 +26,7 @@ def draw_peers(state):
 
     offset = state['peerinfo_offset']
 
-    for index in xrange(offset, offset+window_height):
+    for index in range(offset, offset+window_height):
         if index < len(state['peerinfo']):
             peer = state['peerinfo'][index]
 

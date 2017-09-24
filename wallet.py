@@ -37,7 +37,7 @@ def draw_transactions(state):
 
     offset = state['wallet']['offset']
 
-    for index in xrange(offset, offset+window_height-1):
+    for index in range(offset, offset+window_height-1):
         if index < len(state['wallet']['view_string']):
                 condition = (index == offset+window_height-2) and (index+1 < len(state['wallet']['view_string']))
                 condition = condition or ( (index == offset) and (index > 0) )

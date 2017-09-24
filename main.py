@@ -8,6 +8,9 @@
 # and of course the bitcoin dev team for that bitcoin gizmo, pretty neat stuff
 ###############################################################################
 
+from __future__ import division
+from __future__ import print_function
+
 from gevent import monkey
 monkey.patch_all()
 import gevent
@@ -15,6 +18,7 @@ import gevent.queue
 
 import argparse, signal
 import os
+
 
 import rpc2
 import block_store
@@ -99,6 +103,6 @@ if __name__ == '__main__':
         curses.endwin()
         try:
             if error:
-                print error
+                print(error)
         except:
             pass

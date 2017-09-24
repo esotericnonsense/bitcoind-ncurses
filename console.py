@@ -22,7 +22,7 @@ def draw_buffer(state):
 
     #TODO: reimplement and print JSON dicts in a more readable format
     lines = []
-    for index in xrange(0,len(state['console']['rbuffer'])):
+    for index in range(0,len(state['console']['rbuffer'])):
         command = state['console']['cbuffer'][index]
         lines.append(">> " + command)
 
@@ -35,7 +35,7 @@ def draw_buffer(state):
 
     offset = state['console']['offset']
 
-    for index in xrange(offset, offset+window_height):
+    for index in range(offset, offset+window_height):
         if index < numlines:
             if index == offset+window_height-1:
                 win_buffer.addstr(window_height-(index-offset)-1, 1, "...")

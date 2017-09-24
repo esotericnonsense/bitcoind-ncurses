@@ -21,14 +21,14 @@ def draw_window(state, old_window):
         recvdelta = history[index]['totalbytesrecv'] - history[index-1]['totalbytesrecv']
         sentdelta = history[index]['totalbytessent'] - history[index-1]['totalbytessent']
 
-        recv_deltas.append(recvdelta*1000 / timedelta) 
-        sent_deltas.append(sentdelta*1000 / timedelta) 
+        recv_deltas.append(recvdelta*1000 // timedelta) 
+        sent_deltas.append(sentdelta*1000 // timedelta) 
 
         index += 1
 
     if sent_deltas:
         chart_height = window_height - 2
-        plot_height = chart_height / 2
+        plot_height = chart_height // 2
         chart_width = window_width - 11
 
         if len(sent_deltas) > chart_width:
@@ -44,20 +44,20 @@ def draw_window(state, old_window):
         if max_total > 0:
             if max_sent > 0:
                 height = int(math.ceil((1.0 * plot_height * max_sent) / max_total))
-                window.addstr(plot_height-height, 1, ("%0.1f" % (max_sent*1.0/1024)).rjust(6) + "K", curses.A_BOLD) 
+                window.addstr(plot_height-height, 1, ("%0.1f" % (max_sent*1.0//1024)).rjust(6) + "K", curses.A_BOLD) 
             if max_recv > 0:
                 height = int(math.ceil((1.0 * plot_height * max_recv) / max_total))
-                window.addstr(plot_height+height, 1, ("%0.1f" % (max_recv*1.0/1024)).rjust(6) + "K", curses.A_BOLD) 
+                window.addstr(plot_height+height, 1, ("%0.1f" % (max_recv*1.0//1024)).rjust(6) + "K", curses.A_BOLD) 
 
             index = 0
             while index < len(sent_deltas):
                 if index < chart_width:
                     height = int(math.ceil((1.0 * plot_height * sent_deltas[index]) / max_total))
-                    for y in xrange(0, height):
+                    for y in range(0, height):
                         window.addch(plot_height-1-y, index+10, " ", color_sent + curses.A_REVERSE)
 
                     height = int(math.ceil((1.0 * plot_height * recv_deltas[index]) / max_total))
-                    for y in xrange(0, height):
+                    for y in range(0, height):
                         window.addch(plot_height+1+y, index+10, " ", color_recv + curses.A_REVERSE)
                 index += 1
 

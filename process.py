@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-import Queue, textwrap, time
+import textwrap, time
+import sys
+if sys.version_info.major == 3:
+    from queue import Empty as QueueEmpty
+else:
+    from Queue import Empty as QueueEmpty
 
 import tx
 import monitor
@@ -265,7 +270,7 @@ def queue(state, window, response_queue):
     while True:
         try:
             s = response_queue.get(False)
-        except Queue.Empty:
+        except QueueEmpty:
             return False
 
         if isinstance(s, dict):
@@ -278,7 +283,7 @@ def queue(state, window, response_queue):
             continue
 
         if not isinstance(s, RPCResponse):
-            print "Ignoring"
+            print("Ignoring")
             continue
 
         methods = {
@@ -302,7 +307,7 @@ def queue(state, window, response_queue):
         try:
             method = methods[s.req.method]
         except KeyError:
-            print "Unknown {}".format(s.req.method)
+            print("Unknown {}".format(s.req.method))
             return
 
         method({s.req.method: s.result}, state, window)
