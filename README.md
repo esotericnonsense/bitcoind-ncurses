@@ -1,6 +1,7 @@
-# bitcoind-ncurses (master/development branch)
+# bitcoind-ncurses (deprecated)
 
 ## NOTE - this repository is no longer maintained.
+## Development has moved to https://github.com/esotericnonsense/bitcoind-ncurses2
 ## Release versions are tagged. v0.0.23 is the latest.
 
 Python ncurses front-end for bitcoind. Uses the JSON-RPC API.
